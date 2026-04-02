@@ -1,4 +1,4 @@
-# Sistema de registro de proceso de cochinilla
+# Sistema de registro de proceso de cochinilla - VUE + TAILWIND
 
 ![original-a67a89ecdaf32427ab92083892adcc6a](https://github.com/user-attachments/assets/d49bd9e9-2963-4543-99a2-d24251161979)
 
