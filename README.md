@@ -1,44 +1,8 @@
-# SOLVIDA_COCHINILLA_VUETAIL
+# Sistema de registro de proceso de cochinilla
 
-This template should help get you started developing with Vue 3 in Vite.
+![original-a67a89ecdaf32427ab92083892adcc6a](https://github.com/user-attachments/assets/d49bd9e9-2963-4543-99a2-d24251161979)
 
-## Recommended IDE Setup
+## Descripción
+Este sistema tiene como objetivo, registrar el proceso de transformación de la cochinilla, y para ello se aplica las tecnologías de desarrollo Express JS y Vue JS.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+### Gracias por ver
