@@ -1,9 +1,9 @@
 <template>
-  <div class="w-full overflow-hidden bg-white border border-gray-200 rounded-xl">
+  <div class="w-full bg-white border border-gray-200 rounded-xl">
     <div class="overflow-x-auto">
-      <table class="min-w-[1200px] whitespace-nowrap text-sm text-gray-700">
+      <table class="w-full min-w-[1200px]">
         <!-- HEADER -->
-        <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider">
+        <thead class="bg-gray-50 text-gray-600 uppercase text-[10px] tracking-wider">
           <tr>
             <th class="px-4 py-3 text-left">Fecha / Hora</th>
             <th class="px-4 py-3 text-left">Tipo Mov.</th>
@@ -26,13 +26,13 @@
             class="border-t hover:bg-gray-50 transition"
           >
             <!-- Fecha -->
-            <td class="px-4 py-3">
+            <td class="px-4 py-2 text-xs">
               <div class="font-medium text-gray-900">{{ item.fecha }}</div>
               <div class="text-xs text-gray-500">{{ item.hora }}</div>
             </td>
 
             <!-- Tipo -->
-            <td class="px-4 py-3">
+            <td class="px-4 py-2">
               <span
                 class="px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 w-fit"
                 :class="item.badge"
@@ -43,39 +43,41 @@
             </td>
 
             <!-- Producto -->
-            <td class="px-4 py-3">
-              <div class="font-medium text-gray-900">{{ item.producto }}</div>
+            <td class="px-4 py-3 text-left text-xs">
+              <div class="font-bold text-gray-900">{{ item.producto }}</div>
               <div class="text-xs text-gray-500">{{ item.codigo }}</div>
             </td>
 
             <!-- Lote -->
             <td class="px-4 py-3">
-              <span class="text-blue-600 font-medium cursor-pointer hover:underline">
+              <span class="text-xs text-blue-600 font-bold cursor-pointer hover:underline">
                 {{ item.lote }}
               </span>
             </td>
 
             <!-- Ubicación -->
             <td class="px-4 py-3">
-              <div class="text-sm">{{ item.ubicacion }}</div>
+              <div class="text-xs font-bold">{{ item.ubicacion }}</div>
               <div class="text-xs text-gray-500">{{ item.subUbicacion }}</div>
             </td>
 
             <!-- Documento -->
             <td class="px-4 py-3">
-              <div class="flex items-center gap-1 cursor-pointer hover:text-blue-600 text-gray-600">
+              <div
+                class="text-xs font-bold flex items-center gap-1 cursor-pointer hover:text-blue-600 text-gray-600"
+              >
                 <i :class="item.docIcon"></i>
                 <span>{{ item.documento }}</span>
               </div>
             </td>
 
             <!-- Cantidad -->
-            <td class="px-4 py-3 text-right font-bold" :class="item.cantidadColor">
+            <td class="px-4 py-3 text-right font-bold text-xs" :class="item.cantidadColor">
               {{ item.cantidad }}
             </td>
 
             <!-- Saldo -->
-            <td class="px-4 py-3 text-right font-bold text-gray-900">
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
               {{ item.saldo }}
             </td>
 
@@ -83,7 +85,7 @@
             <td class="px-4 py-3">
               <div class="flex items-center gap-2">
                 <img :src="item.avatar" class="w-6 h-6 rounded-full" alt="User" />
-                <span class="text-sm">{{ item.usuario }}</span>
+                <span class="text-xs">{{ item.usuario }}</span>
               </div>
             </td>
 

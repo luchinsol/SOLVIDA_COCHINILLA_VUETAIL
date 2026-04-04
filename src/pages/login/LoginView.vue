@@ -8,7 +8,6 @@
       </div>
 
       <LoginFooter />
-      <SystemStatus />
     </div>
   </main>
 </template>
