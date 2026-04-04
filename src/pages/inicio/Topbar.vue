@@ -1,5 +1,5 @@
 <template>
-  <header class="bg-white h-16 flex justify-between items-center px-6 border-b shadow-sm">
+  <header class="bg-red h-16 flex justify-between items-center px-6 border-b shadow-sm p-5">
     <input class="bg-gray-50 border rounded-full px-4 py-2 w-80" placeholder="Search batches..." />
 
     <button class="bg-primary text-white px-4 py-2 rounded-lg flex items-center">

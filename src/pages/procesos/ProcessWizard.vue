@@ -19,7 +19,9 @@
           <button disabled class="px-6 py-2.5 border rounded-lg text-sm opacity-50">
             ← Anterior
           </button>
-          <button class="px-6 py-2.5 bg-primary text-white rounded-lg text-sm">Siguiente →</button>
+          <button @click="nextStep" class="px-6 py-2.5 bg-primary text-white rounded-lg text-sm">
+            Siguiente →
+          </button>
         </div>
       </div>
     </div>
@@ -27,9 +29,20 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 import StepHeader from '@/pages/procesos/StepHeader.vue'
 import ProcessTypeSelector from '@/pages/procesos/proceso1/ProcessTypeSelector.vue'
 import GeneralInfoForm from '@/pages/procesos/proceso1/GeneralInfoForm.vue'
 import DynamicExtraction from '@/pages/procesos/proceso1/DynamicExtraction.vue'
 import NotesSection from '@/pages/procesos/proceso1/NotesSection.vue'
+
+const nextStep = () => {
+  router.push('/procesos2')
+}
+
+const goBack = () => {
+  router.push('/procesos')
+}
 </script>

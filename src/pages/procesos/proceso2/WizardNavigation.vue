@@ -1,6 +1,6 @@
 <template>
   <div class="p-6 bg-slate-50 flex justify-between">
-    <button class="px-6 py-2 border rounded-lg text-sm hover:bg-white">
+    <button @click="goBack" class="px-6 py-2 border rounded-lg text-sm hover:bg-white">
       <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
     </button>
 
@@ -11,3 +11,13 @@
     </button>
   </div>
 </template>
+
+<script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const goBack = () => {
+  router.push('/procesos')
+}
+</script>
