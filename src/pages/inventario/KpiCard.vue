@@ -1,19 +1,19 @@
 <!-- components/KpiCard.vue -->
 <template>
   <div
-    class="bg-surface rounded-xl border border-gray-200 p-5 group hover:border-gray-300 transition-colors"
+    class="bg-surface rounded-xl border border-gray-200 p-2 group hover:border-gray-300 transition-colors"
   >
     <!-- Top -->
     <div class="flex justify-between items-start mb-4">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg flex items-center justify-center" :class="iconBg">
+        <div class="w-5 h-5 rounded-lg flex items-center justify-center" :class="iconBg">
           <i :class="['fa-solid', icon]"></i>
         </div>
 
         <div>
           <p class="text-sm text-textMuted font-medium">{{ title }}</p>
 
-          <h3 class="text-2xl font-bold text-textMain mt-1">
+          <h3 class="text-xl font-bold text-textMain mt-1">
             {{ value }}
             <span v-if="suffix" class="text-sm font-normal text-textMuted">
               {{ suffix }}

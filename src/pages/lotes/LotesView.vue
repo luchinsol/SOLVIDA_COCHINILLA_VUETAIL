@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-white text-gray-800 flex flex-col">
-    <div class="p-6 lg:p-10 max-w-[1600px] mx-auto w-full flex flex-col gap-8">
+  <div class="min-h-screen bg-gray text-gray-800 flex flex-col">
+    <div class="p-6 lg:p-10 w-full flex flex-col gap-8">
       <!-- Header -->
       <div class="flex flex-col md:flex-row justify-between gap-4">
         <div>

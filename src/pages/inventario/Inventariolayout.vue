@@ -1,10 +1,12 @@
 <!-- App.vue -->
 <template>
-  <div class="min-h-screen bg-background text-textMain p-6 space-y-6">
-    <HeaderSection />
-    <KpiGrid />
-    <KardexTable />
-    <BottomSection />
+  <div class="min-h-screen bg-background text-textMain w-full overflow-x-hidden">
+    <div class="p-6 lg:p-8 space-y-6">
+      <HeaderSection />
+      <KpiGrid />
+      <KardexTable />
+      <BottomSection />
+    </div>
   </div>
 </template>
 
