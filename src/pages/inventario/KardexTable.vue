@@ -1,100 +1,104 @@
 <template>
-  <div class="overflow-x-auto flex-1 bg-white border border-gray-200 rounded-xl">
-    <table class="w-full whitespace-nowrap text-sm text-gray-700">
-      <!-- HEADER -->
-      <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider">
-        <tr>
-          <th class="px-4 py-3 text-left">Fecha / Hora</th>
-          <th class="px-4 py-3 text-left">Tipo Mov.</th>
-          <th class="px-4 py-3 text-left">Producto / Material</th>
-          <th class="px-4 py-3 text-left">Lote</th>
-          <th class="px-4 py-3 text-left">Ubicación</th>
-          <th class="px-4 py-3 text-left">Documento Ref.</th>
-          <th class="px-4 py-3 text-right">Cantidad</th>
-          <th class="px-4 py-3 text-right">Saldo</th>
-          <th class="px-4 py-3 text-left">Usuario</th>
-          <th class="px-4 py-3 text-center">Acción</th>
-        </tr>
-      </thead>
+  <div class="w-full bg-white border border-gray-200 rounded-xl">
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[1200px]">
+        <!-- HEADER -->
+        <thead class="bg-gray-50 text-gray-600 uppercase text-[10px] tracking-wider">
+          <tr>
+            <th class="px-4 py-3 text-left">Fecha / Hora</th>
+            <th class="px-4 py-3 text-left">Tipo Mov.</th>
+            <th class="px-4 py-3 text-left">Producto / Material</th>
+            <th class="px-4 py-3 text-left">Lote</th>
+            <th class="px-4 py-3 text-left">Ubicación</th>
+            <th class="px-4 py-3 text-left">Documento Ref.</th>
+            <th class="px-4 py-3 text-right">Cantidad</th>
+            <th class="px-4 py-3 text-right">Saldo</th>
+            <th class="px-4 py-3 text-left">Usuario</th>
+            <th class="px-4 py-3 text-center">Acción</th>
+          </tr>
+        </thead>
 
-      <!-- BODY -->
-      <tbody>
-        <tr
-          v-for="(item, index) in movimientos"
-          :key="index"
-          class="border-t hover:bg-gray-50 transition"
-        >
-          <!-- Fecha -->
-          <td class="px-4 py-3">
-            <div class="font-medium text-gray-900">{{ item.fecha }}</div>
-            <div class="text-xs text-gray-500">{{ item.hora }}</div>
-          </td>
+        <!-- BODY -->
+        <tbody>
+          <tr
+            v-for="(item, index) in movimientos"
+            :key="index"
+            class="border-t hover:bg-gray-50 transition"
+          >
+            <!-- Fecha -->
+            <td class="px-4 py-2 text-xs">
+              <div class="font-medium text-gray-900">{{ item.fecha }}</div>
+              <div class="text-xs text-gray-500">{{ item.hora }}</div>
+            </td>
 
-          <!-- Tipo -->
-          <td class="px-4 py-3">
-            <span
-              class="px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 w-fit"
-              :class="item.badge"
-            >
-              <i :class="item.icon"></i>
-              {{ item.tipo }}
-            </span>
-          </td>
+            <!-- Tipo -->
+            <td class="px-4 py-2">
+              <span
+                class="px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 w-fit"
+                :class="item.badge"
+              >
+                <i :class="item.icon"></i>
+                {{ item.tipo }}
+              </span>
+            </td>
 
-          <!-- Producto -->
-          <td class="px-4 py-3">
-            <div class="font-medium text-gray-900">{{ item.producto }}</div>
-            <div class="text-xs text-gray-500">{{ item.codigo }}</div>
-          </td>
+            <!-- Producto -->
+            <td class="px-4 py-3 text-left text-xs">
+              <div class="font-bold text-gray-900">{{ item.producto }}</div>
+              <div class="text-xs text-gray-500">{{ item.codigo }}</div>
+            </td>
 
-          <!-- Lote -->
-          <td class="px-4 py-3">
-            <span class="text-blue-600 font-medium cursor-pointer hover:underline">
-              {{ item.lote }}
-            </span>
-          </td>
+            <!-- Lote -->
+            <td class="px-4 py-3">
+              <span class="text-xs text-blue-600 font-bold cursor-pointer hover:underline">
+                {{ item.lote }}
+              </span>
+            </td>
 
-          <!-- Ubicación -->
-          <td class="px-4 py-3">
-            <div class="text-sm">{{ item.ubicacion }}</div>
-            <div class="text-xs text-gray-500">{{ item.subUbicacion }}</div>
-          </td>
+            <!-- Ubicación -->
+            <td class="px-4 py-3">
+              <div class="text-xs font-bold">{{ item.ubicacion }}</div>
+              <div class="text-xs text-gray-500">{{ item.subUbicacion }}</div>
+            </td>
 
-          <!-- Documento -->
-          <td class="px-4 py-3">
-            <div class="flex items-center gap-1 cursor-pointer hover:text-blue-600 text-gray-600">
-              <i :class="item.docIcon"></i>
-              <span>{{ item.documento }}</span>
-            </div>
-          </td>
+            <!-- Documento -->
+            <td class="px-4 py-3">
+              <div
+                class="text-xs font-bold flex items-center gap-1 cursor-pointer hover:text-blue-600 text-gray-600"
+              >
+                <i :class="item.docIcon"></i>
+                <span>{{ item.documento }}</span>
+              </div>
+            </td>
 
-          <!-- Cantidad -->
-          <td class="px-4 py-3 text-right font-bold" :class="item.cantidadColor">
-            {{ item.cantidad }}
-          </td>
+            <!-- Cantidad -->
+            <td class="px-4 py-3 text-right font-bold text-xs" :class="item.cantidadColor">
+              {{ item.cantidad }}
+            </td>
 
-          <!-- Saldo -->
-          <td class="px-4 py-3 text-right font-bold text-gray-900">
-            {{ item.saldo }}
-          </td>
+            <!-- Saldo -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.saldo }}
+            </td>
 
-          <!-- Usuario -->
-          <td class="px-4 py-3">
-            <div class="flex items-center gap-2">
-              <img :src="item.avatar" class="w-6 h-6 rounded-full" alt="User" />
-              <span class="text-sm">{{ item.usuario }}</span>
-            </div>
-          </td>
+            <!-- Usuario -->
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <img :src="item.avatar" class="w-6 h-6 rounded-full" alt="User" />
+                <span class="text-xs">{{ item.usuario }}</span>
+              </div>
+            </td>
 
-          <!-- Acción -->
-          <td class="px-4 py-3 text-center">
-            <button class="text-gray-400 hover:text-gray-700 p-1">
-              <i class="fa-solid fa-ellipsis-vertical"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            <!-- Acción -->
+            <td class="px-4 py-3 text-center">
+              <button class="text-gray-400 hover:text-gray-700 p-1">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 

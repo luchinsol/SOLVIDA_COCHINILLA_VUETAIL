@@ -1,34 +1,32 @@
 <template>
-  <div class="min-h-screen bg-white text-gray-800 flex flex-col">
-    <div class="p-6 lg:p-10 max-w-[1600px] mx-auto w-full flex flex-col gap-8">
-      <!-- Header -->
-      <div class="flex flex-col md:flex-row justify-between gap-4">
-        <div>
-          <h1 class="text-3xl font-bold mb-2">Gestión de Lotes y Trazabilidad</h1>
-          <p class="text-sm text-gray-500">
-            Rastreo completo one-up/one-down y genealogía de producción.
-          </p>
-        </div>
-
-        <div class="flex gap-3">
-          <button class="btn-outline"><i class="fa-solid fa-filter"></i> Filtros</button>
-          <button class="btn-primary"><i class="fa-solid fa-plus"></i> Nuevo Lote</button>
-        </div>
+  <div class="flex flex-col gap-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold mb-2">Gestión de Lotes y Trazabilidad</h1>
+        <p class="text-sm text-gray-500">
+          Rastreo completo one-up/one-down y genealogía de producción.
+        </p>
       </div>
 
-      <!-- GRID -->
-      <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        <!-- LEFT -->
-        <div class="flex flex-col gap-6">
-          <LotSearch />
-          <LotList />
-        </div>
+      <div class="flex gap-3">
+        <button class="btn-outline"><i class="fa-solid fa-filter"></i> Filtros</button>
+        <button class="btn-primary"><i class="fa-solid fa-plus"></i> Nuevo Lote</button>
+      </div>
+    </div>
 
-        <!-- RIGHT -->
-        <div class="xl:col-span-2 flex flex-col gap-6">
-          <LotSummary />
-          <LotGenealogy />
-        </div>
+    <!-- GRID -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <!-- LEFT -->
+      <div class="flex flex-col gap-6">
+        <LotSearch />
+        <LotList />
+      </div>
+
+      <!-- RIGHT -->
+      <div class="xl:col-span-2 flex flex-col gap-6">
+        <LotSummary />
+        <LotGenealogy />
       </div>
     </div>
   </div>

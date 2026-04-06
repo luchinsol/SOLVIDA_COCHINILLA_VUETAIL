@@ -1,10 +1,9 @@
 <!-- App.vue -->
 <template>
-  <div class="min-h-screen bg-background text-textMain p-6 space-y-6">
+  <div class="flex flex-col gap-6">
     <HeaderSection />
     <KpiGrid />
     <KardexTable />
-    <BottomSection />
   </div>
 </template>
 
