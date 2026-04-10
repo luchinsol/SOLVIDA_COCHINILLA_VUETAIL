@@ -1,4 +1,13 @@
 <template>
+  <div class="flex justify-between items-center pb-4 border-b">
+    <button
+      @click="crear"
+      class="px-4 py-2 bg-green-800 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
+    >
+      <i class="fa-solid fa-plus"></i>
+      Crear nuevo almacén
+    </button>
+  </div>
   <div class="w-full bg-white border border-gray-200 rounded-xl">
     <div class="overflow-x-auto">
       <table class="w-full min-w-[1200px]">

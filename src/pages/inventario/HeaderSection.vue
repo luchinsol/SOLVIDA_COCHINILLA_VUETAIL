@@ -6,8 +6,9 @@
       <p class="text-sm text-gray-400">Gestión de existencias</p>
     </div>
     <div class="flex gap-2">
-      <button class="px-4 py-2 border rounded">Exportar</button>
-      <button class="px-4 py-2 bg-indigo-600 rounded">Ajuste</button>
+      <button class="px-4 py-2 border rounded bg-blue-600 text-white">
+        Descargar informe general
+      </button>
     </div>
   </div>
 </template>
