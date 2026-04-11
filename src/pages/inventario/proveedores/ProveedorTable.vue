@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-between items-center pb-4 border-b">
+  <div class="flex justify-between items-center pb-4 pt-4 border-b">
     <button
       @click="crear"
       class="px-4 py-2 bg-green-800 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
@@ -244,7 +244,7 @@ const confirmarEliminar = (item) => {
 const getInsumos = async () => {
   loading.value = true
   try {
-    const response = await axios.get('http://localhost:3000/api/insumos')
+    const response = await axios.get('http://localhost:3000/api/lote-insumos')
     const data = await response.data
     insumos.value = data
     await delay(1000) // Simula un retraso para mostrar el spinner console.log('Insumos:', data)

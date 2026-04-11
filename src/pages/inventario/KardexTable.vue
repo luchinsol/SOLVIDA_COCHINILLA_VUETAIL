@@ -235,7 +235,7 @@ const confirmarEliminar = (item) => {
 const getInsumos = async () => {
   loading.value = true
   try {
-    const response = await axios.get('http://localhost:3000/api/insumos')
+    const response = await axios.get('http://localhost:3000/api/lote-insumos')
     const data = await response.data
     insumos.value = data
     await delay(1000) // Simula un retraso para mostrar el spinner console.log('Insumos:', data)

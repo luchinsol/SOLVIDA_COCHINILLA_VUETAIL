@@ -1,6 +1,6 @@
 <!-- components/KpiGrid.vue -->
 <template>
-  <div class="flex justify-between items-center pb-4 border-b">
+  <div class="flex justify-between items-center pb-4 pt-4 border-b">
     <button
       @click="crear"
       class="px-4 py-2 bg-green-800 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
