@@ -4,7 +4,7 @@
     <Sidebar />
 
     <!-- Contenido que cambia -->
-    <main class="flex-1 md:ml-64 flex flex-col min-h-screen p-6">
+    <main class="flex-1 md:ml-64 flex flex-col min-h-screen p-6 min-w-0 overflow-hidden">
       <router-view />
     </main>
   </div>
