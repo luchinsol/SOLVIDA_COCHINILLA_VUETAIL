@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-6 w-full min-w-0 overflow-hidden">
     <HeaderSection />
 
     <!-- TABS PADRE -->
@@ -71,17 +71,16 @@
       </div>
 
       <!-- CONTENIDO HIJOS -->
-      <div v-if="activeTab === 'insumos'">
-        <KpiGrid />
-        <KardexTable :almacen="almacenSeleccionado" />
+      <div v-if="activeTab === 'insumos'" class="w-full min-w-0">
+        <KardexTable :inventario="almacenSeleccionado" />
       </div>
 
       <div v-if="activeTab === 'cochinilla'">
-        <AlmacenTable :almacen="almacenSeleccionado" />
+        <AlmacenTable :inventario="almacenSeleccionado" />
       </div>
 
       <div v-if="activeTab === 'carmin'">
-        <MovimientoTable :almacen="almacenSeleccionado" />
+        <MovimientoTable :inventario="almacenSeleccionado" />
       </div>
 
       <div v-if="activeTab === 'extracto'">
