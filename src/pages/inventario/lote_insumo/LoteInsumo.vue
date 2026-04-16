@@ -41,7 +41,7 @@
 
             <th class="px-4 py-3 text-center w-[300px]">Tipo insumo</th>
 
-            <th class="px-4 py-3 text-right">Acciones</th>
+            <th class="px-4 py-3 text-center">Acciones</th>
           </tr>
         </thead>
 

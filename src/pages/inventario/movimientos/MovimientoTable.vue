@@ -15,7 +15,7 @@
         <thead class="bg-gray-50 text-gray-600 uppercase text-[10px] tracking-wider">
           <tr>
             <th class="px-4 py-3 text-left">ID</th>
-            <th class="px-4 py-3 text-left">Nombre</th>
+            <th class="px-4 py-3 text-left">Nombre Carmin</th>
             <th class="px-4 py-3 text-left">Tipo</th>
             <th class="px-4 py-3 text-left">Clasificación</th>
             <th class="px-4 py-3 text-left">Concentración</th>

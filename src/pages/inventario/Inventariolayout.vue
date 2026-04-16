@@ -72,11 +72,11 @@
 
       <!-- CONTENIDO HIJOS -->
       <div v-if="activeTab === 'insumos'" class="w-full min-w-0">
-        <KardexTable :inventario="almacenSeleccionado" />
+        <LoteInsumo :inventario="almacenSeleccionado" />
       </div>
 
       <div v-if="activeTab === 'cochinilla'">
-        <AlmacenTable :inventario="almacenSeleccionado" />
+        <LoteCochinilla :inventario="almacenSeleccionado" />
       </div>
 
       <div v-if="activeTab === 'carmin'">
@@ -98,12 +98,11 @@
 <script setup>
 import { ref, watch } from 'vue'
 
-import AlmacenTable from '@/pages/inventario/almacen/AlmacenTable.vue'
+import LoteCochinilla from '@/pages/inventario/lote_cochinilla/LoteCochinilla.vue'
 import ProveedorTable from '@/pages/inventario/proveedores/ProveedorTable.vue'
 import MovimientoTable from '@/pages/inventario/movimientos/MovimientoTable.vue'
 import HeaderSection from '@/pages/inventario/HeaderSection.vue'
-import KpiGrid from '@/pages/inventario/KpiGrid.vue'
-import KardexTable from '@/pages/inventario/KardexTable.vue'
+import LoteInsumo from '@/pages/inventario/lote_insumo/LoteInsumo.vue'
 
 // estado tabs
 const activeTab = ref('insumos')
