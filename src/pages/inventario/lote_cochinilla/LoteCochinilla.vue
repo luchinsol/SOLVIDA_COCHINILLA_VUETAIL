@@ -15,16 +15,29 @@
         <thead class="bg-gray-50 text-gray-600 uppercase text-[10px] tracking-wider">
           <tr>
             <th class="px-4 py-3 text-left">ID</th>
-            <th class="px-4 py-3 text-left">NombreCochinilla</th>
-            <th class="px-4 py-3 text-left">Tipo</th>
-            <th class="px-4 py-3 text-left">Clasificación</th>
-            <th class="px-4 py-3 text-left">Concentración</th>
-            <th class="px-4 py-3 text-left">Unidad Medida</th>
-            <th class="px-4 py-3 text-right">Stock Actual</th>
-            <th class="px-4 py-3 text-right">Costo Unitario</th>
-            <th class="px-4 py-3 text-left">Proveedor</th>
-            <th class="px-4 py-3 text-left">Almacén</th>
-            <th class="px-4 py-3 text-center">Acción</th>
+            <th class="px-4 py-3 text-left">Proveedor ID</th>
+            <th class="px-4 py-3 text-left">Análisis actual ID</th>
+            <th class="px-4 py-3 text-left">Creado Por</th>
+            <th class="px-4 py-3 text-left">Código Lote</th>
+            <th class="px-4 py-3 text-left">Tipo Lote</th>
+            <th class="px-4 py-3 text-right">Fecha compra</th>
+            <th class="px-4 py-3 text-right">Fecha creación</th>
+            <th class="px-4 py-3 text-left">Calidad Cochinilla</th>
+            <th class="px-4 py-3 text-left">Stock actual</th>
+            <th class="px-4 py-3 text-center">Concentración AC Actual</th>
+            <th class="px-4 py-3 text-right">Humedad % Actual</th>
+            <th class="px-4 py-3 text-left">Estado Lote</th>
+            <th class="px-4 py-3 text-left">Observaciones</th>
+            <th class="px-4 py-3 text-center">Creado en</th>
+            <th class="px-4 py-3 text-right">Costo total inicial</th>
+            <th class="px-4 py-3 text-left">Costo x Punto AC (Dolares)</th>
+            <th class="px-4 py-3 text-left">Costo Kilo Dolares</th>
+            <th class="px-4 py-3 text-center">Almacen ID</th>
+            <th class="px-4 py-3 text-right">Stock inicial</th>
+            <th class="px-4 py-3 text-left">Und. Medida Stock</th>
+            <th class="px-4 py-3 text-left">Und. Medida Dinero</th>
+            <th class="px-4 py-3 text-center">Costo Total Actual</th>
+            <th class="px-4 py-3 text-center">Acciones</th>
           </tr>
         </thead>
 
@@ -37,27 +50,27 @@
                 <div
                   class="w-10 h-10 border-4 border-green-800 border-t-transparent rounded-full animate-spin"
                 ></div>
-                <span class="text-sm text-gray-500">Cargando insumos...</span>
+                <span class="text-sm text-gray-500">Cargando lotes de cochinilla...</span>
               </div>
             </td>
           </tr>
 
           <!-- ❌ SIN DATOS -->
-          <tr v-else-if="insumos.length === 0">
+          <tr v-else-if="paginatedCochinilla.length === 0">
             <td colspan="11" class="text-center py-10 text-gray-500">No hay datos disponibles</td>
           </tr>
 
           <!-- ✅ DATA -->
           <tr
             v-else
-            v-for="(item, index) in insumos"
+            v-for="(item, index) in paginatedCochinilla"
             :key="index"
             class="border-t hover:bg-gray-50 transition"
           >
             <!-- tu contenido -->
             <!-- ID -->
             <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.insumo_id }}</div>
+              <div class="font-medium text-gray-900">{{ item.lote_cochinilla_id }}</div>
               <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
             </td>
 
@@ -67,44 +80,44 @@
               <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
             </td>
 
-            <!-- Almacen ID-->
+            <!-- Análisis ID-->
             <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.almacen_id }}</div>
+              <div class="font-medium text-gray-900">{{ item.analisis_atual_id }}</div>
               <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
             </td>
 
             <!-- Fecha -->
             <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.creado_en }}</div>
+              <div class="font-medium text-gray-900">{{ item.creado_por }}</div>
               <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
             </td>
 
-            <!-- Tipo -->
+            <!-- Código Lote -->
             <td class="px-4 py-2">
               <span
                 class="px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 w-fit"
                 :class="item.badge"
               >
                 <i :class="item.icon"></i>
-                {{ item.tipo_insumo }}
+                {{ item.codigo_lote }}
               </span>
             </td>
 
-            <!-- Producto -->
+            <!-- Tipo lote -->
             <td class="px-4 py-3 text-left text-xs">
-              <div class="font-bold text-gray-900">{{ item.nombre }}</div>
+              <div class="font-bold text-gray-900">{{ item.tipo_lote }}</div>
             </td>
 
-            <!-- Unidad de medida -->
+            <!-- Fecha compra -->
             <td class="px-4 py-3">
               <span class="text-xs text-blue-600 font-bold cursor-pointer hover:underline">
-                {{ item.unidad_medida }}
+                {{ item.fecha_compra }}
               </span>
             </td>
 
-            <!-- Concentración -->
+            <!-- Fecha creación -->
             <td class="px-4 py-3">
-              <div class="text-xs font-bold">{{ item.concentracion }}</div>
+              <div class="text-xs font-bold">{{ item.fecha_creacion }}</div>
             </td>
 
             <!-- Documento 
@@ -122,14 +135,79 @@
               {{ item.cantidad }}
             </td>-->
 
-            <!-- Costo unitario -->
+            <!-- Calidad cochinilla -->
             <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
-              {{ item.costo_unitario }}
+              {{ item.calidad_cochinilla }}
             </td>
 
-            <!-- Clasificación controlada -->
+            <!-- Stock Actual -->
             <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
-              {{ item.clasificacion_controlada }}
+              {{ item.stock_actual }}
+            </td>
+
+            <!-- Concentración Actual AC -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.concentracion_ac_actual }}
+            </td>
+
+            <!-- Humedad actual -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.humedad_actual }}
+            </td>
+
+            <!-- Estado Lote -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.estado_lote }}
+            </td>
+
+            <!-- Observaciones -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.observaciones }}
+            </td>
+
+            <!-- Creado en -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.creado_en }}
+            </td>
+
+            <!-- Costo total inicial -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.costo_total_inicial }}
+            </td>
+
+            <!-- Costo Punto AC Dolares -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.costo_puntoac_dolares }}
+            </td>
+
+            <!-- Costo Kilo Dolares -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.costo_kilo_dolares }}
+            </td>
+
+            <!-- Almacen ID -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.almacen_id }}
+            </td>
+
+            <!-- Stock Inicial -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.stock_inicial }}
+            </td>
+
+            <!-- Und. Medida stock -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.unidad_medida_stock }}
+            </td>
+
+            <!-- Und. Medida dinero -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.unidad_medida_dinero }}
+            </td>
+
+            <!-- Costo Total Actual -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.costo_total_actual }}
             </td>
 
             <!-- Usuario 
@@ -140,7 +218,7 @@
               </div>
             </td>-->
 
-            <!-- Acción -->
+            <!-- CONTROL DE ACCIONES -->
             <td class="px-4 py-3 text-center">
               <div
                 class="flex justify-center items-center gap-2 opacity-70 hover:opacity-100 transition"
@@ -176,8 +254,49 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- CONTROL DE PÁGINAS -->
+      <div class="flex justify-start items-center p-5 border-t">
+        <!-- selector -->
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-600">Mostrar:</span>
+
+          <select
+            v-model="perPage"
+            @change="currentPage = 1"
+            class="border rounded px-2 py-1 text-sm"
+          >
+            <option v-for="opt in perPageOptions" :key="opt" :value="opt">
+              {{ opt }}
+            </option>
+          </select>
+        </div>
+
+        <!-- controles -->
+        <div class="flex items-center gap-2">
+          <button
+            @click="prevPage"
+            class="px-3 py-1 text-sm border rounded disabled:opacity-50"
+            :disabled="currentPage === 1"
+          >
+            <i class="fa-solid fa-angles-left"></i>
+          </button>
+
+          <span class="text-sm"> Página {{ currentPage }} de {{ totalPages }} </span>
+
+          <button
+            @click="nextPage"
+            class="px-3 py-1 text-sm border rounded disabled:opacity-50"
+            :disabled="currentPage === totalPages"
+          >
+            <i class="fa-solid fa-angles-right"></i>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- SHOW DIALOG DE REGISTRO ELIMINACIÓN-->
   <div
     v-if="showDeleteModal"
     class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
@@ -202,14 +321,18 @@
 
 <script setup>
 import axios from 'axios'
-import { watch } from 'vue'
+import { watch, computed } from 'vue'
 import { onMounted } from 'vue'
 import { ref } from 'vue'
 
-const insumos = ref([])
+const cochinilla = ref([])
 const loading = ref(false)
 const showDeleteModal = ref(false)
 const selectedItem = ref(null)
+const currentPage = ref(1)
+const perPage = ref(10)
+
+const perPageOptions = [5, 10, 20, 'All']
 
 const eliminar = async () => {
   try {
@@ -224,7 +347,7 @@ const eliminar = async () => {
   }
 }
 onMounted(() => {
-  getInsumos()
+  getLoteCochinilla()
 })
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -241,17 +364,48 @@ const confirmarEliminar = (item) => {
   selectedItem.value = item
   showDeleteModal.value = true
 }
-const getInsumos = async () => {
+const getLoteCochinilla = async () => {
   loading.value = true
   try {
-    const response = await axios.get('http://localhost:3000/api/lote-insumos')
+    const url = 'http://localhost:3000/api/lotes-cochinilla'
+
+    const response = await axios.get(url)
     const data = await response.data
-    insumos.value = data
-    await delay(1000) // Simula un retraso para mostrar el spinner console.log('Insumos:', data)
+    cochinilla.value = data
+    await delay(1000) // Simula un retraso para mostrar el spinner console.log('Cochinilla:', data)
   } catch (error) {
-    console.error('Error fetching insumos:', error)
+    console.error('Error fetching cochinilla:', error)
   } finally {
     loading.value = false
   }
 }
+
+/// COMPUTED PROPERTIES PARA PAGINACIÓN
+const paginatedCochinilla = computed(() => {
+  if (perPage.value === 'All') return cochinilla.value
+  const start = (currentPage.value - 1) * perPage.value
+  return cochinilla.value.slice(start, start + perPage.value)
+})
+
+const totalPages = computed(() => {
+  if (perPage.value === 'All') return 1
+  return Math.ceil(cochinilla.value.length / perPage.value)
+})
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) currentPage.value++
+}
+
+const prevPage = () => {
+  if (currentPage.value > 1) currentPage.value--
+}
+
+/// WATCHER PARA RECARGAR DATOS CUANDO CAMBIA EL INVENTARIO
+/*watch(
+  () => props.inventario,
+  (nuevo) => {
+    getLoteCochinilla(nuevo)
+  },
+  { immediate: true },
+)*/
 </script>
