@@ -196,7 +196,7 @@
               </div>
             </td>
 
-            <!-- Acción -->
+            <!-- CONTROL DE ACCIONES -->
             <td class="px-4 py-3 text-center">
               <div
                 class="flex justify-center items-center gap-2 opacity-70 hover:opacity-100 transition"
@@ -232,6 +232,8 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- CONTROL DE PÁGINAS -->
       <div class="flex justify-start items-center p-5 border-t">
         <!-- selector -->
         <div class="flex items-center gap-2">
@@ -450,7 +452,7 @@ import { ref } from 'vue'
 import CrearInsumo from './Formularios_inline/CrearInsumo.vue'
 import CrearProveedor from './Formularios_inline/CrearProveedor.vue'
 
-// VARIABLES Y PROPS
+/// VARIABLES REACTIVAS
 const insumos = ref([])
 const loading = ref(false)
 const showDeleteModal = ref(false)
@@ -462,6 +464,7 @@ const currentPage = ref(1) // PAGINACIÓN
 const perPage = ref(4) // PAGINACIÓN
 const perPageOptions = [4, 10, 15, 'All']
 
+/// FORMULARIO NUEVO INSUMO
 const form = ref({
   nombre: '',
   tipo_insumo_id: '',
@@ -476,8 +479,7 @@ const form = ref({
   unidad_medida_concentracion: '',
 })
 
-// Props
-
+/// PROPS
 const props = defineProps({
   inventario: {
     type: String,
@@ -485,7 +487,7 @@ const props = defineProps({
   },
 })
 
-// Métodos
+/// COMPUTED PROPERTIES PARA PAGINACIÓN
 const paginatedInsumos = computed(() => {
   if (perPage.value === 'All') return insumos.value
   const start = (currentPage.value - 1) * perPage.value
@@ -526,7 +528,7 @@ const crearInsumo = async () => {
       unidad_medida_concentracion: '',
     }
 
-    // 🔥 recargar tabla
+    /// recargar datos
     getLoteInsumos(props.inventario)
   } catch (error) {
     console.error(error)
@@ -558,7 +560,7 @@ const confirmarEliminar = (item) => {
   selectedItem.value = item
   showDeleteModal.value = true
 }
-// ✅ PRIMERO defines la función
+/// FUNCIONES
 const getLoteInsumos = async (almacen) => {
   loading.value = true
   try {
@@ -578,7 +580,7 @@ const getLoteInsumos = async (almacen) => {
   }
 }
 
-// ✅ DESPUÉS el watch
+/// WATCHER PARA RECARGAR DATOS CUANDO CAMBIA EL INVENTARIO
 watch(
   () => props.inventario,
   (nuevo) => {
