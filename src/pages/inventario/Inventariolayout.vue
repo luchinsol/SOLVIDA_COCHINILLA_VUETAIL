@@ -80,11 +80,11 @@
       </div>
 
       <div v-if="activeTab === 'carmin'">
-        <MovimientoTable :inventario="almacenSeleccionado" />
+        <LoteCarmin :inventario="almacenSeleccionado" />
       </div>
 
       <div v-if="activeTab === 'extracto'">
-        <ProveedorTable />
+        <LoteExtracto />
       </div>
     </div>
 
@@ -99,8 +99,8 @@
 import { ref, watch } from 'vue'
 
 import LoteCochinilla from '@/pages/inventario/lote_cochinilla/LoteCochinilla.vue'
-import ProveedorTable from '@/pages/inventario/proveedores/ProveedorTable.vue'
-import MovimientoTable from '@/pages/inventario/movimientos/MovimientoTable.vue'
+import LoteExtracto from '@/pages/inventario/extracto/LoteExtracto.vue'
+import LoteCarmin from '@/pages/inventario/lote_carmin/LoteCarmin.vue'
 import HeaderSection from '@/pages/inventario/HeaderSection.vue'
 import LoteInsumo from '@/pages/inventario/lote_insumo/LoteInsumo.vue'
 

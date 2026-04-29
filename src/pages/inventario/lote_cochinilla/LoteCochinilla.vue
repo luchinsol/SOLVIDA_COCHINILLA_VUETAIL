@@ -330,7 +330,7 @@ const loading = ref(false)
 const showDeleteModal = ref(false)
 const selectedItem = ref(null)
 const currentPage = ref(1)
-const perPage = ref(10)
+const perPage = ref(4)
 
 const perPageOptions = [5, 10, 20, 'All']
 
