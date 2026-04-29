@@ -5,7 +5,7 @@
       class="px-4 py-2 bg-green-800 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
     >
       <i class="fa-solid fa-plus"></i>
-      Crear nuevo movimiento
+      Crear nuevo proveedor
     </button>
   </div>
   <div class="w-full bg-white border border-gray-200 rounded-xl">
@@ -15,7 +15,7 @@
         <thead class="bg-gray-50 text-gray-600 uppercase text-[10px] tracking-wider">
           <tr>
             <th class="px-4 py-3 text-left">ID</th>
-            <th class="px-4 py-3 text-left">Nombre Carmin</th>
+            <th class="px-4 py-3 text-left">Nombre</th>
             <th class="px-4 py-3 text-left">Tipo</th>
             <th class="px-4 py-3 text-left">Clasificación</th>
             <th class="px-4 py-3 text-left">Concentración</th>
@@ -206,7 +206,7 @@ import { watch } from 'vue'
 import { onMounted } from 'vue'
 import { ref } from 'vue'
 
-const insumos = ref([])
+const extracto = ref([])
 const loading = ref(false)
 const showDeleteModal = ref(false)
 const selectedItem = ref(null)
@@ -224,7 +224,7 @@ const eliminar = async () => {
   }
 }
 onMounted(() => {
-  getInsumos()
+  getExtracto()
 })
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -241,10 +241,11 @@ const confirmarEliminar = (item) => {
   selectedItem.value = item
   showDeleteModal.value = true
 }
-const getInsumos = async () => {
+const getExtracto = async () => {
   loading.value = true
   try {
-    const response = await axios.get('http://localhost:3000/api/insumos')
+    const baseURL = import.meta.env.VITE_API_URL
+    // const response = await axios.get(`${baseURL}`)
     const data = await response.data
     insumos.value = data
     await delay(1000) // Simula un retraso para mostrar el spinner console.log('Insumos:', data)
