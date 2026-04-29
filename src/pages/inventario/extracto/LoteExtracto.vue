@@ -245,7 +245,7 @@ const getExtracto = async () => {
   loading.value = true
   try {
     const baseURL = import.meta.env.VITE_API_URL
-    const response = await axios.get(`${baseURL}`)
+    // const response = await axios.get(`${baseURL}`)
     const data = await response.data
     insumos.value = data
     await delay(1000) // Simula un retraso para mostrar el spinner console.log('Insumos:', data)
