@@ -313,14 +313,19 @@
               (si no encuentras el tipo de insumo, puedes registrarlo aquí)
             </span>
           </h3>
+
+          <!-- SELECTOR DE TIPO DE INSUMO -->
           <div class="grid grid-cols-2 gap-4">
             <input v-model="form.nombre" placeholder="Nombre del Lote de Insumo" class="input" />
 
             <select v-model="form.tipo_insumo_id" class="input">
-              <option disabled value="">Tipo de insumo</option>
-              <option value="1">Químico</option>
-              <option value="2">Materia Prima</option>
-              <option value="3">Reactivo</option>
+              <option
+                v-for="tipo in tiposInsumo"
+                :key="tipo.tipo_insumo_id"
+                :value="tipo.tipo_insumo_id"
+              >
+                {{ tipo.nombre }}
+              </option>
             </select>
           </div>
 
@@ -334,19 +339,9 @@
               Crear tipo de insumo
             </button>
           </div>
+
           <!-- FORMULARIO INLINE CREAR TIPO DE INSUMO -->
           <CrearInsumo v-if="showTipoInsumoForm" v-model="showTipoInsumoForm" />
-        </div>
-
-        <!-- BLOQUE ESTADO DE LOTE-->
-        <div>
-          <h3 class="text-sm font-bold text-black-500 mb-3">Estado de lote</h3>
-          <div class="grid grid-cols-1 gap-4">
-            <select v-model="form.estado_lote" class="input">
-              <option value="1">Disponible</option>
-              <option value="2">Bloqueado</option>
-            </select>
-          </div>
         </div>
 
         <!-- 🔹 BLOQUE 2 -->
@@ -362,14 +357,24 @@
           <div class="grid grid-cols-2 gap-4">
             <select v-model="form.almacen_id" class="input">
               <option disabled value="">Almacén</option>
-              <option value="1">Almacén 1</option>
-              <option value="2">Almacén 2</option>
+              <option
+                v-for="almacen in almacenes"
+                :key="almacen.almacen_id"
+                :value="almacen.almacen_id"
+              >
+                {{ almacen.nombre }}
+              </option>
             </select>
 
             <select v-model="form.proveedor_id" class="input">
               <option disabled value="">Proveedor</option>
-              <option value="1">Proveedor 1</option>
-              <option value="2">Proveedor 2</option>
+              <option
+                v-for="proveedor in proveedores"
+                :key="proveedor.proveedor_id"
+                :value="proveedor.proveedor_id"
+              >
+                {{ proveedor.nombre_razon_social }}
+              </option>
             </select>
           </div>
 
@@ -454,6 +459,9 @@ import CrearProveedor from './Formularios_inline/CrearProveedor.vue'
 
 /// VARIABLES REACTIVAS
 const insumos = ref([])
+const tiposInsumo = ref([])
+const almacenes = ref([])
+const proveedores = ref([])
 const loading = ref(false)
 const showDeleteModal = ref(false)
 const selectedItem = ref(null)
@@ -509,7 +517,8 @@ const prevPage = () => {
 
 const crearInsumo = async () => {
   try {
-    await axios.post('http://localhost:3000/api/lote-insumos', form.value)
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.post(`${baseURL}/lote-insumos`, form.value)
 
     showCreateModal.value = false
 
@@ -532,6 +541,36 @@ const crearInsumo = async () => {
     getLoteInsumos(props.inventario)
   } catch (error) {
     console.error(error)
+  }
+}
+
+const getTipoInsumos = async () => {
+  try {
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.get(`${baseURL}/tipo-insumo`)
+    tiposInsumo.value = response.data
+  } catch (error) {
+    console.error('Error fetching tipo insumos:', error)
+  }
+}
+
+const getAlmacenes = async () => {
+  try {
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.get(`${baseURL}/almacen`)
+    almacenes.value = response.data
+  } catch (error) {
+    console.error('Error fetching almacenes:', error)
+  }
+}
+
+const getProveedores = async () => {
+  try {
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.get(`${baseURL}/proveedores`)
+    proveedores.value = response.data
+  } catch (error) {
+    console.error('Error fetching proveedores:', error)
   }
 }
 
@@ -560,6 +599,7 @@ const confirmarEliminar = (item) => {
   selectedItem.value = item
   showDeleteModal.value = true
 }
+
 /// FUNCIONES
 const getLoteInsumos = async (almacen) => {
   loading.value = true
@@ -588,6 +628,10 @@ watch(
   },
   { immediate: true },
 )
+
+onMounted(() => {
+  ;(getTipoInsumos(), getAlmacenes(), getProveedores())
+})
 </script>
 
 <style scoped>
