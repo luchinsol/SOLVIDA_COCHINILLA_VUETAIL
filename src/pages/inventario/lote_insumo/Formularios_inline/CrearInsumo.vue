@@ -3,23 +3,41 @@
     <h4 class="font-bold mb-3">Nuevo Tipo de Insumo</h4>
 
     <div class="grid grid-cols-2 gap-4">
-      <input v-model="form.nombre" class="input border rounded px-2 py-1" placeholder="Nombre" />
-
-      <select v-model="form.controlado" class="input border rounded px-2 py-1">
+      <!-- NOMBRE -->
+      <input
+        v-model="formTipoInsumo.nombre"
+        class="input border rounded px-2 py-1"
+        placeholder="Nombre"
+      />
+      <!-- CONTROLADO -->
+      <select v-model="formTipoInsumo.controlado" class="input border rounded px-2 py-1">
         <option disabled value="">Controlado</option>
         <option :value="false">No</option>
         <option :value="true">Sí</option>
       </select>
+
+      <!-- DESCRIPCIÓN  -->
       <input
-        v-model="form.descripcion"
+        v-model="formTipoInsumo.descripcion"
         class="input border rounded px-2 py-1"
         placeholder="Descripción"
       />
 
-      <select v-model="form.vigente" class="input border rounded px-2 py-1">
+      <!-- VIGENTE -->
+
+      <select v-model="formTipoInsumo.vigente" class="input border rounded px-2 py-1">
         <option disabled value="">Vigente</option>
         <option :value="false">No</option>
         <option :value="true">Sí</option>
+      </select>
+
+      <!-- UNIDAD DE MEDIDA -->
+      <select v-model="formTipoInsumo.unidad_medida" class="input border rounded px-2 py-1">
+        <option disabled value="">Unidad de Medida</option>
+        <option value="kg">kg</option>
+        <option value="l">l</option>
+        <option value="mol">mol</option>
+        <option value="vol">vol</option>
       </select>
     </div>
     <div class="flex justify-end gap-2 mt-4">
@@ -27,28 +45,36 @@
         Cancelar
       </button>
 
-      <button @click="guardar" class="px-3 py-1 bg-green-700 text-white rounded">Guardar</button>
+      <button @click="crearTipoInsumo" class="px-3 py-1 bg-green-700 text-white rounded">
+        Crear
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import axios from 'axios'
 const props = defineProps({
   modelValue: Boolean,
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'created'])
 
-const form = ref({
+const formTipoInsumo = ref({
   nombre: '',
   controlado: '',
   descripcion: '',
   vigente: '',
+  unidad_medida: '',
 })
 
-const guardar = () => {
-  console.log(form.value)
+const crearTipoInsumo = async () => {
+  console.log(formTipoInsumo.value)
+  const baseURL = import.meta.env.VITE_API_URL
+  await axios.post(`${baseURL}/tipo-insumo`, formTipoInsumo.value)
+
+  emit('created')
   emit('update:modelValue', false)
 }
 </script>

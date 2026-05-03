@@ -1,12 +1,13 @@
 <template>
   <div class="flex justify-between items-center pb-4 pt-4 border-b">
-    <button
+    <!--<button
       @click="crear"
       class="px-4 py-2 bg-green-800 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
     >
       <i class="fa-solid fa-plus"></i>
       Crear lote carmin
     </button>
+    -->
   </div>
 
   <!-- TABLA + PAGINADOR-->
@@ -52,14 +53,14 @@
           </tr>
 
           <!-- ❌ SIN DATOS -->
-          <tr v-else-if="carmin.length === 0">
+          <tr v-else-if="paginatedCarmin.length === 0">
             <td colspan="11" class="text-center py-10 text-gray-500">No hay datos disponibles</td>
           </tr>
 
           <!-- ✅ DATA -->
           <tr
             v-else
-            v-for="(item, index) in carmin"
+            v-for="(item, index) in paginatedCarmin"
             :key="index"
             class="border-t hover:bg-gray-50 transition"
           >
@@ -280,6 +281,10 @@ const loading = ref(false)
 const showDeleteModal = ref(false)
 const selectedItem = ref(null)
 
+const currentPage = ref(1) // PAGINACIÓN
+const perPage = ref(4) // PAGINACIÓN
+const perPageOptions = [4, 10, 15, 'All']
+
 const eliminar = async () => {
   try {
     console.log('Eliminar:', selectedItem.value)
@@ -325,6 +330,25 @@ const getLoteCarmin = async (almacen) => {
   }
 }
 
+/// COMPUTED PROPERTIES PARA PAGINACIÓN
+const paginatedCarmin = computed(() => {
+  if (perPage.value === 'All') return carmin.value
+  const start = (currentPage.value - 1) * perPage.value
+  return carmin.value.slice(start, start + perPage.value)
+})
+
+const totalPages = computed(() => {
+  if (perPage.value === 'All') return 1
+  return Math.ceil(carmin.value.length / perPage.value)
+})
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) currentPage.value++
+}
+
+const prevPage = () => {
+  if (currentPage.value > 1) currentPage.value--
+}
 /// WATCHER PARA RECARGAR DATOS CUANDO CAMBIA EL INVENTARIO
 watch(
   () => props.inventario,

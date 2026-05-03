@@ -5,7 +5,7 @@
       class="px-4 py-2 bg-green-800 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
     >
       <i class="fa-solid fa-plus"></i>
-      Crear lote cochinilla
+      Crear lote cochinilla x compra
     </button>
   </div>
   <div class="w-full bg-white border border-gray-200 rounded-xl">
@@ -343,7 +343,7 @@ const selectedItem = ref(null)
 const currentPage = ref(1)
 const perPage = ref(4)
 
-const perPageOptions = [5, 10, 20, 'All']
+const perPageOptions = [4, 10, 20, 'All']
 
 const eliminar = async () => {
   try {
