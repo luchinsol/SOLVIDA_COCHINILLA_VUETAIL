@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-between items-center pb-4 pt-4 border-b">
     <button
-      @click="crear"
+      @click="showCreateCochinillaModal = true"
       class="px-4 py-2 bg-green-800 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
     >
       <i class="fa-solid fa-plus"></i>
@@ -307,6 +307,154 @@
     </div>
   </div>
 
+  <!-- SHOW DIALOG DE CREACIÓN DE COCHINILLA X COMPRA-->
+  <div
+    v-if="showCreateCochinillaModal"
+    class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 bg-gray-800/30"
+  >
+    <div class="bg-red-100 p-6 rounded-xl w-[650px] shadow-lg max-h-[90vh] overflow-y-auto">
+      <h2 class="text-xl font-bold mb-6">Nuevo lote cochinilla x compra</h2>
+
+      <div class="flex flex-col gap-6">
+        <!-- 🔹 BLOQUE 1 -->
+        <div>
+          <h3 class="text-sm font-bold text-black-500 mb-3">
+            Información básica
+            
+          </h3>
+          <div class="grid grid-cols-2 gap-4">
+            <!-- FECHA -->
+            <div class="flex flex-col">
+              <label class="text-sm text-gray-600 mb-1">Fecha de compra</label>
+              <input v-model="createLoteCochinillaForm.fecha_compra" type="date" class="input" />
+            </div>
+            <!-- CALIDAD -->
+            <div class="flex flex-col">
+              <div><br></br></div>
+              <input
+                v-model="createLoteCochinillaForm.calidad_cochinilla"
+                type="text"
+                class="input"
+                placeholder="Calidad: e.g. 'Primera', 'Segunda', 'Tercera'"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- 🔹 BLOQUE 2 -->
+        <div>
+          <h3 class="text-sm font-bold text-black-500 mb-3">
+            Ubicación y proveedor
+            <span class="italic font-bold text-blue-600 text-xs">
+              (si no encuentras el proveedor, puedes registrarlo aquí)
+            </span>
+          </h3>
+
+          <!-- GRID SOLO PARA SELECTS -->
+          <div class="grid grid-cols-2 gap-4">
+            <select v-model="createLoteCochinillaForm.almacen_id" class="input">
+              <option disabled value="">Almacén</option>
+              <option
+                v-for="almacen in almacenes"
+                :key="almacen.almacen_id"
+                :value="almacen.almacen_id"
+              >
+                {{ almacen.nombre }}
+              </option>
+            </select>
+
+            <select v-model="createLoteCochinillaForm.proveedor_id" class="input">
+              <option disabled value="">Proveedor</option>
+              <option
+                v-for="proveedor in proveedores"
+                :key="proveedor.proveedor_id"
+                :value="proveedor.proveedor_id"
+              >
+                {{ proveedor.nombre_razon_social }}
+              </option>
+            </select>
+          </div>
+
+          <!-- BOTÓN FUERA DEL GRID -->
+          <div class="mt-3 flex justify-start">
+            <button
+              type="button"
+              @click="showProveedorForm = true"
+              class="px-4 py-1 bg-blue-800 text-white rounded-lg text-sm font-semibold hover:bg-gray-700 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-plus"></i>
+              Crear proveedor
+            </button>
+          </div>
+
+          <!-- FORMULARIO INLINE FUERA DEL GRID -->
+          <CrearProveedor
+            v-if="showProveedorForm"
+            v-model="showProveedorForm"
+            @created="handleProveedorCreado"
+          />
+        </div>
+
+        <!-- DATOS TÉCNICOS BLOQUE 3 -->
+        <div>
+          <h3 class="text-sm font-bold text-gray-500 mb-3">Datos técnicos</h3>
+
+          <div class="grid grid-cols-3 gap-4">
+            <div class="flex flex-col">
+              <label class="text-sm text-gray-600 mb-1">Stock inicial</label>
+              <input
+                v-model="createLoteCochinillaForm.stock_inicial"
+                type="number"
+                class="input"
+                placeholder="Ej: 100.50"
+              />
+            </div>
+
+            <div class="flex flex-col">
+              <label class="text-sm text-gray-600 mb-1">Costo total inicial</label>
+              <input
+                v-model="createLoteCochinillaForm.costo_total_inicial"
+                type="number"
+                class="input"
+                placeholder="Ej: 2500.75"
+              />
+            </div>
+            
+             <div class="flex flex-col">
+              <label class="text-sm text-gray-600 mb-1">Observaciones</label>
+              <input
+                v-model="createLoteCochinillaForm.observaciones"
+                type="text"
+                class="input"
+                placeholder="Ej: Lote comprado a proveedor X, calidad Y'"
+              />  
+              </div>
+
+          </div>  
+        </div>
+
+        <!-- 🔘 BOTONES -->
+        <div class="flex justify-end gap-3">
+          <button
+            type="button"
+            @click="showCreateCochinillaModal = false"
+            class="btn-cancel border border-gray-300 rounded text-sm px-4 py-2 bg-white hover:bg-gray-100"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            @click="crearLoteCochinilla"
+            class="btn-save bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
+          >
+            Crear nuevo lote de cochinilla
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- SHOW DIALOG DE REGISTRO ELIMINACIÓN-->
   <div
     v-if="showDeleteModal"
@@ -335,15 +483,64 @@ import axios from 'axios'
 import { watch, computed } from 'vue'
 import { onMounted } from 'vue'
 import { ref } from 'vue'
+import CrearProveedor from '../lote_insumo/Formularios_inline/CrearProveedor.vue'
 
 const cochinilla = ref([])
+
+const almacenes = ref([])
+const proveedores = ref([])
 const loading = ref(false)
 const showDeleteModal = ref(false)
 const selectedItem = ref(null)
 const currentPage = ref(1)
 const perPage = ref(4)
+const showProveedorForm = ref(false)
+const showCreateCochinillaModal = ref(false)
 
 const perPageOptions = [4, 10, 20, 'All']
+
+const createLoteCochinillaForm = ref({
+  almacen_id: '',
+  proveedor_id: '',
+  creado_por: 1,
+  fecha_compra: '',
+  calidad_cochinilla: '',
+  stock_inicial: 0.0,
+  costo_total_inicial: 0.0,
+  observaciones: '',
+})
+
+/// PROPS
+const props = defineProps({
+  inventario: {
+    type: String,
+    default: 'todos',
+  },
+})
+
+const crearLoteCochinilla = async () => {
+  try {
+    console.log('Crear lote cochinilla con datos:', createLoteCochinillaForm.value)
+
+    // ejemplo:
+    // await axios.post('/api/lotes-cochinilla', createLoteCochinillaForm.value)
+    const baseURL = import.meta.env.VITE_API_URL
+    await axios.post(`${baseURL}/lotes-cochinilla/compra`, {
+      almacen_id: parseInt(createLoteCochinillaForm.value.almacen_id),
+      proveedor_id: parseInt(createLoteCochinillaForm.value.proveedor_id),
+      creado_por: createLoteCochinillaForm.value.creado_por,
+      fecha_compra: createLoteCochinillaForm.value.fecha_compra,
+      calidad_cochinilla: createLoteCochinillaForm.value.calidad_cochinilla,
+      stock_inicial: createLoteCochinillaForm.value.stock_inicial,
+      costo_total_inicial: createLoteCochinillaForm.value.costo_total_inicial,
+      observaciones: createLoteCochinillaForm.value.observaciones,
+    })
+    showCreateCochinillaModal.value = false
+    await getLoteCochinilla() // recarga la lista después de crear
+  } catch (error) {
+    console.error('Error creando lote de cochinilla:', error)
+  }
+}
 
 const eliminar = async () => {
   try {
@@ -411,6 +608,32 @@ const prevPage = () => {
   if (currentPage.value > 1) currentPage.value--
 }
 
+const getAlmacenes = async () => {
+  try {
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.get(`${baseURL}/almacen`)
+    almacenes.value = response.data
+  } catch (error) {
+    console.error('Error fetching almacenes:', error)
+  }
+}
+
+const getProveedores = async () => {
+  try {
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.get(`${baseURL}/proveedores`)
+    proveedores.value = response.data
+  } catch (error) {
+    console.error('Error fetching proveedores:', error)
+  }
+}
+const handleProveedorCreado = async (nuevoProveedor) => {
+  await getProveedores()
+}
+
+onMounted(() => {
+  ;(getAlmacenes(), getProveedores())
+})
 /// WATCHER PARA RECARGAR DATOS CUANDO CAMBIA EL INVENTARIO
 /*watch(
   () => props.inventario,
