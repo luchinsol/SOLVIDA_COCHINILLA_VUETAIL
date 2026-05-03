@@ -171,24 +171,10 @@
                 class="flex justify-center items-center gap-2 opacity-70 hover:opacity-100 transition"
               >
                 <button
-                  @click="verDetalle(item)"
-                  class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 transition"
-                >
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-
-                <button
                   @click="editar(item)"
                   class="p-2 rounded-lg text-yellow-600 hover:bg-yellow-100 transition"
                 >
                   <i class="fa-solid fa-pen"></i>
-                </button>
-
-                <button
-                  @click="confirmarEliminar(item)"
-                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 transition"
-                >
-                  <i class="fa-solid fa-trash"></i>
                 </button>
               </div>
             </td>
