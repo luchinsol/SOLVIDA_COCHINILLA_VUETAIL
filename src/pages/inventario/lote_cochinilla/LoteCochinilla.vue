@@ -234,14 +234,7 @@
               <div
                 class="flex justify-center items-center gap-2 opacity-70 hover:opacity-100 transition"
               >
-                <!-- VER -->
-                <button
-                  @click="verDetalle(item)"
-                  class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 transition"
-                  title="Ver detalle"
-                >
-                  <i class="fa-solid fa-eye"></i>
-                </button>
+               
 
                 <!-- EDITAR -->
                 <button
@@ -251,15 +244,9 @@
                 >
                   <i class="fa-solid fa-pen"></i>
                 </button>
+                
 
-                <!-- ELIMINAR -->
-                <button
-                  @click="confirmarEliminar(item)"
-                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 transition"
-                  title="Eliminar"
-                >
-                  <i class="fa-solid fa-trash"></i>
-                </button>
+               
               </div>
             </td>
           </tr>
