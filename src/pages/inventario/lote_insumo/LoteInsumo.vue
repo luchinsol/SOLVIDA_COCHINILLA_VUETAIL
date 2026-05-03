@@ -202,6 +202,7 @@
                 class="flex justify-center items-center gap-2 opacity-70 hover:opacity-100 transition"
               >
                 <!-- VER -->
+                <!--
                 <button
                   @click="verDetalle(item)"
                   class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 transition"
@@ -209,6 +210,7 @@
                 >
                   <i class="fa-solid fa-eye"></i>
                 </button>
+                  -->
 
                 <!-- EDITAR -->
                 <button
@@ -220,13 +222,14 @@
                 </button>
 
                 <!-- ELIMINAR -->
+                <!--
                 <button
                   @click="confirmarEliminar(item)"
                   class="p-2 rounded-lg text-red-600 hover:bg-red-100 transition"
                   title="Eliminar"
                 >
                   <i class="fa-solid fa-trash"></i>
-                </button>
+                </button>-->
               </div>
             </td>
           </tr>
@@ -304,7 +307,7 @@
     <div class="bg-red-100 p-6 rounded-xl w-[650px] shadow-lg max-h-[90vh] overflow-y-auto">
       <h2 class="text-xl font-bold mb-6">Nuevo Lote de Insumo</h2>
 
-      <form @submit.prevent="crearInsumo" class="flex flex-col gap-6">
+      <div class="flex flex-col gap-6">
         <!-- 🔹 BLOQUE 1 -->
         <div>
           <h3 class="text-sm font-bold text-black-500 mb-3">
@@ -313,14 +316,24 @@
               (si no encuentras el tipo de insumo, puedes registrarlo aquí)
             </span>
           </h3>
-          <div class="grid grid-cols-2 gap-4">
-            <input v-model="form.nombre" placeholder="Nombre del Lote de Insumo" class="input" />
 
-            <select v-model="form.tipo_insumo_id" class="input">
-              <option disabled value="">Tipo de insumo</option>
-              <option value="1">Químico</option>
-              <option value="2">Materia Prima</option>
-              <option value="3">Reactivo</option>
+          <!-- SELECTOR DE TIPO DE INSUMO -->
+          <div class="grid grid-cols-2 gap-4">
+            <input
+              v-model="createForm.nombre"
+              placeholder="Nombre del Lote de Insumo"
+              class="input"
+            />
+
+            <select v-model="createForm.tipo_insumo_id" class="input">
+              <option disabled value="">Tipo insumo</option>
+              <option
+                v-for="tipo in tiposInsumo"
+                :key="tipo.tipo_insumo_id"
+                :value="tipo.tipo_insumo_id"
+              >
+                {{ tipo.nombre }}
+              </option>
             </select>
           </div>
 
@@ -334,19 +347,13 @@
               Crear tipo de insumo
             </button>
           </div>
-          <!-- FORMULARIO INLINE CREAR TIPO DE INSUMO -->
-          <CrearInsumo v-if="showTipoInsumoForm" v-model="showTipoInsumoForm" />
-        </div>
 
-        <!-- BLOQUE ESTADO DE LOTE-->
-        <div>
-          <h3 class="text-sm font-bold text-black-500 mb-3">Estado de lote</h3>
-          <div class="grid grid-cols-1 gap-4">
-            <select v-model="form.estado_lote" class="input">
-              <option value="1">Disponible</option>
-              <option value="2">Bloqueado</option>
-            </select>
-          </div>
+          <!-- FORMULARIO INLINE CREAR TIPO DE INSUMO -->
+          <CrearInsumo
+            v-if="showTipoInsumoForm"
+            v-model="showTipoInsumoForm"
+            @created="handleTipoInsumoCreado"
+          />
         </div>
 
         <!-- 🔹 BLOQUE 2 -->
@@ -360,16 +367,26 @@
 
           <!-- GRID SOLO PARA SELECTS -->
           <div class="grid grid-cols-2 gap-4">
-            <select v-model="form.almacen_id" class="input">
+            <select v-model="createForm.almacen_id" class="input">
               <option disabled value="">Almacén</option>
-              <option value="1">Almacén 1</option>
-              <option value="2">Almacén 2</option>
+              <option
+                v-for="almacen in almacenes"
+                :key="almacen.almacen_id"
+                :value="almacen.almacen_id"
+              >
+                {{ almacen.nombre }}
+              </option>
             </select>
 
-            <select v-model="form.proveedor_id" class="input">
+            <select v-model="createForm.proveedor_id" class="input">
               <option disabled value="">Proveedor</option>
-              <option value="1">Proveedor 1</option>
-              <option value="2">Proveedor 2</option>
+              <option
+                v-for="proveedor in proveedores"
+                :key="proveedor.proveedor_id"
+                :value="proveedor.proveedor_id"
+              >
+                {{ proveedor.nombre_razon_social }}
+              </option>
             </select>
           </div>
 
@@ -386,16 +403,20 @@
           </div>
 
           <!-- FORMULARIO INLINE FUERA DEL GRID -->
-          <CrearProveedor v-if="showProveedorForm" v-model="showProveedorForm" />
+          <CrearProveedor
+            v-if="showProveedorForm"
+            v-model="showProveedorForm"
+            @created="handleProveedorCreado"
+          />
         </div>
 
-        <!-- 🔹 BLOQUE 3 -->
+        <!-- DATOS TÉCNICOS BLOQUE 3 -->
         <div>
           <h3 class="text-sm font-bold text-gray-500 mb-3">Datos técnicos</h3>
 
           <div class="grid grid-cols-3 gap-4">
             <input
-              v-model="form.concentracion"
+              v-model="createForm.concentracion"
               type="number"
               step="0.01"
               placeholder="Concentración"
@@ -403,14 +424,14 @@
             />
 
             <input
-              v-model="form.stock_inicial"
+              v-model="createForm.stock_inicial"
               type="number"
               placeholder="Stock inicial"
               class="input"
             />
 
             <input
-              v-model="form.costo_unitario"
+              v-model="createForm.costo_unitario"
               type="number"
               step="0.01"
               placeholder="Costo unitario"
@@ -418,54 +439,160 @@
             />
           </div>
 
+          <!-- UNIDADES DE MEDIDA PARTE FINAL-->
           <div class="grid grid-cols-3 gap-4 mt-4">
-            <input v-model="form.unidad_medida_cantidad" placeholder="Unidad (kg)" class="input" />
+            <!-- VOLUMEN -->
+            <select v-model="createForm.unidad_medida_cantidad" class="input">
+              <option disabled value="">Volumen</option>
+              <option
+                v-for="vol in volumen"
+                :key="vol.unidades_medida_id"
+                :value="vol.unidad_de_medida"
+              >
+                {{ vol.unidad_de_medida }}
+              </option>
+            </select>
 
-            <input v-model="form.unidad_medida_moneda" placeholder="Moneda (USD)" class="input" />
+            <!-- MONEDA  -->
+            <select v-model="createForm.unidad_medida_moneda" class="input">
+              <option disabled value="">Dinero</option>
+              <option
+                v-for="din in dinero"
+                :key="din.unidades_medida_id"
+                :value="din.unidad_de_medida"
+              >
+                {{ din.unidad_de_medida }}
+              </option>
+            </select>
 
-            <input
-              v-model="form.unidad_medida_concentracion"
-              placeholder="Conc (kg/kg)"
-              class="input"
-            />
+            <!-- MASA -->
+            <select v-model="createForm.unidad_medida_concentracion" class="input">
+              <option disabled value="">Masa</option>
+              <option
+                v-for="mas in masa"
+                :key="mas.unidades_medida_id"
+                :value="mas.unidad_de_medida"
+              >
+                {{ mas.unidad_de_medida }}
+              </option>
+            </select>
           </div>
         </div>
 
         <!-- 🔘 BOTONES -->
         <div class="flex justify-end gap-3">
-          <button type="button" @click="showCreateModal = false" class="btn-cancel">
+          <button
+            type="button"
+            @click="showCreateModal = false"
+            class="btn-cancel border border-gray-300 rounded text-sm px-4 py-2 bg-white hover:bg-gray-100"
+          >
             Cancelar
           </button>
 
-          <button type="submit" class="btn-save">Guardar</button>
+          <button
+            type="submit"
+            class="btn-save bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
+          >
+            Crear nuevo lote de insumo
+          </button>
         </div>
-      </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHOW DIALOG DE ACTULIZAR DE INSUMO-->
+  <div
+    v-if="showUpdateModal"
+    class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 bg-gray-800/30"
+  >
+    <div class="bg-red-100 p-6 rounded-xl w-[650px] shadow-lg max-h-[90vh] overflow-y-auto">
+      <h2 class="text-xl font-bold mb-6">Actualizar Lote de Insumo</h2>
+
+      <div class="flex flex-col gap-6">
+        <!-- 🔹 BLOQUE 1 -->
+
+        <!-- ACTUALIZAR ESTADO LOTE -->
+        <div>
+          <h3 class="text-sm font-bold text-gray-500 mb-3">Estado de lote</h3>
+
+          <div class="grid grid-cols-1 gap-4">
+            <select v-model="updateForm.estado_lote" class="input">
+              <option disabled value="">Estado del lote</option>
+              <option value="disponible">Disponible</option>
+              <option value="bloqueado">Bloqueado</option>
+            </select>
+            <button
+              @click="actualizarEstadoLoteInsumo"
+              class="bg-blue-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+            >
+              Actualizar Estado
+            </button>
+          </div>
+        </div>
+
+        <!-- ACTUALIZAR STOCK ACTUAL LOTE -->
+        <div>
+          <h3 class="text-sm font-bold text-gray-500 mb-3">Stock actual</h3>
+
+          <div class="grid grid-cols-1 gap-4">
+            <input
+              v-model="updateForm.stock_actual"
+              type="number"
+              placeholder="Stock actual"
+              class="input"
+            />
+            <button
+              @click="actualizarStockActualLoteInsumo"
+              class="bg-blue-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+            >
+              Actualizar Stock
+            </button>
+          </div>
+        </div>
+
+        <!-- 🔘 BOTONES -->
+        <div class="flex justify-end gap-3">
+          <button
+            @click="showUpdateModal = false"
+            class="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 flex items-center gap-2"
+          >
+            <i class="fa-solid fa-close"></i>
+            Cerrar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import axios from 'axios'
-import { watch, computed } from 'vue'
-import { onMounted } from 'vue'
-import { ref } from 'vue'
+import { watch, computed, onMounted, ref } from 'vue'
 import CrearInsumo from './Formularios_inline/CrearInsumo.vue'
 import CrearProveedor from './Formularios_inline/CrearProveedor.vue'
+import { parse } from 'vue/compiler-sfc'
 
 /// VARIABLES REACTIVAS
 const insumos = ref([])
+const tiposInsumo = ref([])
+const almacenes = ref([])
+const proveedores = ref([])
 const loading = ref(false)
 const showDeleteModal = ref(false)
 const selectedItem = ref(null)
 const showCreateModal = ref(false)
+const showUpdateModal = ref(false)
 const showTipoInsumoForm = ref(false)
 const showProveedorForm = ref(false)
 const currentPage = ref(1) // PAGINACIÓN
 const perPage = ref(4) // PAGINACIÓN
 const perPageOptions = [4, 10, 15, 'All']
+const volumen = ref([])
+const masa = ref([])
+const dinero = ref([])
 
 /// FORMULARIO NUEVO INSUMO
-const form = ref({
+const createForm = ref({
   nombre: '',
   tipo_insumo_id: '',
   estado_lote: 'activo',
@@ -474,9 +601,16 @@ const form = ref({
   concentracion: '',
   stock_inicial: '',
   costo_unitario: '',
-  unidad_medida_cantidad: '',
-  unidad_medida_moneda: '',
-  unidad_medida_concentracion: '',
+  unidad_medida_cantidad: '', // volumen
+  unidad_medida_moneda: '', // dinero
+  unidad_medida_concentracion: '', // masa
+})
+
+/// FORMULARIO ACTUALIZAR INSUMO
+const updateForm = ref({
+  id: '',
+  estado_lote: '',
+  stock_actual: '',
 })
 
 /// PROPS
@@ -507,14 +641,15 @@ const prevPage = () => {
   if (currentPage.value > 1) currentPage.value--
 }
 
-const crearInsumo = async () => {
+const crearLoteInsumo = async () => {
   try {
-    await axios.post('http://localhost:3000/api/lote-insumos', form.value)
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.post(`${baseURL}/lote-insumos`, createForm.value)
 
     showCreateModal.value = false
 
     // limpiar form
-    form.value = {
+    createForm.value = {
       nombre: '',
       tipo_insumo_id: '',
       estado_lote: 'activo',
@@ -523,15 +658,53 @@ const crearInsumo = async () => {
       concentracion: '',
       stock_inicial: '',
       costo_unitario: '',
-      unidad_medida_cantidad: '',
-      unidad_medida_moneda: '',
-      unidad_medida_concentracion: '',
+      unidad_medida_cantidad: '', // volumen
+      unidad_medida_moneda: '', // dinero
+      unidad_medida_concentracion: '', // masa
     }
 
     /// recargar datos
     getLoteInsumos(props.inventario)
   } catch (error) {
     console.error(error)
+  }
+}
+
+const getTipoInsumos = async () => {
+  try {
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.get(`${baseURL}/tipo-insumo`)
+    tiposInsumo.value = response.data
+  } catch (error) {
+    console.error('Error fetching tipo insumos:', error)
+  }
+}
+
+const handleTipoInsumoCreado = async (nuevoTipo) => {
+  await getTipoInsumos()
+}
+
+const handleProveedorCreado = async (nuevoProveedor) => {
+  await getProveedores()
+}
+
+const getAlmacenes = async () => {
+  try {
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.get(`${baseURL}/almacen`)
+    almacenes.value = response.data
+  } catch (error) {
+    console.error('Error fetching almacenes:', error)
+  }
+}
+
+const getProveedores = async () => {
+  try {
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.get(`${baseURL}/proveedores`)
+    proveedores.value = response.data
+  } catch (error) {
+    console.error('Error fetching proveedores:', error)
   }
 }
 
@@ -548,18 +721,80 @@ const eliminar = async () => {
   }
 }
 
-const verDetalle = (item) => {
-  console.log('Ver detalle:', item)
-}
-
 const editar = (item) => {
   console.log('Editar:', item)
+  showUpdateModal.value = true
+  updateForm.value = {
+    id: item.lote_insumo_id,
+    estado_lote: item.estado_lote,
+    stock_actual: item.stock_actual,
+  }
+
+  console.log('Formulario de actualización:', updateForm.value)
 }
 
-const confirmarEliminar = (item) => {
-  selectedItem.value = item
-  showDeleteModal.value = true
+const actualizarEstadoLoteInsumo = async () => {
+  try {
+    console.log('Actualizar:', updateForm.value)
+    const baseURL = import.meta.env.VITE_API_URL
+    console.log('ID del lote a actualizar:', updateForm.value.id)
+    console.log(updateForm.value.id)
+    await axios.patch(`${baseURL}/lote-insumos/${updateForm.value.id}/estado-lote`, {
+      estado_lote: updateForm.value.estado_lote,
+    })
+    await getLoteInsumos(props.inventario)
+    showUpdateModal.value = false
+  } catch (error) {
+    console.error(error)
+  }
 }
+
+const actualizarStockActualLoteInsumo = async () => {
+  try {
+    console.log('Actualizar stock actual:', updateForm.value)
+    const baseURL = import.meta.env.VITE_API_URL
+    await axios.patch(`${baseURL}/lote-insumos/${updateForm.value.id}/stock-actual`, {
+      stock_actual: parseFloat(updateForm.value.stock_actual),
+    })
+
+    await getLoteInsumos(props.inventario)
+    showUpdateModal.value = false
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+/// FUNCIONES PARA CALCULAR OBTENER UNIDADES DE MEDIDA, CONCENTRACIÓN Y COSTO UNITARIO
+const getMasa = async () => {
+  const baseURL = import.meta.env.VITE_API_URL
+  try {
+    const response = await axios.get(`${baseURL}/unidades-medida/propiedad/masa`)
+    masa.value = response.data
+  } catch (error) {
+    console.error('Error fetching unidad de medida:', error)
+  }
+}
+
+const getVolumen = async () => {
+  const baseURL = import.meta.env.VITE_API_URL
+  try {
+    const response = await axios.get(`${baseURL}/unidades-medida/propiedad/volumen`)
+    volumen.value = response.data
+  } catch (error) {
+    console.error('Error fetching unidad de medida:', error)
+  }
+}
+
+const getMoneda = async () => {
+  const baseURL = import.meta.env.VITE_API_URL
+  try {
+    const response = await axios.get(`${baseURL}/unidades-medida/propiedad/dinero`)
+    dinero.value = response.data
+  } catch (error) {
+    console.error('Error fetching unidad de medida:', error)
+  }
+}
+
 /// FUNCIONES
 const getLoteInsumos = async (almacen) => {
   loading.value = true
@@ -588,6 +823,15 @@ watch(
   },
   { immediate: true },
 )
+
+onMounted(() => {
+  ;(getTipoInsumos(),
+    getAlmacenes(),
+    getProveedores(),
+    getMasa(),
+    getVolumen(),
+    getMoneda()) /*getConcentracion(), getCostoUnitario()*/
+})
 </script>
 
 <style scoped>

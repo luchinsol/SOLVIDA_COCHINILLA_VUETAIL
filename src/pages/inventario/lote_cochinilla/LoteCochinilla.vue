@@ -5,7 +5,7 @@
       class="px-4 py-2 bg-green-800 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
     >
       <i class="fa-solid fa-plus"></i>
-      Crear lote cochinilla
+      Crear lote cochinilla x compra
     </button>
   </div>
   <div class="w-full bg-white border border-gray-200 rounded-xl">
@@ -37,6 +37,8 @@
             <th class="px-4 py-3 text-left">Und. Medida Stock</th>
             <th class="px-4 py-3 text-left">Und. Medida Dinero</th>
             <th class="px-4 py-3 text-center">Costo Total Actual</th>
+            <th class="px-4 py-3 text-center">Proveedor nombre</th>
+            <th class="px-4 py-3 text-center">Almacen nombre</th>
             <th class="px-4 py-3 text-center">Acciones</th>
           </tr>
         </thead>
@@ -82,7 +84,7 @@
 
             <!-- Análisis ID-->
             <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.analisis_atual_id }}</div>
+              <div class="font-medium text-gray-900">{{ item.analisis_atual_id || '-' }}</div>
               <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
             </td>
 
@@ -117,7 +119,7 @@
 
             <!-- Fecha creación -->
             <td class="px-4 py-3">
-              <div class="text-xs font-bold">{{ item.fecha_creacion }}</div>
+              <div class="text-xs font-bold">{{ item.fecha_creacion || '-' }}</div>
             </td>
 
             <!-- Documento 
@@ -147,12 +149,12 @@
 
             <!-- Concentración Actual AC -->
             <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
-              {{ item.concentracion_ac_actual }}
+              {{ item.concentracion_ac_actual || '-' }}
             </td>
 
             <!-- Humedad actual -->
             <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
-              {{ item.humedad_actual }}
+              {{ item.humedad_actual || '-' }}
             </td>
 
             <!-- Estado Lote -->
@@ -177,7 +179,7 @@
 
             <!-- Costo Punto AC Dolares -->
             <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
-              {{ item.costo_puntoac_dolares }}
+              {{ item.costo_puntoac_dolares || '-' }}
             </td>
 
             <!-- Costo Kilo Dolares -->
@@ -210,6 +212,15 @@
               {{ item.costo_total_actual }}
             </td>
 
+            <!-- Costo Total Actual -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.proveedor_nombre }}
+            </td>
+
+            <!-- Costo Total Actual -->
+            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
+              {{ item.almacen_nombre || '-' }}
+            </td>
             <!-- Usuario 
             <td class="px-4 py-3">
               <div class="flex items-center gap-2">
@@ -332,7 +343,7 @@ const selectedItem = ref(null)
 const currentPage = ref(1)
 const perPage = ref(4)
 
-const perPageOptions = [5, 10, 20, 'All']
+const perPageOptions = [4, 10, 20, 'All']
 
 const eliminar = async () => {
   try {

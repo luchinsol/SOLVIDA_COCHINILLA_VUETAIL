@@ -1,30 +1,46 @@
 <template>
   <div class="flex justify-between items-center pb-4 pt-4 border-b">
-    <button
+    <!-- <button
       @click="crear"
       class="px-4 py-2 bg-green-800 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
     >
       <i class="fa-solid fa-plus"></i>
       Crear nuevo proveedor
     </button>
-  </div>
+  --></div>
+
+  <!-- TABLA + PAGINADOR-->
   <div class="w-full bg-white border border-gray-200 rounded-xl">
     <div class="overflow-x-auto">
       <table class="w-full min-w-[1200px]">
         <!-- HEADER -->
         <thead class="bg-gray-50 text-gray-600 uppercase text-[10px] tracking-wider">
+          <tr></tr>
           <tr>
             <th class="px-4 py-3 text-left">ID</th>
-            <th class="px-4 py-3 text-left">Nombre</th>
-            <th class="px-4 py-3 text-left">Tipo</th>
-            <th class="px-4 py-3 text-left">Clasificación</th>
-            <th class="px-4 py-3 text-left">Concentración</th>
-            <th class="px-4 py-3 text-left">Unidad Medida</th>
-            <th class="px-4 py-3 text-right">Stock Actual</th>
-            <th class="px-4 py-3 text-right">Costo Unitario</th>
-            <th class="px-4 py-3 text-left">Proveedor</th>
+            <th class="px-4 py-3 text-center">Almacén ID</th>
             <th class="px-4 py-3 text-left">Almacén</th>
-            <th class="px-4 py-3 text-center">Acción</th>
+            <th class="px-4 py-3 text-center">Análisis Actual ID</th>
+            <th class="px-4 py-3 text-center">Proceso Filtrado ID</th>
+            <th class="px-4 py-3 text-center">Proceso Filt. Código</th>
+            <th class="px-4 py-3 text-left">Nombre Extracto</th>
+            <th class="px-4 py-3 text-center">Tipo Extracto</th>
+            <th class="px-4 py-3 text-right">Stock Inicial</th>
+            <th class="px-4 py-3 text-right">Conc. AC Actual</th>
+
+            <th class="px-4 py-3 text-center">Estado Lote</th>
+            <th class="px-4 py-3 text-center">Observaciones</th>
+            <th class="px-4 py-3 text-left">Fecha Creación</th>
+            <th class="px-4 py-3 text-right">Stock Actual</th>
+
+            <th class="px-4 py-3 text-center">UM Stock</th>
+
+            <th class="px-4 py-3 text-right">Costo Total Inicial</th>
+            <th class="px-4 py-3 text-right">Costo Total Actual</th>
+            <th class="px-4 py-3 text-right">Costo Unitario</th>
+            <th class="px-4 py-3 text-center">UM Dinero</th>
+
+            <th class="px-4 py-3 text-center">Acciones</th>
           </tr>
         </thead>
 
@@ -37,137 +53,140 @@
                 <div
                   class="w-10 h-10 border-4 border-green-800 border-t-transparent rounded-full animate-spin"
                 ></div>
-                <span class="text-sm text-gray-500">Cargando insumos...</span>
+                <span class="text-sm text-gray-500">Cargando extractos...</span>
               </div>
             </td>
           </tr>
 
           <!-- ❌ SIN DATOS -->
-          <tr v-else-if="insumos.length === 0">
+          <tr v-else-if="paginatedExtracto.length === 0">
             <td colspan="11" class="text-center py-10 text-gray-500">No hay datos disponibles</td>
           </tr>
 
           <!-- ✅ DATA -->
           <tr
             v-else
-            v-for="(item, index) in insumos"
+            v-for="(item, index) in paginatedExtracto"
             :key="index"
             class="border-t hover:bg-gray-50 transition"
           >
-            <!-- tu contenido -->
             <!-- ID -->
             <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.insumo_id }}</div>
-              <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
+              <div class="font-medium text-gray-900">{{ item.extracto_id }}</div>
             </td>
 
-            <!-- Proveedor ID-->
-            <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.proveedor_id }}</div>
-              <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
+            <!-- Almacén ID -->
+            <td class="px-4 py-2 text-xs text-center">
+              {{ item.almacen_id || 'N/A' }}
             </td>
 
-            <!-- Almacen ID-->
-            <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.almacen_id }}</div>
-              <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
-            </td>
-
-            <!-- Fecha -->
-            <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.creado_en }}</div>
-              <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
-            </td>
-
-            <!-- Tipo -->
-            <td class="px-4 py-2">
-              <span
-                class="px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 w-fit"
-                :class="item.badge"
-              >
-                <i :class="item.icon"></i>
-                {{ item.tipo_insumo }}
-              </span>
-            </td>
-
-            <!-- Producto -->
+            <!-- Almacén -->
             <td class="px-4 py-3 text-left text-xs">
-              <div class="font-bold text-gray-900">{{ item.nombre }}</div>
+              <div class="font-bold text-gray-900">{{ item.almacen_nombre }}</div>
             </td>
 
-            <!-- Unidad de medida -->
-            <td class="px-4 py-3">
-              <span class="text-xs text-blue-600 font-bold cursor-pointer hover:underline">
-                {{ item.unidad_medida }}
-              </span>
+            <!-- Análisis Actual ID -->
+            <td class="px-4 py-2 text-xs text-center">
+              {{ item.analisis_actual_id || 'N/A' }}
             </td>
 
-            <!-- Concentración -->
-            <td class="px-4 py-3">
-              <div class="text-xs font-bold">{{ item.concentracion }}</div>
+            <!-- Proceso Filtrado ID -->
+            <td class="px-4 py-3 text-left text-xs">
+              <div class="font-bold text-gray-900">{{ item.proceso_filtrado_id }}</div>
             </td>
 
-            <!-- Documento 
-            <td class="px-4 py-3">
-              <div
-                class="text-xs font-bold flex items-center gap-1 cursor-pointer hover:text-blue-600 text-gray-600"
-              >
-                <i :class="item.docIcon"></i>
-                <span>{{ item.documento }}</span>
-              </div>
-            </td>-->
-
-            <!-- Costo unitario 
-            <td class="px-4 py-3 text-right font-bold text-xs" :class="item.cantidadColor">
-              {{ item.cantidad }}
-            </td>-->
-
-            <!-- Costo unitario -->
-            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
-              {{ item.costo_unitario }}
+            <!-- Proceso Filtrado Código -->
+            <td class="px-4 py-3 text-left text-xs">
+              <div class="font-bold text-gray-900">{{ item.proceso_filtrado_codigo || 'N/A' }}</div>
             </td>
 
-            <!-- Clasificación controlada -->
-            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
-              {{ item.clasificacion_controlada }}
+            <!-- Nombre extracto -->
+            <td class="px-4 py-3 text-center text-xs">
+              {{ item.nombre_extracto || 'N/A' }}
             </td>
 
-            <!-- Usuario 
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <img :src="item.avatar" class="w-6 h-6 rounded-full" alt="User" />
-                <span class="text-xs">{{ item.usuario }}</span>
-              </div>
-            </td>-->
+            <!-- Tipo extrato -->
+            <td class="px-4 py-3 text-right text-xs">
+              {{ item.tipo_extracto }}
+            </td>
+
+            <!-- Stock Inicial -->
+            <td class="px-4 py-3 text-right text-xs font-bold">
+              {{ item.stock_inial }}
+            </td>
+
+            <!-- Concentracion AC Actual -->
+            <td class="px-4 py-3 text-right text-xs font-bold">
+              {{ item.concentracion_ac_actual || 'N/A' }}
+            </td>
+
+            <!-- Estado lote -->
+            <td class="px-4 py-3 text-right text-xs">
+              {{ item.estado_lote }}
+            </td>
+
+            <!-- Observaciones -->
+            <td class="px-4 py-3 text-right text-xs">
+              {{ item.observaciones || 'Sin observaciones' }}
+            </td>
+
+            <!-- Fecha Creación -->
+            <td class="px-4 py-3 text-xs">
+              {{ item.creado_en }}
+            </td>
+
+            <!-- Stock Actual  -->
+            <td class="px-4 py-3 text-left text-xs">
+              {{ item.stock_actual }}
+            </td>
+
+            <!-- Unidad Medidad stock -->
+            <td class="px-4 py-3 text-center text-xs">
+              {{ item.unidad_medida_stock }}
+            </td>
+
+            <!-- Costo total inicial -->
+            <td class="px-4 py-3 text-xs">
+              {{ item.costo_total_inicial }}
+            </td>
+
+            <!-- Costo total actual -->
+            <td class="px-4 py-3 text-xs">
+              {{ item.costo_total_actual }}
+            </td>
+
+            <!-- Costo por unidad -->
+            <td class="px-4 py-3 text-xs">
+              {{ item.costo_por_unidad }}
+            </td>
+
+            <!-- Unidad medida dinero-->
+            <td class="px-4 py-3 text-xs">
+              {{ item.unidad_medida_dinero }}
+            </td>
 
             <!-- Acción -->
             <td class="px-4 py-3 text-center">
               <div
                 class="flex justify-center items-center gap-2 opacity-70 hover:opacity-100 transition"
               >
-                <!-- VER -->
                 <button
                   @click="verDetalle(item)"
                   class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 transition"
-                  title="Ver detalle"
                 >
                   <i class="fa-solid fa-eye"></i>
                 </button>
 
-                <!-- EDITAR -->
                 <button
                   @click="editar(item)"
                   class="p-2 rounded-lg text-yellow-600 hover:bg-yellow-100 transition"
-                  title="Editar"
                 >
                   <i class="fa-solid fa-pen"></i>
                 </button>
 
-                <!-- ELIMINAR -->
                 <button
                   @click="confirmarEliminar(item)"
                   class="p-2 rounded-lg text-red-600 hover:bg-red-100 transition"
-                  title="Eliminar"
                 >
                   <i class="fa-solid fa-trash"></i>
                 </button>
@@ -176,8 +195,49 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- CONTROL DE PÁGINAS -->
+      <div class="flex justify-start items-center p-5 border-t">
+        <!-- selector -->
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-600">Mostrar:</span>
+
+          <select
+            v-model="perPage"
+            @change="currentPage = 1"
+            class="border rounded px-2 py-1 text-sm"
+          >
+            <option v-for="opt in perPageOptions" :key="opt" :value="opt">
+              {{ opt }}
+            </option>
+          </select>
+        </div>
+
+        <!-- controles -->
+        <div class="flex items-center gap-2">
+          <button
+            @click="prevPage"
+            class="px-3 py-1 text-sm border rounded disabled:opacity-50"
+            :disabled="currentPage === 1"
+          >
+            <i class="fa-solid fa-angles-left"></i>
+          </button>
+
+          <span class="text-sm"> Página {{ currentPage }} de {{ totalPages }} </span>
+
+          <button
+            @click="nextPage"
+            class="px-3 py-1 text-sm border rounded disabled:opacity-50"
+            :disabled="currentPage === totalPages"
+          >
+            <i class="fa-solid fa-angles-right"></i>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- MODAL ELIMINAR -->
   <div
     v-if="showDeleteModal"
     class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
@@ -202,7 +262,7 @@
 
 <script setup>
 import axios from 'axios'
-import { watch } from 'vue'
+import { watch, computed } from 'vue'
 import { onMounted } from 'vue'
 import { ref } from 'vue'
 
@@ -210,7 +270,16 @@ const extracto = ref([])
 const loading = ref(false)
 const showDeleteModal = ref(false)
 const selectedItem = ref(null)
+const currentPage = ref(1) // PAGINACIÓN
+const perPage = ref(4) // PAGINACIÓN
+const perPageOptions = [4, 10, 15, 'All']
 
+const props = defineProps({
+  inventario: {
+    type: String,
+    default: 'todos',
+  },
+})
 const eliminar = async () => {
   try {
     console.log('Eliminar:', selectedItem.value)
@@ -245,9 +314,9 @@ const getExtracto = async () => {
   loading.value = true
   try {
     const baseURL = import.meta.env.VITE_API_URL
-    // const response = await axios.get(`${baseURL}`)
+    const response = await axios.get(`${baseURL}/extractos`)
     const data = await response.data
-    insumos.value = data
+    extracto.value = data
     await delay(1000) // Simula un retraso para mostrar el spinner console.log('Insumos:', data)
   } catch (error) {
     console.error('Error fetching insumos:', error)
@@ -255,4 +324,32 @@ const getExtracto = async () => {
     loading.value = false
   }
 }
+
+/// COMPUTED PROPERTIES PARA PAGINACIÓN
+const paginatedExtracto = computed(() => {
+  if (perPage.value === 'All') return extracto.value
+  const start = (currentPage.value - 1) * perPage.value
+  return extracto.value.slice(start, start + perPage.value)
+})
+
+const totalPages = computed(() => {
+  if (perPage.value === 'All') return 1
+  return Math.ceil(extracto.value.length / perPage.value)
+})
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) currentPage.value++
+}
+
+const prevPage = () => {
+  if (currentPage.value > 1) currentPage.value--
+}
+/// WATCHER PARA RECARGAR DATOS CUANDO CAMBIA EL INVENTARIO
+watch(
+  () => props.inventario,
+  (nuevo) => {
+    getExtracto(nuevo)
+  },
+  { immediate: true },
+)
 </script>
