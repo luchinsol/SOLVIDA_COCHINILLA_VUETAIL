@@ -416,14 +416,6 @@
 
           <div class="grid grid-cols-3 gap-4">
             <input
-              v-model="createForm.concentracion"
-              type="number"
-              step="0.01"
-              placeholder="Concentración"
-              class="input"
-            />
-
-            <input
               v-model="createForm.stock_inicial"
               type="number"
               placeholder="Stock inicial"
@@ -431,10 +423,18 @@
             />
 
             <input
-              v-model="createForm.costo_unitario"
+              v-model="createForm.costo_total"
               type="number"
               step="0.01"
-              placeholder="Costo unitario"
+              placeholder="Costo total"
+              class="input"
+            />
+
+            <input
+              v-model="createForm.concentracion"
+              type="number"
+              step="0.01"
+              placeholder="Concentración"
               class="input"
             />
           </div>
@@ -443,7 +443,7 @@
           <div class="grid grid-cols-3 gap-4 mt-4">
             <!-- VOLUMEN -->
             <select v-model="createForm.unidad_medida_cantidad" class="input">
-              <option disabled value="">Volumen</option>
+              <option disabled value="">Volumen/Masa</option>
               <option
                 v-for="vol in volumen"
                 :key="vol.unidades_medida_id"
@@ -467,7 +467,7 @@
 
             <!-- MASA -->
             <select v-model="createForm.unidad_medida_concentracion" class="input">
-              <option disabled value="">Masa</option>
+              <option disabled value="">Concentración</option>
               <option
                 v-for="mas in masa"
                 :key="mas.unidades_medida_id"
@@ -491,6 +491,7 @@
 
           <button
             type="submit"
+            @click="crearLoteInsumo"
             class="btn-save bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
           >
             Crear nuevo lote de insumo
@@ -600,7 +601,7 @@ const createForm = ref({
   almacen_id: '',
   concentracion: '',
   stock_inicial: '',
-  costo_unitario: '',
+  costo_total: '',
   unidad_medida_cantidad: '', // volumen
   unidad_medida_moneda: '', // dinero
   unidad_medida_concentracion: '', // masa
@@ -643,9 +644,35 @@ const prevPage = () => {
 
 const crearLoteInsumo = async () => {
   try {
-    const baseURL = import.meta.env.VITE_API_URL
-    const response = await axios.post(`${baseURL}/lote-insumos`, createForm.value)
+    console.log('PAYLOAD:', {
+      nombre: createForm.value.nombre,
+      tipo_insumo_id: parseInt(createForm.value.tipo_insumo_id),
 
+      proveedor_id: parseInt(createForm.value.proveedor_id),
+      almacen_id: parseInt(createForm.value.almacen_id),
+      concentracion: parseFloat(createForm.value.concentracion),
+      stock_inicial: parseFloat(createForm.value.stock_inicial),
+      costo_total: parseFloat(createForm.value.costo_total),
+      unidad_medida_cantidad: createForm.value.unidad_medida_cantidad,
+      unidad_medida_moneda: createForm.value.unidad_medida_moneda,
+      unidad_medida_concentracion: createForm.value.unidad_medida_concentracion,
+    })
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.post(`${baseURL}/lote-insumos`, {
+      nombre: createForm.value.nombre,
+      tipo_insumo_id: parseInt(createForm.value.tipo_insumo_id),
+
+      proveedor_id: parseInt(createForm.value.proveedor_id),
+      almacen_id: parseInt(createForm.value.almacen_id),
+      concentracion: parseFloat(createForm.value.concentracion),
+      stock_inicial: parseFloat(createForm.value.stock_inicial),
+      costo_total: parseFloat(createForm.value.costo_total),
+      unidad_medida_cantidad: createForm.value.unidad_medida_cantidad,
+      unidad_medida_moneda: createForm.value.unidad_medida_moneda,
+      unidad_medida_concentracion: createForm.value.unidad_medida_concentracion,
+    })
+
+    console.log('Lote de insumo creado:', response.data)
     showCreateModal.value = false
 
     // limpiar form
@@ -657,7 +684,7 @@ const crearLoteInsumo = async () => {
       almacen_id: '',
       concentracion: '',
       stock_inicial: '',
-      costo_unitario: '',
+      costo_total: '',
       unidad_medida_cantidad: '', // volumen
       unidad_medida_moneda: '', // dinero
       unidad_medida_concentracion: '', // masa
@@ -768,7 +795,7 @@ const actualizarStockActualLoteInsumo = async () => {
 const getMasa = async () => {
   const baseURL = import.meta.env.VITE_API_URL
   try {
-    const response = await axios.get(`${baseURL}/unidades-medida/propiedad/masa`)
+    const response = await axios.get(`${baseURL}/unidades-medida/propiedad/concentracion`)
     masa.value = response.data
   } catch (error) {
     console.error('Error fetching unidad de medida:', error)
@@ -778,7 +805,7 @@ const getMasa = async () => {
 const getVolumen = async () => {
   const baseURL = import.meta.env.VITE_API_URL
   try {
-    const response = await axios.get(`${baseURL}/unidades-medida/propiedad/volumen`)
+    const response = await axios.get(`${baseURL}/unidades-medida/propiedad/masa_volumen`)
     volumen.value = response.data
   } catch (error) {
     console.error('Error fetching unidad de medida:', error)
