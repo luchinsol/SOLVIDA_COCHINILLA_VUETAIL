@@ -167,15 +167,6 @@
               <div
                 class="flex justify-center items-center gap-2 opacity-70 hover:opacity-100 transition"
               >
-                <!-- VER -->
-                <button
-                  @click="verDetalle(item)"
-                  class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 transition"
-                  title="Ver detalle"
-                >
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-
                 <!-- EDITAR -->
                 <button
                   @click="editar(item)"
@@ -183,15 +174,6 @@
                   title="Editar"
                 >
                   <i class="fa-solid fa-pen"></i>
-                </button>
-
-                <!-- ELIMINAR -->
-                <button
-                  @click="confirmarEliminar(item)"
-                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 transition"
-                  title="Eliminar"
-                >
-                  <i class="fa-solid fa-trash"></i>
                 </button>
               </div>
             </td>
@@ -261,6 +243,98 @@
       </div>
     </div>
   </div>
+
+  <!-- SHOW DIALOG RESULTADO -->
+  <div
+    v-if="showResultadoModalCarmin"
+    class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+  >
+    <div
+      class="p-6 rounded-xl w-[400px] shadow-lg text-center"
+      :class="resultType === 'success' ? 'bg-green-100' : 'bg-red-100'"
+    >
+      <h2 class="text-xl font-bold mb-4 text-gray-900">
+        {{ resultType === 'success' ? 'Operación exitosa' : 'Error' }}
+      </h2>
+
+      <p class="mb-6">
+        {{ resultMessage }}
+      </p>
+
+      <button
+        @click="showResultadoModalCarmin = false"
+        class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+      >
+        Aceptar
+      </button>
+    </div>
+  </div>
+
+  <!-- SHOW DIALOG DE ACTULIZAR COCHINILLA-->
+  <div
+    v-if="showUpdateCarminModal"
+    class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 bg-gray-800/30"
+  >
+    <div class="bg-red-100 p-6 rounded-xl w-[650px] shadow-lg max-h-[90vh] overflow-y-auto">
+      <h2 class="text-xl font-bold mb-6">Actualizar Lote Carmin</h2>
+
+      <div class="flex flex-col gap-6">
+        <!-- 🔹 BLOQUE 1 -->
+
+        <!-- ACTUALIZAR ESTADO LOTE -->
+        <div>
+          <h3 class="text-sm font-bold text-gray-500 mb-3">Estado de lote</h3>
+
+          <div class="grid grid-cols-1 gap-4">
+            <select v-model="updateForm.estado_lote" class="input">
+              <option disabled value="">Estado del lote</option>
+              <option value="disponible">Disponible</option>
+              <option value="por analizar">Por analizar</option>
+              <option value="bloqueado">Bloqueado</option>
+              <option value="agotado">Agotado</option>
+            </select>
+            <button
+              @click="actualizarEstadoLoteCarmin"
+              class="bg-blue-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+            >
+              Actualizar Estado
+            </button>
+          </div>
+        </div>
+
+        <!-- ACTUALIZAR STOCK ACTUAL LOTE -->
+        <div>
+          <h3 class="text-sm font-bold text-gray-500 mb-3">Stock actual</h3>
+
+          <div class="grid grid-cols-1 gap-4">
+            <input
+              v-model="updateForm.stock_actual"
+              type="number"
+              placeholder="Stock actual"
+              class="input"
+            />
+            <button
+              @click="actualizarStockActualCarmin"
+              class="bg-blue-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+            >
+              Actualizar Stock
+            </button>
+          </div>
+        </div>
+
+        <!-- 🔘 BOTONES -->
+        <div class="flex justify-end gap-3">
+          <button
+            @click="showUpdateCarminModal = false"
+            class="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 flex items-center gap-2"
+          >
+            <i class="fa-solid fa-close"></i>
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -284,6 +358,16 @@ const selectedItem = ref(null)
 const currentPage = ref(1) // PAGINACIÓN
 const perPage = ref(4) // PAGINACIÓN
 const perPageOptions = [4, 10, 15, 'All']
+
+const resultMessage = ref('')
+const resultType = ref('') // 'success' o 'error'
+const showResultadoModalCarmin = ref(false)
+const showUpdateCarminModal = ref(false)
+const updateForm = ref({
+  lote_carmin_id: null,
+  estado_lote: '',
+  stock_actual: null,
+})
 
 const eliminar = async () => {
   try {
@@ -309,6 +393,70 @@ const verDetalle = (item) => {
 
 const editar = (item) => {
   console.log('Editar:', item)
+  showUpdateCarminModal.value = true
+  updateForm.value = {
+    id: item.lote_carmin_id,
+    estado_lote: item.estado_lote,
+    stock_actual: item.stock_actual, // Asegúrate de que esta propiedad exista en tu objeto
+  }
+}
+
+const actualizarEstadoLoteCarmin = async () => {
+  try {
+    console.log('Actualizar estado o stock:', updateForm.value)
+
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.patch(
+      `${baseURL}/lotes-carmin/${updateForm.value.id}/estado-lote`,
+      {
+        estado_lote: updateForm.value.estado_lote,
+      },
+    )
+    if (response.status === 200) {
+      // mostrar resultado
+      showUpdateCarminModal.value = false
+      resultMessage.value = 'Lote carmin actualizado correctamente'
+      resultType.value = 'success'
+      showResultadoModalCarmin.value = true
+    }
+    await getLoteCarmin()
+  } catch (error) {
+    const msg = error.response?.data?.message || 'No se pudo actualizar el lote carmin'
+    resultMessage.value = msg
+    resultType.value = 'error'
+    showResultadoModalCarmin.value = true
+    console.error(error)
+  }
+}
+
+const actualizarStockActualCarmin = async () => {
+  try {
+    console.log('Actualizar estado o stock:', updateForm.value)
+
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.patch(
+      `${baseURL}/lotes-carmin/${updateForm.value.id}/stock-actual`,
+      {
+        stock_actual: updateForm.value.stock_actual,
+      },
+    )
+    if (response.status === 200) {
+      // mostrar resultado
+      showUpdateCarminModal.value = false
+      resultMessage.value = 'Stock actual del lote carmin actualizado correctamente'
+      resultType.value = 'success'
+      showResultadoModalCarmin.value = true
+      await getLoteCarmin()
+    }
+  } catch (error) {
+    showUpdateCarminModal.value = false
+    const msg =
+      error.response?.data?.message || 'El stock actual no debe ser mayor al stock inicial'
+    resultMessage.value = msg
+    resultType.value = 'error'
+    showResultadoModalCarmin.value = true
+    console.error(error)
+  }
 }
 
 const confirmarEliminar = (item) => {
