@@ -463,6 +463,98 @@
       </div>
     </div>
   </div>
+
+  <!-- SHOW DIALOG RESULTADO -->
+  <div
+    v-if="showResultadoModalCochinilla "
+    class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+  >
+    <div
+      class="p-6 rounded-xl w-[400px] shadow-lg text-center"
+      :class="resultType === 'success' ? 'bg-green-100' : 'bg-red-100'"
+    >
+      <h2 class="text-xl font-bold mb-4 text-gray-900">
+        {{ resultType === 'success' ? 'Operación exitosa' : 'Error' }}
+      </h2>
+
+      <p class="mb-6">
+        {{ resultMessage }}
+      </p>
+
+      <button
+        @click="showResultadoModalCochinilla = false"
+        class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+      >
+        Aceptar
+      </button>
+    </div>
+  </div>
+
+  <!-- SHOW DIALOG DE ACTULIZAR COCHINILLA-->
+  <div
+    v-if="showUpdateCochinillaModal"
+    class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 bg-gray-800/30"
+  >
+    <div class="bg-red-100 p-6 rounded-xl w-[650px] shadow-lg max-h-[90vh] overflow-y-auto">
+      <h2 class="text-xl font-bold mb-6">Actualizar Lote Cochinilla</h2>
+
+      <div class="flex flex-col gap-6">
+        <!-- 🔹 BLOQUE 1 -->
+
+        <!-- ACTUALIZAR ESTADO LOTE -->
+        <div>
+          <h3 class="text-sm font-bold text-gray-500 mb-3">Estado de lote</h3>
+
+          <div class="grid grid-cols-1 gap-4">
+            <select v-model="updateForm.estado_lote" class="input">
+              <option disabled value="">Estado del lote</option>
+              <option value="disponible">Disponible</option>
+              <option value="por analizar">Por analizar</option>
+              <option value="bloqueado">Bloqueado</option>
+              <option value="agotado">Agotado</option>
+            </select>
+            <button
+              @click="actualizarEstadoLoteCochinilla"
+              class="bg-blue-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+            >
+              Actualizar Estado
+            </button>
+          </div>
+        </div>
+
+        <!-- ACTUALIZAR STOCK ACTUAL LOTE -->
+        <div>
+          <h3 class="text-sm font-bold text-gray-500 mb-3">Stock actual</h3>
+
+          <div class="grid grid-cols-1 gap-4">
+            <input
+              v-model="updateForm.stock_actual"
+              type="number"
+              placeholder="Stock actual"
+              class="input"
+            />
+            <button
+              @click="actualizarStockActualCochinilla"
+              class="bg-blue-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+            >
+              Actualizar Stock
+            </button>
+          </div>
+        </div>
+
+        <!-- 🔘 BOTONES -->
+        <div class="flex justify-end gap-3">
+          <button
+            @click="showUpdateCochinillaModal = false"
+            class="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 flex items-center gap-2"
+          >
+            <i class="fa-solid fa-close"></i>
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -483,6 +575,12 @@ const currentPage = ref(1)
 const perPage = ref(4)
 const showProveedorForm = ref(false)
 const showCreateCochinillaModal = ref(false)
+const showUpdateCochinillaModal = ref(false)
+
+// MENSAJES UI DE RESULTADOS
+const resultMessage = ref('')
+const resultType = ref('') // 'success' o 'error'
+const showResultadoModalCochinilla = ref(false)
 
 const perPageOptions = [4, 10, 20, 'All']
 
@@ -494,7 +592,13 @@ const createLoteCochinillaForm = ref({
   calidad_cochinilla: '',
   stock_inicial: 0.0,
   costo_total_inicial: 0.0,
-  observaciones: '',
+  observaciones: 'N/A',
+})
+
+const updateForm = ref({
+  id: null,
+  estado_lote: '',
+  stock_actual: null,
 })
 
 /// PROPS
@@ -512,7 +616,7 @@ const crearLoteCochinilla = async () => {
     // ejemplo:
     // await axios.post('/api/lotes-cochinilla', createLoteCochinillaForm.value)
     const baseURL = import.meta.env.VITE_API_URL
-    await axios.post(`${baseURL}/lotes-cochinilla/compra`, {
+  const response =  await axios.post(`${baseURL}/lotes-cochinilla/compra`, {
       almacen_id: parseInt(createLoteCochinillaForm.value.almacen_id),
       proveedor_id: parseInt(createLoteCochinillaForm.value.proveedor_id),
       creado_por: createLoteCochinillaForm.value.creado_por,
@@ -523,9 +627,29 @@ const crearLoteCochinilla = async () => {
       observaciones: createLoteCochinillaForm.value.observaciones,
     })
     showCreateCochinillaModal.value = false
+
+    if(response.status === 201) {
+
+     resultMessage.value = 'Lote de cochinilla creado exitosamente'
+     resultType.value = 'success'
+      showResultadoModalCochinilla.value = true   
+
+    } 
     await getLoteCochinilla() // recarga la lista después de crear
   } catch (error) {
     console.error('Error creando lote de cochinilla:', error)
+    showCreateCochinillaModal.value = false
+
+    const msg =  error.response?.data?.message || 'Error inesperado al crear lote de cochinilla' 
+      resultMessage.value = msg
+      resultType.value = 'error'
+       showResultadoModalCochinilla.value = true
+
+      
+        
+
+
+      console.error('Error inesperado al crear lote de cochinilla:', response)
   }
 }
 
@@ -553,8 +677,83 @@ const verDetalle = (item) => {
 
 const editar = (item) => {
   console.log('Editar:', item)
+  showUpdateCochinillaModal.value = true
+  updateForm.value = {
+    id: item.lote_cochinilla_id,
+    estado_lote: item.estado_lote,
+    stock_actual: item.stock_actual,
+  }
+  
+
 }
 
+const actualizarStockActualCochinilla = async () => {
+  try {
+    const baseURL = import.meta.env.VITE_API_URL
+
+    const response = await axios.patch(
+      `${baseURL}/lotes-cochinilla/${updateForm.value.id}/stock-actual`,
+      {
+        stock_actual: updateForm.value.stock_actual,
+      },
+    )
+
+    if (response.status === 200) {
+      // cerrar modal actual
+      showUpdateCochinillaModal.value = false
+
+      // mostrar resultado
+      resultMessage.value = 'Stock actual del lote actualizado correctamente'
+      resultType.value = 'success'
+      showResultadoModalCochinilla.value = true
+    }
+
+    await getLoteCochinilla()
+    //showUpdateModal.value = false
+  } catch (error) {
+    //showUpdateModal.value = false
+    showUpdateCochinillaModal.value = false
+    const msg = error.response?.data?.message || 'El stock actual no debe ser mayor al stock inicial'
+    resultMessage.value = msg
+    resultType.value = 'error'
+    showResultadoModalCochinilla.value = true
+    console.error(error)
+  }
+}
+
+const actualizarEstadoLoteCochinilla = async () => {
+  try {
+    const baseURL = import.meta.env.VITE_API_URL
+
+    const response = await axios.patch(
+      `${baseURL}/lotes-cochinilla/${updateForm.value.id}/estado-lote`,
+      {
+        estado_lote: updateForm.value.estado_lote,
+      },
+    )
+
+    if (response.status === 200) {
+      // cerrar modal actual
+      showUpdateCochinillaModal.value = false
+
+      // mostrar resultado
+      resultMessage.value = 'Estado de lote actualizado correctamente'
+      resultType.value = 'success'
+      showResultadoModalCochinilla.value = true
+    }
+
+    await getLoteCochinilla()
+    //showUpdateModal.value = false
+  } catch (error) {
+    //showUpdateModal.value = false
+    showUpdateCochinillaModal.value = false
+    const msg = error.response?.data?.message || 'No se pudo actualizar el estado del lote'
+    resultMessage.value = msg
+    resultType.value = 'error'
+    showResultadoModalCochinilla.value = true
+    console.error(error)
+  }
+}
 const confirmarEliminar = (item) => {
   selectedItem.value = item
   showDeleteModal.value = true

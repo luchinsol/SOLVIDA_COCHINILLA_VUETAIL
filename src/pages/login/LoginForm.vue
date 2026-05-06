@@ -98,6 +98,10 @@ const login = async () => {
   error.value = ''
 
   try {
+    console.log('Enviando datos al servidor:', {
+      nickname: username.value,
+      password: password.value,
+    })
     const response = await axios.post('http://localhost:3000/api/usuarios/login', {
       nickname: username.value,
       password: password.value,

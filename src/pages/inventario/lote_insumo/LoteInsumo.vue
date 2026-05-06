@@ -564,6 +564,32 @@
       </div>
     </div>
   </div>
+
+  <!-- SHOW DIALOG RESULTADO -->
+  <div
+    v-if="showResultModal"
+    class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+  >
+    <div
+      class="p-6 rounded-xl w-[400px] shadow-lg text-center"
+      :class="resultType === 'success' ? 'bg-green-100' : 'bg-red-100'"
+    >
+      <h2 class="text-xl font-bold mb-4 text-gray-900">
+        {{ resultType === 'success' ? 'Operación exitosa' : 'Error' }}
+      </h2>
+
+      <p class="mb-6">
+        {{ resultMessage }}
+      </p>
+
+      <button
+        @click="showResultModal = false"
+        class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+      >
+        Aceptar
+      </button>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -591,6 +617,11 @@ const perPageOptions = [4, 10, 15, 'All']
 const volumen = ref([])
 const masa = ref([])
 const dinero = ref([])
+
+// Mensaje de feedback para el usuario
+const showResultModal = ref(false)
+const resultMessage = ref('')
+const resultType = ref('') // success | error
 
 /// FORMULARIO NUEVO INSUMO
 const createForm = ref({
@@ -762,32 +793,70 @@ const editar = (item) => {
 
 const actualizarEstadoLoteInsumo = async () => {
   try {
-    console.log('Actualizar:', updateForm.value)
     const baseURL = import.meta.env.VITE_API_URL
-    console.log('ID del lote a actualizar:', updateForm.value.id)
-    console.log(updateForm.value.id)
-    await axios.patch(`${baseURL}/lote-insumos/${updateForm.value.id}/estado-lote`, {
-      estado_lote: updateForm.value.estado_lote,
-    })
+
+    const response = await axios.patch(
+      `${baseURL}/lote-insumos/${updateForm.value.id}/estado-lote`,
+      {
+        estado_lote: updateForm.value.estado_lote,
+      },
+    )
+
+    if (response.status === 200) {
+      // cerrar modal actual
+      showUpdateModal.value = false
+
+      // mostrar resultado
+      resultMessage.value = 'Estado de lote actualizado correctamente'
+      resultType.value = 'success'
+      showResultModal.value = true
+    }
+
     await getLoteInsumos(props.inventario)
     showUpdateModal.value = false
   } catch (error) {
+    showUpdateModal.value = false
+
+    const msg = error.response?.data?.message || 'No se pudo actualizar el estado del lote'
+    resultMessage.value = msg
+    resultType.value = 'error'
+    showResultModal.value = true
     console.error(error)
   }
 }
 
 const actualizarStockActualLoteInsumo = async () => {
   try {
-    console.log('Actualizar stock actual:', updateForm.value)
     const baseURL = import.meta.env.VITE_API_URL
-    await axios.patch(`${baseURL}/lote-insumos/${updateForm.value.id}/stock-actual`, {
-      stock_actual: parseFloat(updateForm.value.stock_actual),
-    })
+
+    const response = await axios.patch(
+      `${baseURL}/lote-insumos/${updateForm.value.id}/stock-actual`,
+      {
+        stock_actual: parseFloat(updateForm.value.stock_actual),
+      },
+    )
+
+    if (response.status === 200) {
+      // cerrar modal actual
+      showUpdateModal.value = false
+
+      // mostrar resultado
+      resultMessage.value = 'Stock actualizado correctamente'
+      resultType.value = 'success'
+      showResultModal.value = true
+    }
 
     await getLoteInsumos(props.inventario)
-    showUpdateModal.value = false
   } catch (error) {
-    console.error(error)
+    // cerrar modal actual
+    showUpdateModal.value = false
+
+    const msg =
+      error.response?.data?.message || 'El stock actual no debe mayor que el stock inicial'
+
+    resultMessage.value = msg
+    resultType.value = 'error'
+    showResultModal.value = true
   }
 }
 
