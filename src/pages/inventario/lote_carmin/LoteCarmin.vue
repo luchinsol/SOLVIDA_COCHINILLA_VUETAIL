@@ -17,24 +17,21 @@
         <!-- HEADER -->
         <thead class="bg-gray-50 text-gray-600 uppercase text-[10px] tracking-wider">
           <tr>
-            <th class="px-4 py-3 text-left">ID Lote Carmin</th>
-            <th class="px-4 py-3 text-left">Almacén ID</th>
-            <th class="px-4 py-3 text-left">Análisis Actual ID</th>
-            <th class="px-4 py-3 text-left">Proceso Laqueo ID</th>
-            <th class="px-4 py-3 text-left">Proceso Molienda ID</th>
-            <th class="px-4 py-3 text-left">Proceso Mezclado ID</th>
-            <th class="px-4 py-3 text-left">Código Lote</th>
-            <th class="px-4 py-3 text-left">Tipo Lote</th>
-            <th class="px-4 py-3 text-right">Masa Total (kg)</th>
-            <th class="px-4 py-3 text-right">Concentración AC Actual</th>
-            <th class="px-4 py-3 text-right">Humedad Actual</th>
-            <th class="px-4 py-3 text-right">Color L</th>
-            <th class="px-4 py-3 text-right">Color A</th>
-            <th class="px-4 py-3 text-right">Color B</th>
-            <th class="px-4 py-3 text-left">Estado Lote</th>
-            <th class="px-4 py-3 text-left">Observaciones</th>
-            <th class="px-4 py-3 text-left">Creado En</th>
-            <th class="px-4 py-3 text-left">Calidad Lote</th>
+            <th class="px-4 py-3 text-left bg-purple-500 text-white">ID Lote Carmin</th>
+            <th class="px-4 py-3 text-left bg-yellow-500 text-white">Código Lote</th>
+            <th class="px-4 py-3 text-left bg-green-500 text-white">Tipo Lote</th>
+            <th class="px-4 py-3 text-left bg-blue-500 text-white">Almacén</th>
+            <th class="px-4 py-3 text-right bg-blue-500 text-white">Masa Total (kg)</th>
+            <th class="px-4 py-3 text-right bg-indigo-500 text-white">Concentración AC Actual</th>
+            <th class="px-4 py-3 text-right bg-pink-500 text-white">Humedad Actual</th>
+            <th class="px-4 py-3 text-right bg-orange-500 text-white">Color L</th>
+            <th class="px-4 py-3 text-right bg-red-500 text-white">Color A</th>
+            <th class="px-4 py-3 text-right bg-green-500 text-white">Color B</th>
+            <th class="px-4 py-3 text-left bg-blue-500 text-white">Estado Lote</th>
+            <th class="px-4 py-3 text-left bg-purple-500 text-white">Observaciones</th>
+            <th class="px-4 py-3 text-left bg-yellow-500 text-white">Creado En</th>
+            <th class="px-4 py-3 text-left bg-green-500 text-white">Calidad Lote</th>
+            <th class="px-4 py-3 text-center bg-gray-400 text-white">Acciones</th>
           </tr>
         </thead>
 
@@ -69,34 +66,9 @@
               <div class="font-medium text-gray-900">{{ item.lote_carmin_id }}</div>
             </td>
 
-            <!-- Almacen ID -->
-            <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.almacen_id || '-' }}</div>
-            </td>
-
-            <!-- Analisis Actual ID -->
-            <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.analisis_actual_id || '-' }}</div>
-            </td>
-
-            <!-- Proceso Laqueo ID -->
-            <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.proceso_laqueo_id || '-' }}</div>
-            </td>
-
-            <!-- Proceso Molienda ID -->
-            <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.proceso_molienda_id || '-' }}</div>
-            </td>
-
-            <!-- Proceso Mezclado ID -->
-            <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.proceso_mezclado_id || '-' }}</div>
-            </td>
-
             <!-- Código Lote -->
             <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.codigo_lote || '-' }}</div>
+              <div class="font-medium text-gray-900">{{ item.codigo_lote || '-N/A-' }}</div>
             </td>
 
             <!-- Tipo Lote -->
@@ -104,9 +76,25 @@
               <div class="font-medium text-gray-900">{{ item.tipo_lote || '-' }}</div>
             </td>
 
+            <!-- Almacén -->
+            <td class="px-4 py-2 text-xs">
+              <div class="font-medium text-black-900">
+                {{ item.almacen_nombre || '-' }}
+              </div>
+            </td>
+
             <!-- Masa Total -->
-            <td class="px-4 py-2 text-right text-xs font-bold text-gray-900">
-              {{ item.masa_total_kg || '-' }}
+
+            <td class="px-4 py-2">
+              <div class="flex flex-col">
+                <span class="font-bold">
+                  {{ item.masa_total_kg || 0.0 }}
+                </span>
+
+                <span class="text-[14px] text-gray-500 font-bold">
+                  {{ item.unidad_medida_stock }}
+                </span>
+              </div>
             </td>
 
             <!-- Concentración AC Actual -->
