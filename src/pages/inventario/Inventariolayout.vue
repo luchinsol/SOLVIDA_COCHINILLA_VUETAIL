@@ -88,21 +88,23 @@
       </div>
     </div>
 
-    <!-- PRODUCCIÓN -->
-    <div v-if="parentTab === 'produccion'">
-      <p class="text-gray-500">Contenido de Producción (en construcción)</p>
+    <!-- KARDEX -->
+    <div v-if="parentTab === 'kardex'">
+      <KardexCards />
+      <KardexTable />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
-
+import KardexCards from '@/pages/inventario/kardex/KardexCards.vue'
 import LoteCochinilla from '@/pages/inventario/lote_cochinilla/LoteCochinilla.vue'
 import LoteExtracto from '@/pages/inventario/extracto/LoteExtracto.vue'
 import LoteCarmin from '@/pages/inventario/lote_carmin/LoteCarmin.vue'
 import HeaderSection from '@/pages/inventario/HeaderSection.vue'
 import LoteInsumo from '@/pages/inventario/lote_insumo/LoteInsumo.vue'
+import KardexTable from '@/pages/inventario/kardex/KardexTable.vue'
 
 // estado tabs
 const activeTab = ref('insumos')
