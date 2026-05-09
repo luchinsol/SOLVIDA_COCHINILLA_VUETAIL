@@ -1,4 +1,5 @@
 <script setup>
+// IMPORTS PARA LA PAGINACIÓN
 import { ref } from 'vue'
 import { computed } from 'vue'
 import { watch } from 'vue'
