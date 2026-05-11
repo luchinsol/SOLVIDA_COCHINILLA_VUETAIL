@@ -17,31 +17,24 @@
         <thead class="bg-gray-50 text-gray-600 uppercase text-[10px] tracking-wider">
           <tr>
             <th class="px-4 py-3 text-left bg-purple-200">ID</th>
-            <th class="px-4 py-3 text-center">N°Proveedor</th>
-            <th class="px-4 py-3 text-center">N° Almacen</th>
             <th class="px-4 py-3 text-center bg-blue-200">Nombre</th>
             <th class="px-4 py-3 text-left bg-pink-200">Concentración</th>
             <th class="px-4 py-3 text-right bg-yellow-200">Costo Unitario</th>
             <th class="px-4 py-3 text-right bg-green-200">Stock Actual</th>
-            <th class="px-4 py-3 text-right">Fecha creación</th>
+            <th class="px-4 py-3 text-right bg-blue-200">Fecha creación</th>
 
-            <th class="px-4 py-3 text-right">Costo total</th>
-            <th class="px-4 py-3 text-left">Stock inicial</th>
-            <th class="px-4 py-3 text-left">N° Tipo insumo</th>
-            <th class="px-4 py-3 text-left">UM - Cantidad</th>
-            <th class="px-4 py-3 text-center">UM - Moneda</th>
+            <th class="px-4 py-3 text-right bg-red-200">Costo total</th>
+            <th class="px-4 py-3 text-left bg-indigo-200">Stock inicial</th>
 
-            <th class="px-4 py-3 text-right">UM - Concentración</th>
+            <th class="px-4 py-3 text-right bg-gray-200">Estado lote</th>
 
-            <th class="px-4 py-3 text-right">Estado lote</th>
+            <th class="px-4 py-3 text-center bg-gray-200">Proveedor</th>
 
-            <th class="px-4 py-3 text-center">Proveedor</th>
+            <th class="px-4 py-3 text-center w-[250px] bg-purple-200">Almacen</th>
 
-            <th class="px-4 py-3 text-center w-[250px]">Almacen</th>
+            <th class="px-4 py-3 text-center w-[300px] bg-green-200">Tipo insumo</th>
 
-            <th class="px-4 py-3 text-center w-[300px]">Tipo insumo</th>
-
-            <th class="px-4 py-3 text-center">Acciones</th>
+            <th class="px-4 py-3 text-center bg-yellow-200">Acciones</th>
           </tr>
         </thead>
 
@@ -78,18 +71,6 @@
               <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
             </td>
 
-            <!-- Proveedor ID-->
-            <td class="px-4 py-2 text-xs text-center">
-              <div class="font-medium text-gray-900">{{ item.proveedor_id }}</div>
-              <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
-            </td>
-
-            <!-- Almacen ID-->
-            <td class="px-4 py-2 text-xs text-center">
-              <div class="font-medium text-gray-900">{{ item.almacen_id }}</div>
-              <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
-            </td>
-
             <!-- Nombre -->
             <td class="px-4 py-2 text-xs">
               <div class="font-medium text-gray-100 bg-blue-500 rounded p-1">{{ item.nombre }}</div>
@@ -98,28 +79,42 @@
 
             <!-- Concentración -->
             <td class="px-4 py-2">
-              <span
-                class="px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 bg-red-100 text-blue-800"
-                :class="item.badge"
-              >
-                <i :class="item.icon"></i>
-                {{ item.concentracion }}
-              </span>
+              <div class="flex flex-col">
+                <span class="font-bold">
+                  {{ item.concentracion }}
+                </span>
+
+                <span class="text-[13px] text-gray-500 font-bold">
+                  {{ item.unidad_medida_concentracion }}
+                </span>
+              </div>
             </td>
 
             <!-- Costo unitario -->
-            <td class="px-4 py-3 text-left text-xs">
-              <div class="font-bold text-gray-900 bg-yellow-100 p-1">{{ item.costo_unitario }}</div>
+            <td class="px-4 py-2">
+              <div class="flex flex-col">
+                <span class="font-bold">
+                  {{ item.costo_unitario }}
+                </span>
+
+                <span class="text-[13px] text-gray-500 font-bold">
+                  {{ item.unidad_medida_moneda }}
+                </span>
+              </div>
             </td>
 
             <!-- Stock actual -->
-            <td class="px-4 py-3">
-              <span
-                class="text-xs text-blue-600 font-bold bg-green-100 p-1 rounded"
-                :class="item.stockColor"
-              >
-                {{ item.stock_actual }}
-              </span>
+
+            <td class="px-4 py-2">
+              <div class="flex flex-col">
+                <span class="font-bold">
+                  {{ item.stock_actual }}
+                </span>
+
+                <span class="text-[13px] text-gray-500 font-bold">
+                  {{ item.unidad_medida_cantidad }}
+                </span>
+              </div>
             </td>
 
             <!-- Fecha creación -->
@@ -128,40 +123,28 @@
             </td>
 
             <!-- Costo total -->
-            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
-              {{ item.costo_total }}
+            <td class="px-4 py-2">
+              <div class="flex flex-col">
+                <span class="font-bold">
+                  {{ item.costo_total }}
+                </span>
+
+                <span class="text-[13px] text-gray-500 font-bold">
+                  {{ item.unidad_medida_moneda }}
+                </span>
+              </div>
             </td>
 
             <!-- Stock inicial -->
-            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
-              {{ item.stock_inicial }}
-            </td>
+            <td class="px-4 py-2">
+              <div class="flex flex-col">
+                <span class="font-bold">
+                  {{ item.stock_inicial }}
+                </span>
 
-            <!-- Tipo de insumo ID-->
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <span class="text-xs">{{ item.tipo_insumo_id }}</span>
-              </div>
-            </td>
-
-            <!-- UM-Cantidad-->
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <span class="text-xs">{{ item.unidad_medida_cantidad }}</span>
-              </div>
-            </td>
-
-            <!-- UM-Moneda-->
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <span class="text-xs">{{ item.unidad_medida_moneda }}</span>
-              </div>
-            </td>
-
-            <!-- UM-Concentracion-->
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <span class="text-xs">{{ item.unidad_medida_concentracion }}</span>
+                <span class="text-[13px] text-gray-500 font-bold">
+                  {{ item.unidad_medida_cantidad }}
+                </span>
               </div>
             </td>
 

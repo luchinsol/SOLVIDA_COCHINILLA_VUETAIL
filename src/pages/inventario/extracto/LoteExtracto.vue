@@ -17,30 +17,24 @@
         <thead class="bg-gray-50 text-gray-600 uppercase text-[10px] tracking-wider">
           <tr></tr>
           <tr>
-            <th class="px-4 py-3 text-left">ID</th>
-            <th class="px-4 py-3 text-center">Almacén ID</th>
-            <th class="px-4 py-3 text-left">Almacén</th>
-            <th class="px-4 py-3 text-center">Análisis Actual ID</th>
-            <th class="px-4 py-3 text-center">Proceso Filtrado ID</th>
-            <th class="px-4 py-3 text-center">Proceso Filt. Código</th>
-            <th class="px-4 py-3 text-left">Nombre Extracto</th>
-            <th class="px-4 py-3 text-center">Tipo Extracto</th>
-            <th class="px-4 py-3 text-right">Stock Inicial</th>
-            <th class="px-4 py-3 text-right">Conc. AC Actual</th>
+            <th class="px-4 py-3 text-left bg-yellow-500 text-white">ID</th>
+            <th class="px-4 py-3 text-left bg-gray-400 text-white">Almacén</th>
+            <th class="px-4 py-3 text-center bg-purple-400 text-white">Proceso Filt. Código</th>
+            <th class="px-4 py-3 text-left bg-green-400 text-white">Nombre Extracto</th>
+            <th class="px-4 py-3 text-center bg-blue-400 text-white">Tipo Extracto</th>
+            <th class="px-4 py-3 text-right bg-red-400 text-white">Stock Inicial</th>
+            <th class="px-4 py-3 text-right bg-gray-400 text-white">Stock Actual</th>
+            <th class="px-4 py-3 text-right bg-gray-400 text-white">Conc. AC Actual</th>
 
-            <th class="px-4 py-3 text-center">Estado Lote</th>
-            <th class="px-4 py-3 text-center">Observaciones</th>
-            <th class="px-4 py-3 text-left">Fecha Creación</th>
-            <th class="px-4 py-3 text-right">Stock Actual</th>
+            <th class="px-4 py-3 text-center bg-gray-400 text-white">Estado Lote</th>
+            <th class="px-4 py-3 text-center bg-gray-400 text-white">Observaciones</th>
+            <th class="px-4 py-3 text-left bg-gray-400 text-white">Fecha Creación</th>
 
-            <th class="px-4 py-3 text-center">UM Stock</th>
+            <th class="px-4 py-3 text-right bg-purple-400 text-white">Costo Total Inicial</th>
+            <th class="px-4 py-3 text-right bg-red-400 text-white">Costo Total Actual</th>
+            <th class="px-4 py-3 text-right bg-blue-400 text-white">Costo Unitario</th>
 
-            <th class="px-4 py-3 text-right">Costo Total Inicial</th>
-            <th class="px-4 py-3 text-right">Costo Total Actual</th>
-            <th class="px-4 py-3 text-right">Costo Unitario</th>
-            <th class="px-4 py-3 text-center">UM Dinero</th>
-
-            <th class="px-4 py-3 text-center">Acciones</th>
+            <th class="px-4 py-3 text-center bg-yellow-400 text-black">Acciones</th>
           </tr>
         </thead>
 
@@ -75,24 +69,9 @@
               <div class="font-medium text-gray-900">{{ item.extracto_id }}</div>
             </td>
 
-            <!-- Almacén ID -->
-            <td class="px-4 py-2 text-xs text-center">
-              {{ item.almacen_id || 'N/A' }}
-            </td>
-
             <!-- Almacén -->
             <td class="px-4 py-3 text-left text-xs">
               <div class="font-bold text-gray-900">{{ item.almacen_nombre }}</div>
-            </td>
-
-            <!-- Análisis Actual ID -->
-            <td class="px-4 py-2 text-xs text-center">
-              {{ item.analisis_actual_id || 'N/A' }}
-            </td>
-
-            <!-- Proceso Filtrado ID -->
-            <td class="px-4 py-3 text-left text-xs">
-              <div class="font-bold text-gray-900">{{ item.proceso_filtrado_id }}</div>
             </td>
 
             <!-- Proceso Filtrado Código -->
@@ -111,8 +90,30 @@
             </td>
 
             <!-- Stock Inicial -->
-            <td class="px-4 py-3 text-right text-xs font-bold">
-              {{ item.stock_inicial }}
+
+            <td class="px-4 py-2">
+              <div class="flex flex-col">
+                <span class="font-bold">
+                  {{ item.stock_inicial }}
+                </span>
+
+                <span class="text-[14px] text-red-900 font-bold">
+                  {{ item.unidad_medida_stock }}
+                </span>
+              </div>
+            </td>
+
+            <!-- Stock Actual  -->
+            <td class="px-4 py-2">
+              <div class="flex flex-col">
+                <span class="font-bold">
+                  {{ item.stock_actual }}
+                </span>
+
+                <span class="text-[14px] text-red-900 font-bold">
+                  {{ item.unidad_medida_stock }}
+                </span>
+              </div>
             </td>
 
             <!-- Concentracion AC Actual -->
@@ -135,34 +136,46 @@
               {{ item.creado_en }}
             </td>
 
-            <!-- Stock Actual  -->
-            <td class="px-4 py-3 text-left text-xs">
-              {{ item.stock_actual }}
-            </td>
-
-            <!-- Unidad Medidad stock -->
-            <td class="px-4 py-3 text-center text-xs">
-              {{ item.unidad_medida_stock }}
-            </td>
-
             <!-- Costo total inicial -->
-            <td class="px-4 py-3 text-xs">
-              {{ item.costo_total_inicial }}
+
+            <td class="px-4 py-2">
+              <div class="flex flex-col">
+                <span class="font-bold">
+                  {{ item.costo_total_inicial }}
+                </span>
+
+                <span class="text-[14px] text-red-900 font-bold">
+                  {{ item.unidad_medida_dinero }}
+                </span>
+              </div>
             </td>
 
             <!-- Costo total actual -->
-            <td class="px-4 py-3 text-xs">
-              {{ item.costo_total_actual }}
+
+            <td class="px-4 py-2">
+              <div class="flex flex-col">
+                <span class="font-bold">
+                  {{ item.costo_total_actual }}
+                </span>
+
+                <span class="text-[14px] text-red-900 font-bold">
+                  {{ item.unidad_medida_dinero }}
+                </span>
+              </div>
             </td>
 
             <!-- Costo por unidad -->
-            <td class="px-4 py-3 text-xs">
-              {{ item.costo_por_unidad }}
-            </td>
 
-            <!-- Unidad medida dinero-->
-            <td class="px-4 py-3 text-xs">
-              {{ item.unidad_medida_dinero }}
+            <td class="px-4 py-2">
+              <div class="flex flex-col">
+                <span class="font-bold">
+                  {{ item.costo_por_unidad }}
+                </span>
+
+                <span class="text-[14px] text-red-900 font-bold">
+                  {{ item.unidad_medida_dinero }}
+                </span>
+              </div>
             </td>
 
             <!-- Acción -->
