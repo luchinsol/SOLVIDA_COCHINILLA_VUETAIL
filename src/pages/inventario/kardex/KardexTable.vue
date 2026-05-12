@@ -20,6 +20,7 @@ const currentPage = ref(1)
 const loading = ref(false)
 // FILTROS DE BÚSQUEDA
 const searchProducto = ref('')
+const listaProductos = ref([])
 const searchUsuario = ref('')
 const searchTipo = ref('')
 const searchCodigo = ref('')
@@ -27,46 +28,51 @@ const searchAlmacen = ref('')
 const searchFechaDesde = ref('')
 const searchFechaHasta = ref('')
 
+const listaTipoMovimientoAlmacen = ref([])
+
+const listaTipos = ref([])
+const listaAlmacenes = ref([])
 // DATOS PRINCIPALES
 const movimientosData = ref([]) // Aquí se almacenarán los movimientos obtenidos de la API
 
 // RESULTADOS DE OPERACIONES (CREAR, EDITAR, ELIMINAR)
 const resultMessage = ref('')
 const resultType = ref('') // 'success' o 'error'
-/*
-const filteredMovimientos = computed(() => {
-  const prodFilter = searchProducto.value.trim().toLowerCase()
-  const userFilter = searchUsuario.value.trim().toLowerCase()
-  const tipoFilter = searchTipo.value.trim().toLowerCase()
-  const codigoFilter = searchCodigo.value.trim().toLowerCase()
-  const almacenFilter = searchAlmacen.value.trim()
-  const fechaDesde = searchFechaDesde.value
-  const fechaHasta = searchFechaHasta.value
+const createMotivoMovimientoForm = ref({
+  tipo_movimiento_id: '',
+  motivo_movimiento_id: '',
+})
 
-  return movimientosData.value.filter((item) => {
-    const productoText = (item.nombre_item || '').toString().toLowerCase()
+const listaMotivosMovimiento = ref([])
 
-    const usuarioText = (item.usuario_id || '').toString().toLowerCase()
+// CONTROL DE MODALES
+const showRegistroMovimientoModal = ref(false)
 
-    const tipoText = (item.motivo_movimiento || '').toString().toLowerCase()
+const getListaTipoMovimientoAlmacen = async () => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+    const respuesta = await axios.get(`${baseUrl}/tipos-movimientos-almacen`)
+    listaTipoMovimientoAlmacen.value = await respuesta.data
+    console.log('Tipos de movimiento cargados:', listaTipoMovimientoAlmacen.value)
+  } catch (error) {
+    console.error('Error al cargar tipos de movimiento:', error)
+  }
+}
 
-    const codigoText = (item.codigo_item || '').toString().toLowerCase()
-
-    const almacenText = (item.almacen_origen_id || '').toString()
-
-    const fechaItem = item.fecha_hora ? item.fecha_hora.split('T')[0] : ''
-
-    return (
-      (!prodFilter || productoText.includes(prodFilter)) &&
-      (!userFilter || usuarioText.includes(userFilter)) &&
-      (!tipoFilter || tipoText.includes(tipoFilter)) &&
-      (!codigoFilter || codigoText.includes(codigoFilter)) &&
-      (!almacenFilter || almacenText === almacenFilter) &&
-      (!fechaDesde || fechaItem >= fechaDesde) &&
-      (!fechaHasta || fechaItem <= fechaHasta)
-    )
-  })
-})*/
+const getListarMotivosMovimientos = async () => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+    const respuesta = await axios.get(`${baseUrl}/motivos-movimiento`, {
+      params: {
+        tipo_mov_id: createMotivoMovimientoForm.value.tipo_movimiento_id,
+      },
+    })
+    listaMotivosMovimiento.value = await respuesta.data
+    console.log('Motivos de movimiento cargados:', listaMotivosMovimiento.value)
+  } catch (error) {
+    console.error('Error al cargar motivos de movimiento:', error)
+  }
+}
 
 /// COMPUTED PROPERTIES PARA PAGINACIÓN
 const paginatedKardex = computed(() => {
@@ -122,8 +128,44 @@ const getMovimientos = async () => {
   }
 }
 
-onMounted(() => {
-  getMovimientos()
+const cargarTipos = async (nombreProducto) => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+    const respuesta = await fetch(`${baseUrl}/item-inventario/tipos?nombre_item=${nombreProducto}`)
+
+    listaTipos.value = await respuesta.json()
+  } catch (error) {
+    console.error('Error al cargar tipos:', error)
+  }
+}
+
+const cargarAlmacenes = async () => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+    const respuesta = await fetch(`${baseUrl}/almacen`)
+
+    listaAlmacenes.value = await respuesta.json()
+  } catch (error) {
+    console.error('Error al cargar almacenes:', error)
+  }
+}
+
+const cargarProductos = async () => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+    const respuesta = await fetch(`${baseUrl}/item-inventario/nombres`)
+    listaProductos.value = await respuesta.json()
+  } catch (error) {
+    console.error('Error al cargar productos:', error)
+  }
+}
+
+watch(searchProducto, (nuevoProducto) => {
+  if (nuevoProducto) {
+    searchTipo.value = ''
+
+    cargarTipos(nuevoProducto)
+  }
 })
 
 watch(
@@ -132,15 +174,32 @@ watch(
     getMovimientos()
   },
 )
+
+onMounted(() => {
+  cargarProductos()
+  cargarAlmacenes()
+  getMovimientos()
+  getListaTipoMovimientoAlmacen()
+})
 </script>
 
 <template>
   <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-    <!-- HEADER -->
-    <div class="px-6 py-5 border-b border-gray-200">
-      <h2 class="text-xl font-bold text-gray-900">Kardex Detallado</h2>
+    <div class="px-6 py-5 border-b border-gray-200 flex items-start justify-between">
+      <!-- IZQUIERDA -->
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">Kardex Detallado</h2>
 
-      <p class="text-sm text-gray-500 mt-1">Movimientos y trazabilidad de inventario</p>
+        <p class="text-sm text-gray-500 mt-1">Movimientos y trazabilidad de inventario</p>
+      </div>
+
+      <!-- DERECHA -->
+      <button
+        class="bg-orange-600 hover:bg-orange-700 text-white text-md font-bold px-4 py-2 rounded-lg transition"
+        @click="showRegistroMovimientoModal = true"
+      >
+        Registrar movimiento
+      </button>
     </div>
 
     <!-- FILTROS -->
@@ -173,24 +232,36 @@ watch(
           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
         />
       </div>
+
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2"> Almacén </label>
 
-        <input
+        <select
           v-model="searchAlmacen"
-          type="text"
-          placeholder="ID almacén"
           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-        />
+        >
+          <option value="" disabled>Seleccione un almacén</option>
+          <option
+            v-for="almacen in listaAlmacenes"
+            :key="almacen.almacen_id"
+            :value="almacen.almacen_id"
+          >
+            {{ almacen.nombre }}
+          </option>
+        </select>
       </div>
+
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Producto</label>
-        <input
+        <select
           v-model="searchProducto"
-          type="text"
-          placeholder="Buscar por producto"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-        />
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white"
+        >
+          <option value="" disabled>Seleccione un producto</option>
+          <option v-for="item in listaProductos" :key="item.nombre_item" :value="item.nombre_item">
+            {{ item.nombre_item }}
+          </option>
+        </select>
       </div>
 
       <div>
@@ -203,14 +274,20 @@ watch(
         />
       </div>
 
+      <!-- TIPO -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
-        <input
+        <label class="block text-sm font-medium text-gray-700 mb-2"> Tipo </label>
+
+        <select
           v-model="searchTipo"
-          type="text"
-          placeholder="Buscar por tipo"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-        />
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+        >
+          <option value="" disabled>Seleccione un tipo</option>
+
+          <option v-for="tipo in listaTipos" :key="tipo.tipo" :value="tipo.tipo">
+            {{ tipo.tipo }}
+          </option>
+        </select>
       </div>
     </div>
 
@@ -222,11 +299,13 @@ watch(
           <tr class="text-[11px] uppercase tracking-wider text-gray-500">
             <th class="px-4 py-3 text-left">Movimiento</th>
             <th class="px-4 py-3 text-left">Fecha</th>
+            <th class="px-4 py-3 text-left">Tipo movimiento</th>
             <th class="px-4 py-3 text-left">Motivo</th>
             <th class="px-4 py-3 text-left">Producto</th>
             <th class="px-4 py-3 text-left">Código</th>
             <th class="px-4 py-3 text-left">Lote</th>
             <th class="px-4 py-3 text-right">Cantidad</th>
+            <th class="px-4 py-3 text-left">Saldo</th>
             <th class="px-4 py-3 text-left">Unidad</th>
             <th class="px-4 py-3 text-left">Tipo</th>
             <th class="px-4 py-3 text-left">Almacén Origen</th>
@@ -269,6 +348,11 @@ watch(
               {{ item.fecha_hora }}
             </td>
 
+            <!-- TIPO MOVIMIENTO -->
+            <td class="px-4 py-3 font-medium text-blue-900 font-bold">
+              {{ item.tipo_movimiento_nombre }}
+            </td>
+
             <!-- MOTIVO -->
             <td class="px-4 py-3">
               <span
@@ -301,6 +385,11 @@ watch(
             <!-- CANTIDAD -->
             <td class="px-4 py-3 text-right font-bold text-gray-900">
               {{ item.cantidad }}
+            </td>
+
+            <!-- SALDO -->
+            <td class="px-4 py-3 text-left font-bold text-red-900">
+              {{ item.saldo }}
             </td>
 
             <!-- UNIDAD -->
@@ -378,6 +467,60 @@ watch(
         >
           <i class="fa-solid fa-angles-right"></i>
         </button>
+      </div>
+    </div>
+
+    <!-- SHOW DIALOG DE CREACIÓN DE INSUMO-->
+    <div
+      v-if="showRegistroMovimientoModal"
+      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 bg-gray-800/30"
+    >
+      <div class="bg-red-100 p-6 rounded-xl w-[650px] shadow-lg max-h-[90vh] overflow-y-auto">
+        <h2 class="text-xl font-bold mb-6">Nuevo registro de movimiento</h2>
+
+        <div class="flex flex-col gap-6">
+          <!-- 🔹 BLOQUE 1 -->
+          <div>
+            <!--h3 class="text-sm font-bold text-black-500 mb-3">
+              Información básica
+              <span class="italic font-bold text-blue-600 text-xs">
+                (si no encuentras el tipo de insumo, puedes registrarlo aquí)
+              </span>
+            </h3-->
+
+            <!-- SELECTOR DE TIPO DE INSUMO -->
+            <div class="grid grid-cols-2 gap-4">
+              <select v-model="createMotivoMovimientoForm.tipo_movimiento_id" class="input">
+                <option disabled value="">Tipo movimiento</option>
+                <option
+                  v-for="tipo in listaTipoMovimientoAlmacen"
+                  :key="tipo.tipo_mov_id"
+                  :value="tipo.tipo_mov_id"
+                >
+                  {{ tipo.nombre }}
+                </option>
+              </select>
+
+              <select v-model="createMotivoMovimientoForm.motivo_movimiento_id" class="input">
+                <option disabled value="">Motivo del movimiento</option>
+                <option
+                  v-for="tipo in listaMotivosMovimiento"
+                  :key="tipo.motivo_mov_id"
+                  :value="tipo.motivo_mov_id"
+                >
+                  {{ tipo.nombre }}
+                </option>
+              </select>
+            </div>
+
+            <!-- FORMULARIO INLINE CREAR TIPO DE INSUMO -->
+            <CrearInsumo
+              v-if="showTipoInsumoForm"
+              v-model="showTipoInsumoForm"
+              @created="handleTipoInsumoCreado"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>
