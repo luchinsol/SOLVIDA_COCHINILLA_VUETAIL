@@ -18,6 +18,10 @@
 
     <!-- CONTENIDO SEGÚN TAB PADRE -->
     <div v-if="parentTab === 'inventario'">
+      <div class="mb-8">
+        <KardexCards />
+      </div>
+
       <!-- TABS HIJOS + SELECTOR -->
       <div class="flex justify-between items-center border-b pb-2">
         <!-- TABS -->
@@ -90,7 +94,6 @@
 
     <!-- KARDEX -->
     <div v-if="parentTab === 'kardex'">
-      <KardexCards />
       <KardexTable />
     </div>
   </div>

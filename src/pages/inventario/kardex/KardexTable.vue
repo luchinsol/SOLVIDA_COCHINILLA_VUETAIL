@@ -58,7 +58,7 @@ const getListaTipoMovimientoAlmacen = async () => {
     console.error('Error al cargar tipos de movimiento:', error)
   }
 }
-
+// USAR ESTA FUNCIÓN
 const getListarMotivosMovimientos = async () => {
   try {
     const baseUrl = import.meta.env.VITE_API_URL
@@ -264,16 +264,6 @@ onMounted(() => {
         </select>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
-        <input
-          v-model="searchUsuario"
-          type="text"
-          placeholder="Buscar por usuario"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-        />
-      </div>
-
       <!-- TIPO -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2"> Tipo </label>
@@ -288,6 +278,15 @@ onMounted(() => {
             {{ tipo.tipo }}
           </option>
         </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
+        <input
+          v-model="searchUsuario"
+          type="text"
+          placeholder="Buscar por usuario"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+        />
       </div>
     </div>
 
