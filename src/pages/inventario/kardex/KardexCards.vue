@@ -1,50 +1,62 @@
 <script setup>
-const cards = [
-  {
-    titulo: 'Valor Total Inventario',
-    valor: '$1,245,600',
-    descripcion: 'vs mes anterior',
-    extra: '+ 4.2%',
-    icono: 'fa-boxes-stacked',
-    iconBg: 'bg-indigo-100',
-    iconColor: 'text-indigo-600',
-    badge: 'bg-green-100 text-green-700',
-  },
-  {
-    titulo: 'Stock Disponible',
-    valor: '85,230',
-    unidad: 'kg',
-    descripcion: '75% de capacidad total',
-    icono: 'fa-circle-check',
-    iconBg: 'bg-green-100',
-    iconColor: 'text-green-600',
-    progress: 75,
-  },
-  {
-    titulo: 'Stock Reservado',
-    valor: '12,450',
-    unidad: 'kg',
-    descripcion: 'Para 15 órdenes de producción activas',
-    icono: 'fa-lock',
-    iconBg: 'bg-yellow-100',
-    iconColor: 'text-yellow-600',
-  },
-  {
-    titulo: 'Alertas Stock Crítico',
-    valor: '8',
-    unidad: 'Items',
-    descripcion: 'requieren atención inmediata',
-    extra: '+2',
-    icono: 'fa-triangle-exclamation',
-    iconBg: 'bg-red-100',
-    iconColor: 'text-red-600',
-    badge: 'bg-red-100 text-red-700',
-  },
-]
+import axios from 'axios'
+import { ref, onMounted } from 'vue'
+
+const cards = ref([])
+
+const getInfoCards = async () => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+
+    const response = await axios.get(`${baseUrl}/lotes-cochinilla/resumen`)
+    const data = response.data
+
+    cards.value = [
+      {
+        titulo: 'Stock Actual',
+        valor: data.stock_actual,
+        unidad: data.unidad_medida_cantidad,
+        descripcion: 'Cantidad total disponible',
+        icono: 'fa-boxes-stacked',
+        iconColor: 'text-blue-600',
+        iconBg: 'bg-blue-100',
+        badge: 'bg-blue-100 text-blue-700',
+      },
+
+      {
+        titulo: 'Costo Total',
+        valor: data.costo_total,
+        unidad: data.unidad_medida_moneda,
+        descripcion: 'Valor total del stock',
+        icono: 'fa-sack-dollar',
+        iconColor: 'text-green-600',
+        iconBg: 'bg-green-100',
+        badge: 'bg-green-100 text-green-700',
+      },
+
+      {
+        titulo: 'Costo Unitario',
+        valor: Number(data.costo_unitario).toFixed(2),
+        unidad: data.unidad_medida_moneda,
+        descripcion: 'Costo promedio por unidad',
+        icono: 'fa-coins',
+        iconColor: 'text-yellow-600',
+        iconBg: 'bg-yellow-100',
+        badge: 'bg-yellow-100 text-yellow-700',
+      },
+    ]
+  } catch (error) {
+    console.error('Error fetching card info:', error)
+  }
+}
+
+onMounted(() => {
+  getInfoCards()
+})
 </script>
 
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
     <div
       v-for="(card, index) in cards"
       :key="index"
@@ -76,26 +88,7 @@ const cards = [
         </button>
       </div>
 
-      <!-- PROGRESS -->
-      <div v-if="card.progress" class="mt-5">
-        <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            class="h-full bg-green-500 rounded-full"
-            :style="{ width: `${card.progress}%` }"
-          ></div>
-        </div>
-      </div>
-
-      <!-- FOOTER -->
       <div class="mt-4 flex items-center gap-2 flex-wrap">
-        <span
-          v-if="card.extra"
-          class="text-xs font-semibold px-2 py-1 rounded-md"
-          :class="card.badge"
-        >
-          {{ card.extra }}
-        </span>
-
         <span class="text-xs text-gray-500">
           {{ card.descripcion }}
         </span>
