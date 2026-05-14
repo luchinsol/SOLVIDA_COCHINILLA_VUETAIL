@@ -27,6 +27,7 @@ const searchCodigo = ref('')
 const searchAlmacen = ref('')
 const searchFechaDesde = ref('')
 const searchFechaHasta = ref('')
+const stepMovimiento = ref(1)
 
 const listaTipoMovimientoAlmacen = ref([])
 
@@ -469,56 +470,513 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- SHOW DIALOG DE CREACIÓN DE INSUMO-->
+    <!-- SHOW DIALOG DE CREACIÓN DE REGISTRO DE MOVIMIENTO -->
     <div
       v-if="showRegistroMovimientoModal"
-      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 bg-gray-800/30"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
     >
-      <div class="bg-red-100 p-6 rounded-xl w-[650px] shadow-lg max-h-[90vh] overflow-y-auto">
-        <h2 class="text-xl font-bold mb-6">Nuevo registro de movimiento</h2>
-
-        <div class="flex flex-col gap-6">
-          <!-- 🔹 BLOQUE 1 -->
+      <div
+        class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl max-h-[95vh] overflow-y-auto border border-gray-200"
+      >
+        <!-- HEADER MODAL -->
+        <div
+          class="flex items-center justify-between px-8 py-5 border-b border-gray-200 bg-gray-50 rounded-t-2xl"
+        >
           <div>
-            <!--h3 class="text-sm font-bold text-black-500 mb-3">
-              Información básica
-              <span class="italic font-bold text-blue-600 text-xs">
-                (si no encuentras el tipo de insumo, puedes registrarlo aquí)
-              </span>
-            </h3-->
+            <h2 class="text-2xl font-bold text-gray-900">New Movement Registration</h2>
+            <p class="text-sm text-gray-500 mt-1">
+              Record a new inventory transaction across warehouses.
+            </p>
+          </div>
 
-            <!-- SELECTOR DE TIPO DE INSUMO -->
-            <div class="grid grid-cols-2 gap-4">
-              <select v-model="createMotivoMovimientoForm.tipo_movimiento_id" class="input">
-                <option disabled value="">Tipo movimiento</option>
-                <option
-                  v-for="tipo in listaTipoMovimientoAlmacen"
-                  :key="tipo.tipo_mov_id"
-                  :value="tipo.tipo_mov_id"
-                >
-                  {{ tipo.nombre }}
-                </option>
-              </select>
+          <button
+            @click="showRegistroMovimientoModal = false"
+            class="w-10 h-10 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition flex items-center justify-center text-gray-600"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
 
-              <select v-model="createMotivoMovimientoForm.motivo_movimiento_id" class="input">
-                <option disabled value="">Motivo del movimiento</option>
-                <option
-                  v-for="tipo in listaMotivosMovimiento"
-                  :key="tipo.motivo_mov_id"
-                  :value="tipo.motivo_mov_id"
+        <!-- CONTENIDO -->
+        <div class="p-8 space-y-6 bg-surface">
+          <!-- STEP HEADER -->
+          <!-- STEP HEADER -->
+          <div class="relative max-w-2xl mx-auto px-10">
+            <!-- LINEA GRIS -->
+            <div class="absolute top-4 left-[18%] right-[18%] h-[2px] bg-gray-200"></div>
+
+            <!-- LINEA ACTIVA -->
+            <div
+              :class="[
+                'absolute top-4 left-[18%] h-[2px] bg-primary transition-all duration-300',
+                stepMovimiento >= 2 ? 'w-[64%]' : 'w-0',
+              ]"
+            ></div>
+
+            <!-- STEPS -->
+            <div class="relative flex justify-between">
+              <!-- STEP 1 -->
+              <div class="relative z-10 flex flex-col items-center">
+                <div
+                  :class="[
+                    'w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm shadow-sm ring-4 ring-white',
+                    stepMovimiento >= 1
+                      ? 'bg-primary text-white'
+                      : 'bg-white border-2 border-gray-200 text-gray-400',
+                  ]"
                 >
-                  {{ tipo.nombre }}
-                </option>
-              </select>
+                  1
+                </div>
+
+                <span
+                  :class="[
+                    'text-sm mt-3 text-center',
+                    stepMovimiento >= 1
+                      ? 'font-semibold text-primary'
+                      : 'font-medium text-gray-500',
+                  ]"
+                >
+                  Batch Selection
+                </span>
+              </div>
+
+              <!-- STEP 2 -->
+              <div class="relative z-10 flex flex-col items-center">
+                <div
+                  :class="[
+                    'w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm shadow-sm ring-4 ring-white',
+                    stepMovimiento >= 2
+                      ? 'bg-primary text-white'
+                      : 'bg-white border-2 border-gray-200 text-gray-400',
+                  ]"
+                >
+                  2
+                </div>
+
+                <span
+                  :class="[
+                    'text-sm mt-3 text-center',
+                    stepMovimiento >= 2
+                      ? 'font-semibold text-primary'
+                      : 'font-medium text-gray-500',
+                  ]"
+                >
+                  Details & Finish
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="stepMovimiento === 1">
+            <!-- CONFIGURATION -->
+            <div
+              class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100"
+            >
+              <h3 class="text-base font-bold text-gray-900 mb-5 flex items-center gap-2">
+                <i class="fa-solid fa-clipboard-list text-primary"></i>
+                Movement Configuration
+              </h3>
+
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <!-- MOVEMENT TYPE -->
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 mb-2">
+                    Movement Type *
+                  </label>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <!-- ENTRY -->
+                    <div class="relative">
+                      <input
+                        type="radio"
+                        name="movement-type"
+                        id="type-entry"
+                        class="peer sr-only"
+                        checked
+                      />
+
+                      <label
+                        for="type-entry"
+                        class="flex flex-col items-center justify-center p-4 bg-white border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary peer-checked:border-primary peer-checked:bg-blue-50 peer-checked:shadow-sm transition-all"
+                      >
+                        <i class="fa-solid fa-arrow-down text-2xl text-green-500 mb-2"></i>
+
+                        <span class="text-sm font-semibold text-gray-900"> Entry </span>
+                      </label>
+                    </div>
+
+                    <!-- EXIT -->
+                    <div class="relative">
+                      <input
+                        type="radio"
+                        name="movement-type"
+                        id="type-exit"
+                        class="peer sr-only"
+                      />
+
+                      <label
+                        for="type-exit"
+                        class="flex flex-col items-center justify-center p-4 bg-white border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary peer-checked:border-primary peer-checked:bg-blue-50 peer-checked:shadow-sm transition-all"
+                      >
+                        <i class="fa-solid fa-arrow-up text-2xl text-red-500 mb-2"></i>
+
+                        <span class="text-sm font-semibold text-gray-900"> Exit </span>
+                      </label>
+                    </div>
+
+                    <!-- ADJUST -->
+                    <div class="relative">
+                      <input
+                        type="radio"
+                        name="movement-type"
+                        id="type-adjust"
+                        class="peer sr-only"
+                      />
+
+                      <label
+                        for="type-adjust"
+                        class="flex flex-col items-center justify-center p-4 bg-white border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary peer-checked:border-primary peer-checked:bg-blue-50 peer-checked:shadow-sm transition-all"
+                      >
+                        <i class="fa-solid fa-sliders text-2xl text-yellow-500 mb-2"></i>
+
+                        <span class="text-sm font-semibold text-gray-900"> Adjustment </span>
+                      </label>
+                    </div>
+
+                    <!-- TRANSFER -->
+                    <div class="relative">
+                      <input
+                        type="radio"
+                        name="movement-type"
+                        id="type-transfer"
+                        class="peer sr-only"
+                      />
+
+                      <label
+                        for="type-transfer"
+                        class="flex flex-col items-center justify-center p-4 bg-white border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary peer-checked:border-primary peer-checked:bg-blue-50 peer-checked:shadow-sm transition-all"
+                      >
+                        <i class="fa-solid fa-right-left text-2xl text-blue-500 mb-2"></i>
+
+                        <span class="text-sm font-semibold text-gray-900"> Transfer </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- MOVEMENT REASON -->
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 mb-2">
+                    Movement Reason *
+                  </label>
+
+                  <div class="space-y-3">
+                    <!-- PRODUCTION -->
+                    <div class="relative">
+                      <input
+                        type="radio"
+                        name="movement-reason"
+                        id="reason-production"
+                        class="peer sr-only"
+                        checked
+                      />
+
+                      <label
+                        for="reason-production"
+                        class="flex items-center gap-3 p-3 bg-white border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary peer-checked:border-primary peer-checked:bg-blue-50 transition-all"
+                      >
+                        <div
+                          class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600"
+                        >
+                          <i class="fa-solid fa-industry"></i>
+                        </div>
+
+                        <div>
+                          <p class="text-sm font-semibold text-gray-900">Production</p>
+
+                          <p class="text-xs text-gray-500">Manufacturing process</p>
+                        </div>
+                      </label>
+                    </div>
+
+                    <!-- SALE -->
+                    <div class="relative">
+                      <input
+                        type="radio"
+                        name="movement-reason"
+                        id="reason-sale"
+                        class="peer sr-only"
+                      />
+
+                      <label
+                        for="reason-sale"
+                        class="flex items-center gap-3 p-3 bg-white border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary peer-checked:border-primary peer-checked:bg-blue-50 transition-all"
+                      >
+                        <div
+                          class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600"
+                        >
+                          <i class="fa-solid fa-cart-shopping"></i>
+                        </div>
+
+                        <div>
+                          <p class="text-sm font-semibold text-gray-900">Sale</p>
+
+                          <p class="text-xs text-gray-500">Customer order</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <!-- FORMULARIO INLINE CREAR TIPO DE INSUMO -->
-            <CrearInsumo
-              v-if="showTipoInsumoForm"
-              v-model="showTipoInsumoForm"
-              @created="handleTipoInsumoCreado"
-            />
+            <!-- FILTERS -->
+            <div
+              class="bg-gray-50 rounded-xl p-4 border border-gray-200 flex flex-col lg:flex-row gap-4 items-end"
+            >
+              <div class="w-full lg:w-1/4">
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5"> Product </label>
+
+                <select
+                  class="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded-lg p-2.5 focus:ring-primary focus:border-primary"
+                >
+                  <option>All Products</option>
+                </select>
+              </div>
+
+              <div class="w-full lg:w-1/4">
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5"> Warehouse </label>
+
+                <select
+                  class="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded-lg p-2.5 focus:ring-primary focus:border-primary"
+                >
+                  <option>Main Hub (WH-01)</option>
+                </select>
+              </div>
+
+              <div class="w-full lg:w-2/4">
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5"> Search </label>
+
+                <div class="relative">
+                  <i
+                    class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
+                  ></i>
+
+                  <input
+                    type="text"
+                    placeholder="Search code..."
+                    class="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded-lg pl-9 p-2.5 focus:ring-primary focus:border-primary"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- TABLE -->
+            <div class="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-600">
+                  <thead
+                    class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200"
+                  >
+                    <tr>
+                      <th class="px-6 py-3">Code</th>
+                      <th class="px-6 py-3">Product</th>
+                      <th class="px-6 py-3">Warehouse</th>
+                      <th class="px-6 py-3 text-right">Stock</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <tr
+                      class="bg-blue-50 border-b border-gray-200 hover:bg-blue-100 transition cursor-pointer"
+                    >
+                      <td class="px-6 py-4 font-medium text-primary">LOT-8924-A</td>
+
+                      <td class="px-6 py-4 font-semibold text-gray-900">Steel Coil 5mm</td>
+
+                      <td class="px-6 py-4">Main Hub (WH-01)</td>
+
+                      <td class="px-6 py-4 text-right font-bold text-gray-900">1,250 kg</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- SELECTED -->
+            <div
+              class="bg-white border border-primary/30 rounded-xl p-5 shadow-[0_2px_12px_-4px_rgba(59,130,246,0.2)]"
+            >
+              <div
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+              >
+                <div class="flex items-center gap-4">
+                  <div
+                    class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-primary text-xl border border-blue-100"
+                  >
+                    <i class="fa-solid fa-box-open"></i>
+                  </div>
+
+                  <div>
+                    <p class="text-xs font-semibold text-primary uppercase tracking-wider mb-0.5">
+                      Selected Batch
+                    </p>
+
+                    <h4 class="text-lg font-bold text-gray-900">
+                      Steel Coil 5mm
+                      <span class="text-gray-500 text-sm font-normal ml-2"> (LOT-8924-A) </span>
+                    </h4>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <p class="text-xs text-gray-500 mb-0.5">Available Stock</p>
+
+                  <p class="text-xl font-bold text-gray-900">
+                    1,250
+                    <span class="text-sm font-medium text-gray-500">kg</span>
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <div v-if="stepMovimiento === 2">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <!-- LEFT -->
+              <div class="lg:col-span-4">
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                  <div class="flex items-center gap-3 mb-6">
+                    <div
+                      class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-primary"
+                    >
+                      <i class="fa-solid fa-box-open"></i>
+                    </div>
+
+                    <div>
+                      <h3 class="text-lg font-semibold text-gray-900">Selected Batch</h3>
+
+                      <p class="text-sm text-gray-500">Source information</p>
+                    </div>
+                  </div>
+
+                  <div class="space-y-4">
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                      <p class="text-xs text-gray-500 mb-1">Code</p>
+
+                      <p class="font-semibold text-gray-900">LT-2024-8992</p>
+                    </div>
+
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                      <p class="text-xs text-gray-500 mb-1">Product</p>
+
+                      <p class="font-semibold text-gray-900">Steel Coil 5mm</p>
+                    </div>
+
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                      <p class="text-xs text-gray-500 mb-1">Available Stock</p>
+
+                      <p class="text-2xl font-bold text-primary">1,250 kg</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- RIGHT -->
+              <div class="lg:col-span-8">
+                <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+                  <h3 class="text-xl font-bold text-gray-900 mb-6">Movement Details</h3>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- QUANTITY -->
+                    <div>
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Quantity
+                      </label>
+
+                      <input
+                        type="number"
+                        class="w-full border border-gray-300 rounded-xl p-3 focus:ring-primary focus:border-primary"
+                        placeholder="Enter quantity"
+                      />
+                    </div>
+
+                    <!-- DESTINATION -->
+                    <div>
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Destination Warehouse
+                      </label>
+
+                      <select
+                        class="w-full border border-gray-300 rounded-xl p-3 focus:ring-primary focus:border-primary"
+                      >
+                        <option>Main Warehouse</option>
+                        <option>Production Area</option>
+                      </select>
+                    </div>
+
+                    <!-- REASON -->
+                    <div class="md:col-span-2">
+                      <label class="block text-sm font-semibold text-gray-700 mb-2"> Reason </label>
+
+                      <select
+                        class="w-full border border-gray-300 rounded-xl p-3 focus:ring-primary focus:border-primary"
+                      >
+                        <option>Production</option>
+                        <option>Transfer</option>
+                      </select>
+                    </div>
+
+                    <!-- OBS -->
+                    <div class="md:col-span-2">
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Observations
+                      </label>
+
+                      <textarea
+                        rows="4"
+                        class="w-full border border-gray-300 rounded-xl p-3 focus:ring-primary focus:border-primary"
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div
+          class="px-8 py-5 border-t border-gray-200 bg-gray-50 flex justify-between items-center rounded-b-2xl"
+        >
+          <button
+            v-if="stepMovimiento === 1"
+            @click="showRegistroMovimientoModal = false"
+            class="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-100 transition"
+          >
+            Cancel</button
+          ><button
+            v-if="stepMovimiento === 2"
+            @click="stepMovimiento = 1"
+            class="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-100 transition"
+          >
+            Back
+          </button>
+
+          <button
+            v-if="stepMovimiento === 1"
+            @click="stepMovimiento = 2"
+            class="px-6 py-2.5 bg-primary text-white text-sm font-medium rounded-lg shadow-md hover:bg-blue-600 transition"
+          >
+            Next Step
+          </button>
+
+          <button
+            v-else
+            class="px-6 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg shadow-md hover:bg-green-700 transition"
+          >
+            Save Movement
+          </button>
         </div>
       </div>
     </div>
