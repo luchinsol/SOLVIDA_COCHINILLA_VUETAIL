@@ -20,10 +20,7 @@
       </thead>
 
       <tbody>
-        <UserRow name="Carlos Ramirez" role="Administrador" active />
-        <UserRow name="Ana Lopez" role="QC" active />
-        <UserRow name="Juan Perez" role="Operador" active />
-        <UserRow name="Miguel Sanchez" role="Operador" />
+        <UserRow v-for="u in users" :key="u.name" v-bind="u" @edit="emit('edit', u)" />
       </tbody>
     </table>
   </div>
@@ -31,4 +28,11 @@
 
 <script setup>
 import UserRow from './UserRow.vue'
+
+const emit = defineEmits(['edit'])
+
+const users = [
+  { name: 'Carlos Ramirez', role: 'Administrador', active: true },
+  { name: 'Ana Lopez', role: 'QC', active: true },
+]
 </script>

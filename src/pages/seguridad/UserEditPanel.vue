@@ -73,8 +73,11 @@
   </div>
 </template>
 
+<
 <script setup>
 import { reactive } from 'vue'
+
+const emit = defineEmits(['cancel', 'save'])
 
 const user = {
   name: 'Carlos Ramirez',
@@ -93,11 +96,11 @@ const form = reactive({
 })
 
 const onCancel = () => {
-  console.log('Cancelar edición')
+  emit('cancel')
 }
 
 const onSave = () => {
-  console.log('Datos guardados:', form)
+  emit('save', form)
 }
 </script>
 

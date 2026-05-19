@@ -20,7 +20,7 @@
     </td>
 
     <td class="p-3 flex gap-2">
-      <button>✏️</button>
+      <button @click="emit('edit', props)" class="hover:scale-110 transition">✏️</button>
       <button>🔑</button>
     </td>
   </tr>
@@ -32,6 +32,8 @@ const props = defineProps({
   role: String,
   active: Boolean,
 })
+
+const emit = defineEmits(['edit'])
 
 const initials = props.name
   .split(' ')
