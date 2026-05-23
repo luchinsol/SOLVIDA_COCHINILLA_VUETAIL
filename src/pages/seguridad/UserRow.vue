@@ -1,26 +1,27 @@
 <template>
   <tr class="border-b hover:bg-surface-light transition">
     <td class="p-3">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs">
-          {{ initials }}
-        </div>
-        <span class="font-medium">{{ name }}</span>
-      </div>
+      <span class="font-medium text-black">
+        <!-- AGREGADO: props. -->
+        {{ props.nombres }} {{ props.apellidos }}
+      </span>
     </td>
 
     <td class="p-3">
-      <span class="text-xs bg-gray-100 px-2 py-1 rounded">{{ role }}</span>
+      <!-- AGREGADO: props. -->
+      {{ props.rol_nombre }}
     </td>
 
     <td class="p-3">
-      <span :class="statusClass">
-        {{ active ? 'Activo' : 'Bloqueado' }}
+      <!-- AGREGADO: props. -->
+      <span :class="props.estado === 'Activo' ? 'text-green-600' : 'text-red-600'">
+        {{ props.estado }}
       </span>
     </td>
 
     <td class="p-3 flex gap-2">
-      <button>✏️</button>
+      <!-- CORREGIDO: Pasar el objeto completo de props al emitir -->
+      <button @click="emit('edit', props)">✏️</button>
       <button>🔑</button>
     </td>
   </tr>
@@ -28,15 +29,16 @@
 
 <script setup>
 const props = defineProps({
-  name: String,
-  role: String,
-  active: Boolean,
+  id: [Number, String],
+  nombres: String,
+  apellidos: String,
+  correo: String,
+  rol_id: [Number, String],
+  rol_nombre: String,
+  departamento: String,
+  estado: String,
+  ultimo_acceso: String,
 })
 
-const initials = props.name
-  .split(' ')
-  .map((n) => n[0])
-  .join('')
-
-const statusClass = props.active ? 'text-green-600 text-xs' : 'text-red-600 text-xs'
+const emit = defineEmits(['edit'])
 </script>

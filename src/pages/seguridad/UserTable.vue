@@ -20,10 +20,7 @@
       </thead>
 
       <tbody>
-        <UserRow name="Carlos Ramirez" role="Administrador" active />
-        <UserRow name="Ana Lopez" role="QC" active />
-        <UserRow name="Juan Perez" role="Operador" active />
-        <UserRow name="Miguel Sanchez" role="Operador" />
+        <UserRow v-for="u in users" :key="u.id" v-bind="u" @edit="emit('edit', u)" />
       </tbody>
     </table>
   </div>
@@ -31,4 +28,40 @@
 
 <script setup>
 import UserRow from './UserRow.vue'
+import axios from 'axios'
+import { ref, onMounted } from 'vue'
+
+const emit = defineEmits(['edit'])
+
+const users = ref([])
+
+const getUsers = async () => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+
+    // TOKEN TEMPORAL
+    const token =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuaWNrbmFtZSI6InNhcml3aXMiLCJyb2xfaWQiOiIxIiwiaWF0IjoxNzc5NTAwODUxLCJleHAiOjE3Nzk1MDQ0NTF9.j_zDYZSi2BgiKxs5moAmpIi0R994w_utVDqKabsH3-0'
+
+    const response = await axios.get(`${baseUrl}/usuarios`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    console.log('Respuesta de la API:', response.data)
+    console.log(response.data)
+
+    users.value = response.data
+  } catch (error) {
+    console.error('Error obteniendo usuarios:', error)
+  }
+}
+
+onMounted(() => {
+  getUsers()
+})
+
+defineExpose({
+  getUsers,
+})
 </script>
