@@ -394,9 +394,11 @@ const getMovimientos = async () => {
 const cargarTipos = async (nombreProducto) => {
   try {
     const baseUrl = import.meta.env.VITE_API_URL
-    const respuesta = await fetch(`${baseUrl}/item-inventario/tipos?nombre_item=${nombreProducto}`)
+    const respuesta = await axios.get(`${baseUrl}/item-inventario/tipos`, {
+      params: { nombre_item: nombreProducto },
+    })
 
-    listaTipos.value = await respuesta.json()
+    listaTipos.value = respuesta.data
   } catch (error) {
     console.error('Error al cargar tipos:', error)
   }
@@ -405,9 +407,9 @@ const cargarTipos = async (nombreProducto) => {
 const cargarAlmacenes = async () => {
   try {
     const baseUrl = import.meta.env.VITE_API_URL
-    const respuesta = await fetch(`${baseUrl}/almacen`)
+    const respuesta = await axios.get(`${baseUrl}/almacen`)
 
-    listaAlmacenes.value = await respuesta.json()
+    listaAlmacenes.value = respuesta.data
   } catch (error) {
     console.error('Error al cargar almacenes:', error)
   }
@@ -416,8 +418,8 @@ const cargarAlmacenes = async () => {
 const cargarProductos = async () => {
   try {
     const baseUrl = import.meta.env.VITE_API_URL
-    const respuesta = await fetch(`${baseUrl}/item-inventario/nombres`)
-    listaProductos.value = await respuesta.json()
+    const respuesta = await axios.get(`${baseUrl}/item-inventario/nombres`)
+    listaProductos.value = respuesta.data
   } catch (error) {
     console.error('Error al cargar productos:', error)
   }
