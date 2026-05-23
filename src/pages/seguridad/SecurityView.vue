@@ -25,7 +25,7 @@
     <div class="grid gap-6" :class="selectedUser ? 'grid-cols-1 lg:grid-cols-3' : 'grid-cols-1'">
       <!-- LEFT -->
       <div :class="selectedUser ? 'lg:col-span-2' : 'col-span-1'">
-        <UserTable @edit="onEditUser" />
+        <UserTable ref="userTableRef" @edit="onEditUser" />
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <PermissionsSummary />
@@ -35,7 +35,12 @@
 
       <!-- RIGHT -->
       <div v-if="selectedUser" class="flex flex-col gap-6">
-        <UserEditPanel v-if="selectedUser" :user="selectedUser" @cancel="selectedUser = null" />
+        <UserEditPanel
+          v-if="selectedUser"
+          :user="selectedUser"
+          @cancel="selectedUser = null"
+          @save="onUserSaved"
+        />
         <PoliciesPanel />
       </div>
     </div>
@@ -52,6 +57,7 @@ import PoliciesPanel from '@/pages/seguridad/PoliciesPanel.vue'
 
 import { ref } from 'vue'
 
+const userTableRef = ref(null)
 const selectedUser = ref(null)
 
 const onEditUser = (user) => {
@@ -60,5 +66,9 @@ const onEditUser = (user) => {
 
 const onCancelEdit = () => {
   selectedUser.value = null
+}
+
+const onUserSaved = async () => {
+  await userTableRef.value.getUsers()
 }
 </script>

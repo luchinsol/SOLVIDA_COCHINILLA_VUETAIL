@@ -5,14 +5,14 @@
       <div>
         <h3 class="text-xl font-bold">Editar Perfil</h3>
         <p class="text-secondary font-medium mt-1 text-sm">
-          {{ user.name }}
+          {{ props.user.nombres }} {{ props.user.apellidos }}
         </p>
       </div>
 
       <span
         class="bg-secondary/20 text-secondary text-xs px-2 py-1 rounded border border-secondary/30"
       >
-        {{ user.role }}
+        {{ props.user.rol_nombre }}
       </span>
     </div>
 
@@ -21,23 +21,28 @@
       <!-- Nombre -->
       <div>
         <label class="block text-xs text-gray-400 mb-1"> Nombre Completo </label>
-        <input v-model="form.name" type="text" class="input" />
+
+        <div class="flex gap-2">
+          <input v-model="form.nombres" type="text" placeholder="Nombres" class="input" />
+
+          <input v-model="form.apellidos" type="text" placeholder="Apellidos" class="input" />
+        </div>
       </div>
 
       <!-- Email -->
       <div>
         <label class="block text-xs text-gray-400 mb-1"> Correo Electrónico </label>
-        <input v-model="form.email" type="email" class="input" />
+        <input v-model="form.correo" type="email" class="input" />
       </div>
 
       <!-- Rol -->
       <div>
         <label class="block text-xs text-gray-400 mb-1"> Rol Asignado </label>
-        <select v-model="form.role" class="input">
-          <option>Administrador</option>
-          <option>Supervisor</option>
-          <option>Operador Planta</option>
-          <option>Calidad (QC)</option>
+        <select v-model="form.rol_id" class="input">
+          <option value="" disabled selected>Seleccione un rol</option>
+          <option v-for="rol in roles" :key="rol.rol_id" :value="rol.rol_id">
+            {{ rol.nombre }}
+          </option>
         </select>
       </div>
 
@@ -75,33 +80,94 @@
 
 <
 <script setup>
+import axios from 'axios'
 import { reactive } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 
+const roles = ref([])
 const emit = defineEmits(['cancel', 'save'])
 
-const user = {
-  name: 'Carlos Ramirez',
-  role: 'Admin',
-}
+const props = defineProps({
+  user: Object,
+})
 
 const form = reactive({
-  name: 'Carlos Ramirez',
-  email: 'cramirez@carmine.com',
-  role: 'Administrador',
+  id: null,
+  nombres: '',
+  apellidos: '',
+  correo: '',
+  rol_id: '',
+
   permissions: {
-    qc: true,
-    inventory: true,
+    qc: false,
+    inventory: false,
     catalog: false,
   },
 })
+
+watch(
+  () => props.user,
+  (newUser) => {
+    if (newUser) {
+      form.id = newUser.id
+      form.nombres = newUser.nombres
+      form.apellidos = newUser.apellidos
+      form.correo = newUser.correo
+      form.rol_id = newUser.rol_id
+    }
+  },
+  { immediate: true },
+)
+
+const getRoles = async () => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+    const response = await axios.get(`${baseUrl}/roles`)
+    roles.value = response.data
+    console.log('Roles cargados:', roles.value)
+  } catch (error) {
+    console.error('Error al cargar roles:', error)
+  }
+}
 
 const onCancel = () => {
   emit('cancel')
 }
 
-const onSave = () => {
-  emit('save', form)
+const onSave = async () => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+    // NECESITA TOKEN PARA PRUEBAS
+    const token =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuaWNrbmFtZSI6InNhcml3aXMiLCJyb2xfaWQiOiIxIiwiaWF0IjoxNzc5NTAwODUxLCJleHAiOjE3Nzk1MDQ0NTF9.j_zDYZSi2BgiKxs5moAmpIi0R994w_utVDqKabsH3-0'
+
+    await axios.patch(
+      `${baseUrl}/usuarios/${form.id}/datos`,
+      {
+        nombres: form.nombres,
+        apellidos: form.apellidos,
+        correo: form.correo,
+        rol_id: form.rol_id,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    )
+
+    alert('Usuario actualizado')
+
+    emit('save', form)
+  } catch (error) {
+    console.error(error)
+    alert('Error al actualizar')
+  }
 }
+
+onMounted(() => {
+  getRoles()
+})
 </script>
 
 <style scoped>
