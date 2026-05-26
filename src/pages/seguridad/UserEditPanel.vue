@@ -138,8 +138,7 @@ const onSave = async () => {
   try {
     const baseUrl = import.meta.env.VITE_API_URL
     // NECESITA TOKEN PARA PRUEBAS
-    const token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuaWNrbmFtZSI6InNhcml3aXMiLCJyb2xfaWQiOiIxIiwiaWF0IjoxNzc5NTAwODUxLCJleHAiOjE3Nzk1MDQ0NTF9.j_zDYZSi2BgiKxs5moAmpIi0R994w_utVDqKabsH3-0'
+    const token = import.meta.env.VITE_TOKEN_LOGIN
 
     await axios.patch(
       `${baseUrl}/usuarios/${form.id}/datos`,
