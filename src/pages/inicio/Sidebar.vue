@@ -96,20 +96,19 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 const router = useRouter()
 const loading = ref(false)
 
-const salir = () => {
+const salir = async () => {
   loading.value = true
   try {
-    setTimeout(() => {
-      router.push('/') // cambia a tu ruta real
-      loading.value = false
-    }, 5000)
+    localStorage.removeItem('token')
+    localStorage.removeItem('usuario')
+    await router.push({ name: 'Login' })
   } catch (error) {
-    loading.value = false
     console.error('Error al salir:', error)
+  } finally {
+    loading.value = false
   }
 }
 </script>

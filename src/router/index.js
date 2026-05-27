@@ -17,6 +17,7 @@ const router = createRouter({
       path: '/panel',
       name: 'Home',
       component: MainLayout,
+      meta: { requiresAuth: true },
       children: [
         {
           path: '',
@@ -59,8 +60,21 @@ const router = createRouter({
       path: '/',
       name: 'Login',
       component: LoginView,
+      meta: { publicOnly: true },
     },
   ],
+})
+
+router.beforeEach((to) => {
+  const token = localStorage.getItem('token')
+
+  if (to.meta.publicOnly && token) {
+    return { name: 'Dashboard' }
+  }
+
+  if (to.matched.some((route) => route.meta.requiresAuth) && !token) {
+    return { name: 'Login' }
+  }
 })
 
 export default router
