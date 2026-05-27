@@ -40,9 +40,7 @@ const getUsers = async () => {
     const baseUrl = import.meta.env.VITE_API_URL
 
     // TOKEN TEMPORAL
-    const token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuaWNrbmFtZSI6InNhcml3aXMiLCJyb2xfaWQiOiIxIiwiaWF0IjoxNzc5NTAwODUxLCJleHAiOjE3Nzk1MDQ0NTF9.j_zDYZSi2BgiKxs5moAmpIi0R994w_utVDqKabsH3-0'
-
+    const token = import.meta.env.VITE_TOKEN_LOGIN
     const response = await axios.get(`${baseUrl}/usuarios`, {
       headers: {
         Authorization: `Bearer ${token}`,
