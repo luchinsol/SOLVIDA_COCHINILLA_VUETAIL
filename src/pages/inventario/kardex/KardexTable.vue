@@ -28,6 +28,8 @@ const searchAlmacen = ref('')
 const searchFechaDesde = ref('')
 const searchFechaHasta = ref('')
 const stepMovimiento = ref(1)
+const permisos = JSON.parse(localStorage.getItem('permisos') || '[]')
+const canCreateMovimiento = permisos.includes('movimiento_almacen.crear')
 
 const listaTipoMovimientoAlmacen = ref([])
 const motivoMovimientoSeleccionado = ref(null)
@@ -495,6 +497,7 @@ onMounted(() => {
 
       <!-- DERECHA -->
       <button
+        v-if="canCreateMovimiento"
         class="bg-orange-600 hover:bg-orange-700 text-white text-md font-bold px-4 py-2 rounded-lg transition"
         @click="showRegistroMovimientoModal = true"
       >

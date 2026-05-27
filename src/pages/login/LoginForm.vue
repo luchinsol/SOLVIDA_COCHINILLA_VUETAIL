@@ -105,6 +105,14 @@ const login = async () => {
       localStorage.setItem('usuario', JSON.stringify(response.data.usuario))
     }
 
+    if (response.data.permisos) {
+      localStorage.setItem('permisos', JSON.stringify(response.data.permisos))
+    }
+
+    if (response.data.modulos_acceso) {
+      localStorage.setItem('modulos_acceso', JSON.stringify(response.data.modulos_acceso))
+    }
+
     await router.push('/panel')
   } catch (err) {
     error.value = err.response?.data?.error || err.response?.data?.message || 'Error en el login'

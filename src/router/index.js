@@ -32,26 +32,31 @@ const router = createRouter({
           path: 'procesos',
           name: 'procesos',
           component: ProcessWizard,
+          meta: { modulo: 'Producción' },
         },
         {
           path: 'lotes',
           name: 'lotes',
           component: LotesView,
+          meta: { modulo: 'Lotes' },
         },
         {
           path: 'inventario',
           name: 'inventario',
           component: Inventariolayout,
+          meta: { modulo: 'Inventario' },
         },
         {
           path: 'analisis',
           name: 'analisis',
           component: QcLabView,
+          meta: { modulo: 'Laboratorio' },
         },
         {
           path: 'seguridad',
           name: 'seguridad',
           component: SecurityView,
+          meta: { modulo: 'Seguridad' },
         },
       ],
     },
@@ -65,6 +70,26 @@ const router = createRouter({
   ],
 })
 
+const getModulosAcceso = () => {
+  try {
+    return JSON.parse(localStorage.getItem('modulos_acceso') || '[]')
+  } catch {
+    return []
+  }
+}
+
+const normalizeModulo = (value) =>
+  String(value || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+
+const hasModulo = (nombre) =>
+  getModulosAcceso().some(
+    (modulo) => normalizeModulo(modulo.modulo_nombre) === normalizeModulo(nombre),
+  )
+
 router.beforeEach((to) => {
   const token = localStorage.getItem('token')
 
@@ -74,6 +99,12 @@ router.beforeEach((to) => {
 
   if (to.matched.some((route) => route.meta.requiresAuth) && !token) {
     return { name: 'Login' }
+  }
+
+  const moduloRequerido = to.matched.find((route) => route.meta?.modulo)?.meta?.modulo
+
+  if (moduloRequerido && !hasModulo(moduloRequerido)) {
+    return { name: 'Dashboard' }
   }
 })
 

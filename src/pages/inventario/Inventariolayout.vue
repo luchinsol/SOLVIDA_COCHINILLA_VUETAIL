@@ -11,7 +11,11 @@
         Inventario
       </button>
 
-      <button @click="parentTab = 'kardex'" :class="parentTab === 'kardex' ? 'tab-active' : 'tab'">
+      <button
+        v-if="canViewKardex"
+        @click="parentTab = 'kardex'"
+        :class="parentTab === 'kardex' ? 'tab-active' : 'tab'"
+      >
         Kardex
       </button>
     </div>
@@ -112,6 +116,8 @@ import KardexTable from '@/pages/inventario/kardex/KardexTable.vue'
 // estado tabs
 const activeTab = ref('insumos')
 const parentTab = ref('inventario')
+const permisos = JSON.parse(localStorage.getItem('permisos') || '[]')
+const canViewKardex = permisos.includes('movimiento_almacen.ver')
 
 // estado selector
 const almacenSeleccionado = ref('todos')
