@@ -20,6 +20,7 @@
       </router-link>
 
       <router-link
+        v-if="hasModulo('Producción')"
         to="/panel/procesos"
         class="nav-item flex items-center px-4 py-3 text-textMuted hover:bg-gray-50 rounded-lg"
       >
@@ -28,6 +29,7 @@
       </router-link>
 
       <router-link
+        v-if="hasModulo('Lotes')"
         to="/panel/lotes"
         class="nav-item flex items-center px-4 py-3 text-textMuted hover:bg-gray-50 rounded-lg"
       >
@@ -36,6 +38,7 @@
       </router-link>
 
       <router-link
+        v-if="hasModulo('Inventario')"
         to="/panel/inventario"
         class="nav-item flex items-center px-4 py-3 text-textMuted hover:bg-gray-50 rounded-lg"
       >
@@ -44,6 +47,7 @@
       </router-link>
 
       <router-link
+        v-if="hasModulo('Laboratorio')"
         to="/panel/analisis"
         class="nav-item flex items-center px-4 py-3 text-textMuted hover:bg-gray-50 rounded-lg"
       >
@@ -52,6 +56,7 @@
       </router-link>
 
       <router-link
+        v-if="hasModulo('Seguridad')"
         to="/panel/seguridad"
         class="nav-item flex items-center px-4 py-3 text-textMuted hover:bg-gray-50 rounded-lg"
       >
@@ -96,14 +101,28 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+
 const router = useRouter()
 const loading = ref(false)
+const modulosAcceso = JSON.parse(localStorage.getItem('modulos_acceso') || '[]')
+
+const normalizeModulo = (value) =>
+  String(value || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+
+const hasModulo = (nombre) =>
+  modulosAcceso.some((modulo) => normalizeModulo(modulo.modulo_nombre) === normalizeModulo(nombre))
 
 const salir = async () => {
   loading.value = true
   try {
     localStorage.removeItem('token')
     localStorage.removeItem('usuario')
+    localStorage.removeItem('permisos')
+    localStorage.removeItem('modulos_acceso')
     await router.push({ name: 'Login' })
   } catch (error) {
     console.error('Error al salir:', error)
