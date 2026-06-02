@@ -11,13 +11,13 @@
       </div>
 
       <div class="flex gap-3">
-        <button class="px-4 py-2 bg-surface border border-border-color rounded-xl text-sm">
+        <!--button class="px-4 py-2 bg-surface border border-border-color rounded-xl text-sm">
           Exportar Auditoría
-        </button>
+        </button-->
 
         <button
           @click="showNuevoUsuarioModal = true"
-          class="px-4 py-2 bg-primary text-secondary rounded-xl text-sm font-bold"
+          class="px-4 py-2 bg-primary text-white rounded-xl text-sm font-bold"
         >
           Nuevo Usuario
         </button>

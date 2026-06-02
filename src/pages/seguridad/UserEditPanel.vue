@@ -48,23 +48,24 @@
 
       <!-- Permisos -->
       <div class="pt-4 border-t border-gray-700">
-        <p class="text-sm font-bold mb-3">Permisos Especiales</p>
+        <p class="text-sm font-bold mb-3">Estado del usuario</p>
 
-        <div class="space-y-2">
-          <label class="checkbox">
-            <input type="checkbox" v-model="form.permissions.qc" />
-            <span>Liberación de Lotes QC</span>
-          </label>
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-gray-300">
+            {{ form.activo ? 'Activo' : 'Inactivo' }}
+          </span>
 
-          <label class="checkbox">
-            <input type="checkbox" v-model="form.permissions.inventory" />
-            <span>Ajuste Manual de Inventario</span>
-          </label>
-
-          <label class="checkbox">
-            <input type="checkbox" v-model="form.permissions.catalog" />
-            <span>Modificación de Catálogos</span>
-          </label>
+          <button
+            type="button"
+            @click="form.activo = !form.activo"
+            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+            :class="form.activo ? 'bg-green-500' : 'bg-gray-500'"
+          >
+            <span
+              class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+              :class="form.activo ? 'translate-x-6' : 'translate-x-1'"
+            />
+          </button>
         </div>
       </div>
 
@@ -97,6 +98,7 @@ const form = reactive({
   apellidos: '',
   correo: '',
   rol_id: '',
+  active: true,
 
   permissions: {
     qc: false,
@@ -146,7 +148,8 @@ const onSave = async () => {
         nombres: form.nombres,
         apellidos: form.apellidos,
         correo: form.correo,
-        rol_id: form.rol_id,
+        rol_id: Number(form.rol_id),
+        estado: form.activo,
       },
       {
         headers: {
