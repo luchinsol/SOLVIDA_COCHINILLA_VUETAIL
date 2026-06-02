@@ -88,7 +88,6 @@
       </div>
 
       <!-- PERMISSIONS -->
-      <!-- PERMISSIONS -->
       <div
         v-if="selectedRole"
         class="flex-1 bg-white border border-gray-200 rounded-[12px] shadow-sm flex flex-col overflow-hidden"
@@ -142,8 +141,6 @@
                   </h3>
                 </div>
               </div>
-
-              <input type="checkbox" class="w-4 h-4" checked />
             </div>
 
             <!-- RESOURCES -->
@@ -646,45 +643,34 @@ const guardarPermiso = async () => {
   try {
     const baseUrl = import.meta.env.VITE_API_URL
 
-    const moduloSeleccionado = modulos.value.find((m) => m.modulo_id == form.value.modulo_id)
-
     const permisos = []
 
     Object.entries(recursoSeleccionado.value.acciones).forEach(([accionNombre, accionData]) => {
-      if (accionData.activo) {
-        permisos.push({
-          modulo: moduloSeleccionado.nombre,
-          recurso: form.value.recurso,
-          accion: accionNombre,
-          alcance:
-            accionData.tipo_selector === 'alcance' ? accionData.alcanceSeleccionado || null : null,
-          descripcion:
-            accionData.opciones?.valorado?.descripcion ||
-            accionData.opciones?.no_valorado?.descripcion ||
-            accionData.opciones?.on?.descripcion ||
-            '',
-        })
-      }
+      permisos.push({
+        rol_id: selectedRole.value.rol_id, // o el rol que tengas seleccionado
+        recurso: form.value.recurso,
+        accion: accionNombre,
+        alcance:
+          accionData.tipo_selector === 'alcance' ? accionData.alcanceSeleccionado || null : null,
+        activo: accionData.activo,
+      })
     })
 
-    console.log('Payload:', permisos)
-    console.log(localStorage.getItem('token'))
+    console.log('Payload', permisos)
+
     await Promise.all(
       permisos.map((item) =>
-        axios.post(`${baseUrl}/permisos`, item, {
+        axios.patch(`${baseUrl}/rol-permisos`, item, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         }),
       ),
     )
-    console.log(item)
-    console.log({
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    })
+
     showNuevoPermisoModal.value = false
 
-    alert('Permisos creados correctamente')
+    alert('Permisos actualizados correctamente')
   } catch (error) {
     console.log(error.response?.status)
     console.log(error.response?.data)

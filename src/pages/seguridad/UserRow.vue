@@ -21,8 +21,7 @@
 
     <td class="p-3 flex gap-2">
       <!-- CORREGIDO: Pasar el objeto completo de props al emitir -->
-      <button @click="emit('edit', props)">✏️</button>
-      <button>🔑</button>
+      <button @click="emit('edit', props)">✏️Editar</button>
     </td>
   </tr>
 </template>

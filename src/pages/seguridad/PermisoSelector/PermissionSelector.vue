@@ -15,11 +15,14 @@
             : 'bg-white text-gray-700 border-gray-200'
         "
       >
-        {{ permission.activo ? 'On' : 'Off' }}
+        {{ permission.activo ? 'ON' : 'OFF' }}
       </button>
     </div>
 
-    <div class="inline-flex bg-gray-100/80 p-1 rounded-[8px] border border-gray-200 min-w-[120px]">
+    <div
+      v-if="permission.tipo_selector === 'alcance'"
+      class="inline-flex bg-gray-100/80 p-1 rounded-[8px] border border-gray-200 min-w-[120px]"
+    >
       <!-- NV -->
       <button
         @click="setNoValorado"
