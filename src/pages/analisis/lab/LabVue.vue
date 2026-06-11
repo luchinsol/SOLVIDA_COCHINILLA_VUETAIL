@@ -77,7 +77,12 @@
                   </td>
 
                   <td class="px-3 py-3">
-                    <button class="text-blue-600 hover:underline text-xs font-bold">→</button>
+                    <button
+                      @click="getLoteAnalisisoSolicitud(item.item_inventario_id, item)"
+                      class="text-blue-600 hover:underline text-xs font-bold disabled:text-gray-400 disabled:cursor-not-allowed"
+                    >
+                      Ir→
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -147,7 +152,7 @@
       <div id="analysis-panel" class="flex-1 min-w-0">
         <!-- Empty state -->
         <div
-          id="empty-state"
+          v-if="tipoVista === 'empty'"
           class="card flex flex-col items-center justify-center text-center p-20"
         >
           <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-5">
@@ -165,26 +170,34 @@
         </div>
 
         <!-- Data Entry Panel (hidden) -->
-        <div id="data-entry-panel" class="space-y-4">
+        <div v-else-if="tipoVista === 'form'" class="space-y-4">
           <!-- Form header -->
           <div id="form-header-card" class="card p-4" style="border-left: 4px solid #c62828">
             <div class="flex items-center justify-between flex-wrap gap-3">
+              <button
+                @click="limpiarSeleccion"
+                class="text-xs text-red-600 hover:underline font-bold"
+              >
+                ← Cambiar lote
+              </button>
               <div>
                 <div class="flex items-center gap-2 mb-1">
                   <span class="text-xs text-text-muted uppercase tracking-wider font-semibold"
                     >Lote activo</span
                   >
-                  <span
-                    id="active-lote-badge"
-                    class="bg-blue-100 text-blue-600 text-xs font-bold px-2.5 py-0.5 rounded-full mono"
-                  ></span>
+
+                  <span class="bg-blue-100 text-blue-700 px-2 rounded">
+                    {{ analisis?.data.codigo_item }}
+                  </span>
+
                   <span
                     class="bg-orange-100 text-orange-700 text-xs px-2 py-0.5 rounded-full font-semibold"
                     >En Análisis</span
                   >
                 </div>
-                <h3 class="font-bold text-base text-text-main">
-                  Captura de Datos — <span id="active-sample-id" class="text-blue-600 mono"></span>
+                <h3 class="font-bold mt-2">
+                  Captura de Datos —
+                  {{ analisis?.data.nombre }}
                 </h3>
               </div>
               <div class="flex items-center gap-2">
@@ -404,6 +417,37 @@
             </button>
           </div>
         </div>
+
+        <!-- Analysis Results (hidden) -->
+        <div v-else class="space-y-4">
+          <!-- Ensayos list -->
+          <div id="ensayos-list-card" class="card p-5">
+            <h4
+              class="font-bold text-sm text-brand-red mb-4 flex items-center gap-2 pb-3 border-b border-red-100"
+            >
+              <i class="fa-solid fa-list-check text-xs"></i>
+              Ensayos Asignados
+              <span
+                id="ensayos-count"
+                class="ml-auto bg-red-100 text-brand-red text-xs font-bold px-2 py-0.5 rounded-full"
+              >
+                {{ analisis?.data?.parametros?.length || 0 }}
+              </span>
+            </h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div
+                v-for="p in analisis?.data?.parametros"
+                :key="p.solicitud_parametro_id"
+                class="border border-gray-200 rounded-lg p-3 bg-white"
+              >
+                <p class="text-xs font-bold text-blue-600">
+                  {{ p.tipo_ensayo }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -412,12 +456,55 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
+const loteSeleccionado = ref(false)
 
 const muestras = ref([])
 const estadoSeleccionado = ref(null)
+const itemSeleccionado = ref(null)
 
 const paginaActual = ref(1)
 const registrosPorPagina = 5
+
+const analisis = ref(null)
+const loading = ref(false)
+const limpiarSeleccion = () => {
+  analisis.value = null
+  loteSeleccionado.value = false
+}
+const data = computed(() => analisis.value?.data || {})
+
+const tipoVista = computed(() => {
+  if (!analisis.value) return 'empty'
+  /*if (!loteSeleccionado.value || !itemSeleccionado.value) {
+    return 'empty'
+  }*/
+
+  return itemSeleccionado.value.estado === 'en analisis' ? 'form' : 'ensayos'
+})
+const getLoteAnalisisoSolicitud = async (id, item) => {
+  loading.value = true
+  loteSeleccionado.value = true
+
+  itemSeleccionado.value = item
+
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+
+    const { data } = await axios.get(`${baseUrl}/laboratorio/analisis-o-solicitud`, {
+      params: { item_inventario_id: id },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    })
+
+    analisis.value = data
+  } catch (error) {
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
+
 const obtenerMuestras = async () => {
   const params = {
     orden: 'desc',
@@ -448,6 +535,17 @@ const muestrasPaginadas = computed(() => {
 
 const totalPaginas = computed(() => Math.ceil(muestras.value.length / registrosPorPagina))
 
+const tieneAnalisis = computed(() => {
+  return analisis.value !== null
+})
+
+const estadoLote = computed(() => {
+  return analisis.value?.data?.estado_lote_id ?? null
+})
+
+const puedeAnalizar = computed(() => {
+  return estadoLote.value === 6 // "En análisis"
+})
 onMounted(() => {
   obtenerMuestras()
 })
