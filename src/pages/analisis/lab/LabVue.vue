@@ -115,34 +115,120 @@
             <h3 class="font-bold text-sm text-text-main flex items-center gap-2">
               <i class="fa-solid fa-circle-exclamation text-blue-600 text-xs"></i> No Conformidades
             </h3>
-            <span class="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full font-bold"
-              >3 activas</span
-            >
+            <span class="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full font-bold">
+              {{ noConformes.length }} activas
+            </span>
           </div>
-          <div class="space-y-2">
-            <div class="border border-gray-300 bg-white rounded-lg p-3">
-              <div class="flex items-center justify-between mb-1">
-                <p class="text-xs font-bold text-blue-600">NC-089</p>
-                <span class="text-xs text-text-muted mono">EXT-2023-A</span>
+
+          <!-- Loading -->
+          <div v-if="loadingNC" class="flex justify-center py-4">
+            <i class="fa-solid fa-spinner animate-spin text-blue-500"></i>
+          </div>
+
+          <!-- Error -->
+          <div v-else-if="errorNC" class="text-xs text-red-500 text-center py-2">
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i>{{ errorNC }}
+          </div>
+
+          <!-- Lista -->
+          <div v-else class="space-y-2">
+            <template v-for="item in noConformes" :key="item.analisis_id">
+              <div
+                v-for="ensayo in item.ensayos_no_conformes"
+                :key="ensayo.ensayo_id"
+                class="border border-gray-300 bg-white rounded-lg p-3 space-y-1"
+              >
+                <!-- Nombre + fecha -->
+                <div class="flex items-center justify-between">
+                  <p class="text-xs font-bold text-blue-600">{{ item.nombre }}</p>
+                  <span class="text-xs text-text-muted">
+                    <i class="fa-regular fa-calendar mr-1"></i>
+                    <span class="font-medium text-text-main bg-gray-100 px-1 rounded">
+                      Modificada el: {{ item.modificado_en }}
+                    </span>
+                  </span>
+                </div>
+
+                <!-- Tipo ensayo -->
+                <p class="text-xs font-semibold text-text-main capitalize">
+                  {{ ensayo.tipo_ensayo.replace(/_/g, ' ') }}
+                </p>
+
+                <!-- Datos del ensayo (humedad) -->
+                <template v-if="ensayo.tipo_ensayo === 'humedad' && ensayo.humedad">
+                  <p class="text-xs text-text-muted">
+                    Resultado:
+                    <span class="font-medium text-text-main">{{ ensayo.humedad.resultado }}%</span>
+                  </p>
+                  <p class="text-xs text-text-muted">
+                    Peso ensayo:
+                    <span class="font-medium text-text-main"
+                      >{{ ensayo.humedad.peso_ensayo_g }}g</span
+                    >
+                  </p>
+                </template>
+
+                <!-- Datos del ensayo (acido_carminico) -->
+                <template
+                  v-else-if="ensayo.tipo_ensayo === 'acido_carminico' && ensayo.acido_carminico"
+                >
+                  <p class="text-xs text-text-muted">
+                    Resultado:
+                    <span class="font-medium text-text-main"
+                      >{{ ensayo.acido_carminico.resultado.toFixed(2) }}%</span
+                    >
+                  </p>
+                  <p class="text-xs text-text-muted">
+                    Peso ensayo:
+                    <span class="font-medium text-text-main"
+                      >{{ ensayo.acido_carminico.peso_ensayo_g }}g</span
+                    >
+                  </p>
+                  <p class="text-xs text-text-muted">
+                    Absorbancia:
+                    <span class="font-medium text-text-main"
+                      >{{ ensayo.acido_carminico.absorbancia_nm }} nm</span
+                    >
+                  </p>
+                </template>
+
+                <!-- Badge no conformidad abierta + Acciones -->
+                <div class="pt-1 flex items-center justify-between">
+                  <span
+                    v-if="ensayo.no_conformidad_abierta"
+                    class="inline-block bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full font-medium"
+                  >
+                    Abierta
+                  </span>
+                  <span
+                    v-else
+                    class="inline-block bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-full font-medium"
+                  >
+                    Cerrada
+                  </span>
+
+                  <!-- Botones -->
+                  <!-- Botones -->
+                  <div class="flex items-center gap-2">
+                    <button
+                      @click="aprobarNC(item.analisis_id)"
+                      class="flex items-center gap-1 text-xs font-medium text-green-600 border border-green-300 bg-green-50 hover:bg-green-100 px-2 py-0.5 rounded-full transition-colors"
+                    >
+                      <i class="fa-solid fa-check text-[10px]"></i> Aprobar
+                    </button>
+                    <button
+                      @click="rechazarNC(item.analisis_id)"
+                      class="flex items-center gap-1 text-xs font-medium text-red-600 border border-red-300 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors"
+                    >
+                      <i class="fa-solid fa-xmark text-[10px]"></i> Rechazar
+                    </button>
+                  </div>
+                </div>
               </div>
-              <p class="text-xs font-semibold text-text-main">Humedad fuera de rango</p>
-              <p class="text-xs text-text-muted mt-0.5">Valor: 8.2% — Límite: ≤6%</p>
-            </div>
-            <div class="border border-gray-300 bg-white rounded-lg p-3">
-              <div class="flex items-center justify-between mb-1">
-                <p class="text-xs font-bold text-blue-600">NC-090</p>
-                <span class="text-xs text-text-muted mono">EXT-2023-B</span>
-              </div>
-              <p class="text-xs font-semibold text-text-main">Ácido carmínico bajo</p>
-              <p class="text-xs text-text-muted mt-0.5">Valor: 42.1% — Límite: ≥50%</p>
-            </div>
-            <div class="border border-gray-300 bg-white rounded-lg p-3">
-              <div class="flex items-center justify-between mb-1">
-                <p class="text-xs font-bold text-blue-600">NC-091</p>
-                <span class="text-xs text-text-muted mono">EXT-2023-C</span>
-              </div>
-              <p class="text-xs font-semibold text-text-main">Color L* desviado</p>
-              <p class="text-xs text-text-muted mt-0.5">Valor: 31.4 — Rango: 35–55</p>
+            </template>
+
+            <div v-if="noConformes.length === 0" class="text-xs text-text-muted text-center py-3">
+              Sin no conformidades activas
             </div>
           </div>
         </div>
@@ -169,9 +255,96 @@
           </div>
         </div>
 
+        <!-- Vista de Solicitud -->
+        <div v-else-if="tipoVista === 'solicitud'">
+          <!-- Tus cards -->
+          <div class="card p-6" style="border-left: 4px solid #c62828">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-xs uppercase text-gray-500 font-bold"> Lote seleccionado </span>
+
+                  <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold">
+                    {{ analisis?.data.codigo_item }}
+                  </span>
+                </div>
+
+                <h2 class="text-2xl font-bold">Resumen de Ensayos Requeridos</h2>
+
+                <p class="text-sm text-gray-500 mt-1">
+                  Revisa los ensayos asignados antes de iniciar la captura de datos.
+                </p>
+              </div>
+
+              <div class="text-right text-sm">
+                <div class="font-bold">
+                  {{ analisis?.data['Solicitado por'] }}
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 border rounded-xl p-5 grid grid-cols-3 text-center bg-gray-50">
+              <div>
+                <p class="text-gray-500 text-sm">Fecha solicitud</p>
+                <p class="font-bold">
+                  {{ analisis?.data['Fecha solicitud'] }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-gray-500 text-sm">Solicitado por</p>
+                <p class="font-bold">
+                  {{ analisis?.data['Solicitado por'] }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-gray-500 text-sm">Tipo de muestra</p>
+                <p class="font-bold">
+                  {{ analisis?.data['Tipo de muestra'] }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-6 mt-4">
+            <div class="flex justify-between items-center mb-5">
+              <h3 class="text-red-600 font-bold text-lg">Ensayos Asignados</h3>
+
+              <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold">
+                {{ analisis?.data.parametros.length }} ensayos
+              </span>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <div
+                v-for="p in analisis?.data.parametros"
+                :key="p.solicitud_parametro_id"
+                class="border rounded-xl p-4 flex justify-between items-center"
+              >
+                <div>
+                  <p class="font-bold">
+                    {{ obtenerNombreEnsayo(p.tipo_ensayo) }}
+                  </p>
+
+                  <p class="text-sm text-gray-500">
+                    {{ obtenerDescripcionEnsayo(p.tipo_ensayo) }}
+                  </p>
+                </div>
+
+                <span
+                  class="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-bold"
+                >
+                  Requerido
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Data Entry Panel (hidden) -->
         <div v-else-if="tipoVista === 'form'" class="space-y-4">
-          <!-- Form header -->
+          <!-- cabecera -->
           <div id="form-header-card" class="card p-4" style="border-left: 4px solid #c62828">
             <div class="flex items-center justify-between flex-wrap gap-3">
               <button
@@ -222,6 +395,7 @@
               Parámetros Físicos y Espectrofotométricos
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Peso de muestra -->
               <div>
                 <label
                   class="block text-xs font-bold text-text-muted mb-1.5 uppercase tracking-wide"
@@ -231,9 +405,8 @@
                   <input
                     type="number"
                     id="field-peso"
+                    v-model="form.peso_muestra_g"
                     placeholder="0.0000"
-                    step="0.0001"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mono font-medium bg-white transition"
                   />
                   <span
                     class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-blue-400 font-semibold"
@@ -242,119 +415,78 @@
                 </div>
                 <p class="text-xs text-text-muted mt-1">Rango: 0.4000 – 0.6000 g</p>
               </div>
+            </div>
+          </div>
+
+          <!-- Color CIELab MODIFICADO||||  | -->
+          <div v-if="ensayoColor" class="card p-5">
+            <h4 class="font-bold text-blue-600 mb-4">Color CIELab</h4>
+
+            <div class="grid md:grid-cols-4 gap-4">
               <div>
-                <label
-                  class="block text-xs font-bold text-text-muted mb-1.5 uppercase tracking-wide"
-                  >Absorbancia (Abs)</label
-                >
-                <div class="relative">
-                  <input
-                    type="number"
-                    id="field-absorbancia"
-                    placeholder="0.000"
-                    step="0.001"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mono font-medium bg-white transition"
-                  />
-                  <span
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-blue-400 font-semibold"
-                    >Abs</span
-                  >
-                </div>
-                <p class="text-xs text-text-muted mt-1">Longitud de onda: 494 nm</p>
+                <label>Peso ensayo (g)</label>
+
+                <input type="number" v-model="form.color_cielab.peso_ensayo_g" />
               </div>
+
               <div>
-                <label
-                  class="block text-xs font-bold text-text-muted mb-1.5 uppercase tracking-wide"
-                  >Ácido Carmínico (%)</label
-                >
-                <div class="relative">
-                  <input
-                    type="number"
-                    id="field-ac"
-                    placeholder="0.00"
-                    step="0.01"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mono font-medium bg-white transition"
-                  />
-                  <span
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-blue-400 font-semibold"
-                    >%</span
-                  >
-                </div>
-                <div id="ac-status" class="text-xs mt-1 text-text-muted">Especificación: ≥ 50%</div>
+                <label>L*</label>
+
+                <input type="number" v-model="form.color_cielab.resultado_l" />
               </div>
+
               <div>
-                <label
-                  class="block text-xs font-bold text-text-muted mb-1.5 uppercase tracking-wide"
-                  >Humedad (%)</label
-                >
-                <div class="relative">
-                  <input
-                    type="number"
-                    id="field-humedad"
-                    placeholder="0.00"
-                    step="0.01"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mono font-medium bg-white transition"
-                  />
-                  <span
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-blue-400 font-semibold"
-                    >%</span
-                  >
-                </div>
-                <div id="hum-status" class="text-xs mt-1 text-text-muted">Especificación: ≤ 6%</div>
+                <label>a*</label>
+
+                <input type="number" v-model="form.color_cielab.resultado_a" />
+              </div>
+
+              <div>
+                <label>b*</label>
+
+                <input type="number" v-model="form.color_cielab.resultado_b" />
               </div>
             </div>
           </div>
 
-          <!-- Color CIELab -->
-          <div id="color-fields-card" class="card p-5">
-            <h4
-              class="font-bold text-sm text-blue-600 mb-4 flex items-center gap-2 pb-3 border-b border-gray-200"
-            >
-              <i class="fa-solid fa-palette text-xs"></i>
-              Resultados de Color CIELab
-            </h4>
-            <div class="grid grid-cols-3 gap-4">
+          <div v-if="ensayoHumedad" class="card p-5">
+            <h4 class="font-bold text-blue-600 mb-4">Humedad</h4>
+
+            <div class="grid md:grid-cols-2 gap-4">
               <div>
-                <label
-                  class="block text-xs font-bold text-text-muted mb-1.5 uppercase tracking-wide"
-                  >L* — Luminosidad</label
-                >
-                <input
-                  type="number"
-                  id="field-L"
-                  placeholder="0.00"
-                  step="0.01"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mono font-medium bg-white transition"
-                />
-                <div id="L-status" class="text-xs mt-1 text-text-muted">Rango: 35 – 55</div>
+                <label>Peso ensayo (g)</label>
+
+                <input type="number" v-model="form.humedad.peso_ensayo_g" />
               </div>
+
               <div>
-                <label
-                  class="block text-xs font-bold text-text-muted mb-1.5 uppercase tracking-wide"
-                  >a* — Rojo/Verde</label
-                >
-                <input
-                  type="number"
-                  id="field-A"
-                  placeholder="0.00"
-                  step="0.01"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mono font-medium bg-white transition"
-                />
-                <div id="A-status" class="text-xs mt-1 text-text-muted">Rango: 20 – 40</div>
+                <label>Resultado (%)</label>
+
+                <input type="number" v-model="form.humedad.resultado" />
               </div>
+            </div>
+          </div>
+
+          <div v-if="ensayoAcido" class="card p-5">
+            <h4 class="font-bold text-blue-600 mb-4">Ácido Carmínico</h4>
+
+            <div class="grid md:grid-cols-3 gap-4">
               <div>
-                <label
-                  class="block text-xs font-bold text-text-muted mb-1.5 uppercase tracking-wide"
-                  >b* — Azul/Amarillo</label
-                >
-                <input
-                  type="number"
-                  id="field-B"
-                  placeholder="0.00"
-                  step="0.01"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mono font-medium bg-white transition"
-                />
-                <div id="B-status" class="text-xs mt-1 text-text-muted">Rango: -10 – 10</div>
+                <label>Peso ensayo (g)</label>
+
+                <input type="number" v-model="form.acido_carminico.peso_ensayo_g" />
+              </div>
+
+              <div>
+                <label>Absorbancia</label>
+
+                <input type="number" v-model="form.acido_carminico.absorbancia_nm" />
+              </div>
+
+              <div>
+                <label>Resultado (%)</label>
+
+                <input type="number" v-model="form.acido_carminico.resultado" />
               </div>
             </div>
           </div>
@@ -367,12 +499,7 @@
               <i class="fa-solid fa-note-sticky text-xs"></i>
               Observaciones
             </h4>
-            <textarea
-              id="field-obs"
-              rows="3"
-              placeholder="Ingresa observaciones técnicas relevantes del análisis..."
-              class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white transition resize-none"
-            ></textarea>
+            <textarea v-model="form.observaciones"></textarea>
           </div>
 
           <!-- Decisión de Lote -->
@@ -390,7 +517,7 @@
                   class="peer-checked:border-green-500 peer-checked:bg-green-50 border-2 border-gray-200 rounded-lg p-3 text-center transition"
                 >
                   <i class="fa-solid fa-circle-check text-green-500 text-lg mb-1"></i>
-                  <p class="text-xs font-bold text-green-700">Aprobar Lote</p>
+                  <p class="text-xs font-bold text-green-700">Guardar cambios</p>
                 </div>
               </label>
               <label class="flex-1 cursor-pointer">
@@ -398,53 +525,10 @@
                 <div
                   class="peer-checked:border-red-500 peer-checked:bg-white border-2 border-gray-200 rounded-lg p-3 text-center transition"
                 >
-                  <i class="fa-solid fa-circle-xmark text-blue-600 text-lg mb-1"></i>
-                  <p class="text-xs font-bold text-blue-600">Rechazar Lote</p>
+                  <i class="fa-solid fa-circle-check text-blue-600 text-lg mb-1"></i>
+                  <p class="text-xs font-bold text-blue-600">Terminar análisis</p>
                 </div>
               </label>
-            </div>
-            <textarea
-              id="field-comments"
-              rows="2"
-              placeholder="Comentarios de la decisión (requerido para rechazo)..."
-              class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white transition resize-none mb-4"
-            ></textarea>
-            <button
-              id="confirm-btn"
-              class="w-full py-3 bg-blue-600 hover:bg-blue-600-dark text-white rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition shadow"
-            >
-              <i class="fa-solid fa-check-circle"></i> Confirmar Análisis
-            </button>
-          </div>
-        </div>
-
-        <!-- Analysis Results (hidden) -->
-        <div v-else class="space-y-4">
-          <!-- Ensayos list -->
-          <div id="ensayos-list-card" class="card p-5">
-            <h4
-              class="font-bold text-sm text-brand-red mb-4 flex items-center gap-2 pb-3 border-b border-red-100"
-            >
-              <i class="fa-solid fa-list-check text-xs"></i>
-              Ensayos Asignados
-              <span
-                id="ensayos-count"
-                class="ml-auto bg-red-100 text-brand-red text-xs font-bold px-2 py-0.5 rounded-full"
-              >
-                {{ analisis?.data?.parametros?.length || 0 }}
-              </span>
-            </h4>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div
-                v-for="p in analisis?.data?.parametros"
-                :key="p.solicitud_parametro_id"
-                class="border border-gray-200 rounded-lg p-3 bg-white"
-              >
-                <p class="text-xs font-bold text-blue-600">
-                  {{ p.tipo_ensayo }}
-                </p>
-              </div>
             </div>
           </div>
         </div>
@@ -454,13 +538,108 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, reactive } from 'vue'
 import axios from 'axios'
 const loteSeleccionado = ref(false)
 
 const muestras = ref([])
 const estadoSeleccionado = ref(null)
 const itemSeleccionado = ref(null)
+const form = reactive({
+  observaciones: '',
+
+  peso_muestra_g: '',
+
+  humedad: {
+    peso_ensayo_g: '',
+    resultado: '',
+  },
+
+  acido_carminico: {
+    peso_ensayo_g: '',
+    absorbancia_nm: '',
+    resultado: '',
+  },
+
+  color_cielab: {
+    peso_ensayo_g: '',
+    resultado_l: '',
+    resultado_a: '',
+    resultado_b: '',
+  },
+})
+
+const obtenerNombreEnsayo = (tipo) => {
+  switch (tipo) {
+    case 'humedad':
+      return 'Humedad'
+
+    case 'acido_carminico':
+      return 'Ácido Carmínico'
+
+    case 'color_cielab':
+      return 'Color CIELab'
+
+    default:
+      return tipo
+  }
+}
+
+const obtenerDescripcionEnsayo = (tipo) => {
+  switch (tipo) {
+    case 'humedad':
+      return 'Determinación de humedad'
+
+    case 'acido_carminico':
+      return 'Cuantificación por espectrofotometría UV-Vis'
+
+    case 'color_cielab':
+      return 'Medición L*, a*, b* con colorímetro'
+
+    default:
+      return ''
+  }
+}
+
+const cargarFormulario = (analisis) => {
+  if (!analisis || analisis.tipo !== 'analisis') return
+
+  const data = analisis.data
+
+  // Datos generales
+  form.observaciones = data.observaciones ?? ''
+  form.peso_muestra_g = data.peso_muestra_g ?? ''
+
+  // Reiniciar
+  form.humedad = {
+    peso_ensayo_g: '',
+    resultado: '',
+  }
+
+  form.acido_carminico = {
+    peso_ensayo_g: '',
+    absorbancia_nm: '',
+    resultado: '',
+  }
+
+  // Recorrer ensayos
+  data.ensayos.forEach((ensayo) => {
+    if (ensayo.tipo_ensayo === 'humedad') {
+      form.humedad = {
+        peso_ensayo_g: ensayo.humedad?.peso_ensayo_g ?? '',
+        resultado: ensayo.humedad?.resultado ?? '',
+      }
+    }
+
+    if (ensayo.tipo_ensayo === 'acido_carminico') {
+      form.acido_carminico = {
+        peso_ensayo_g: ensayo.acido_carminico?.peso_ensayo_g ?? '',
+        absorbancia_nm: ensayo.acido_carminico?.absorbancia_nm ?? '',
+        resultado: ensayo.acido_carminico?.resultado ?? '',
+      }
+    }
+  })
+}
 
 const paginaActual = ref(1)
 const registrosPorPagina = 5
@@ -474,14 +653,24 @@ const limpiarSeleccion = () => {
 const data = computed(() => analisis.value?.data || {})
 
 const tipoVista = computed(() => {
-  if (!analisis.value) return 'empty'
-  /*if (!loteSeleccionado.value || !itemSeleccionado.value) {
+  if (!analisis.value) {
     return 'empty'
-  }*/
+  }
 
-  return itemSeleccionado.value.estado === 'en analisis' ? 'form' : 'ensayos'
+  if (analisis.value.tipo === 'analisis') {
+    return 'form'
+  }
+
+  if (analisis.value.tipo === 'solicitud') {
+    return 'solicitud'
+  }
+
+  return 'empty'
 })
+
 const getLoteAnalisisoSolicitud = async (id, item) => {
+  console.log('Obteniendo análisis para item_inventario_id:', id)
+  console.log('Item seleccionado:', item)
   loading.value = true
   loteSeleccionado.value = true
 
@@ -498,6 +687,7 @@ const getLoteAnalisisoSolicitud = async (id, item) => {
     })
 
     analisis.value = data
+    cargarFormulario(data)
   } catch (error) {
     console.error(error)
   } finally {
@@ -546,8 +736,122 @@ const estadoLote = computed(() => {
 const puedeAnalizar = computed(() => {
   return estadoLote.value === 6 // "En análisis"
 })
+
+/// no confromidades
+// Composition API con <script setup>
+const noConformes = ref([])
+const loadingNC = ref(false)
+const errorNC = ref(null)
+
+const fetchNoConformes = async () => {
+  loadingNC.value = true
+  errorNC.value = null
+  try {
+    const token = localStorage.getItem('token')
+    const res = await fetch('http://147.182.251.164:3000/api/laboratorio/no-conformes', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    if (!res.ok) throw new Error(`Error ${res.status}`)
+    noConformes.value = await res.json()
+  } catch (e) {
+    errorNC.value = 'No se pudieron cargar las no conformidades.'
+    console.error(e)
+  } finally {
+    loadingNC.value = false
+  }
+}
+
+const labelTipoEnsayo = (tipo) => {
+  const labels = {
+    humedad: 'Humedad fuera de rango',
+    acido_carminico: 'Ácido carmínico fuera de rango',
+    color: 'Color fuera de rango',
+  }
+  return labels[tipo] ?? tipo.replace(/_/g, ' ')
+}
+
+const descripcionEnsayo = (ensayo) => {
+  const tipo = ensayo.tipo_ensayo
+  if (tipo === 'humedad' && ensayo.humedad) {
+    return `Resultado: ${ensayo.humedad.resultado}% — Peso ensayo: ${ensayo.humedad.peso_ensayo_g}g`
+  }
+  if (tipo === 'acido_carminico' && ensayo.acido_carminico) {
+    return `Resultado: ${ensayo.acido_carminico.resultado.toFixed(2)}% — Abs: ${ensayo.acido_carminico.absorbancia_nm}`
+  }
+  return 'Ver detalle'
+}
+
+const aprobarNC = async (analisis_id) => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+    const token = localStorage.getItem('token')
+    const res = await axios.patch(
+      `${baseUrl}/laboratorio/${analisis_id}/aprobacion`,
+      { aprobado: true },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+    console.log('Respuesta aprobación NC:', res)
+    if (res.status !== 200) throw new Error(`Error ${res.status}`)
+    await fetchNoConformes()
+  } catch (e) {
+    console.error('Error al aprobar NC:', e)
+  }
+}
+
+const rechazarNC = async (analisis_id) => {
+  console.log('Rechazar:', analisis_id)
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+    const token = localStorage.getItem('token')
+    const res = await axios.patch(
+      `${baseUrl}/laboratorio/${analisis_id}/aprobacion`,
+      {
+        aprobado: false,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+    console.log('Respuesta rechazo NC:', res)
+    if (res.status !== 200) throw new Error(`Error ${res.status}`)
+    // Refrescar lista de no conformidades
+    await fetchNoConformes()
+  } catch (e) {
+    console.error('Error al rechazar NC:', e)
+  }
+  // tu lógica o llamada al endpoint aquí
+}
+
+const tieneColorCIELab = computed(() => {
+  return analisis.value?.data?.ensayos?.some((e) => e.tipo_ensayo === 'color_cielab')
+})
+
+const ensayoHumedad = computed(() =>
+  analisis.value?.data?.ensayos?.find((e) => e.tipo_ensayo === 'humedad'),
+)
+
+const ensayoAcido = computed(() =>
+  analisis.value?.data?.ensayos?.find((e) => e.tipo_ensayo === 'acido_carminico'),
+)
+
+const ensayoColor = computed(() =>
+  analisis.value?.data?.ensayos?.find((e) => e.tipo_ensayo === 'color_cielab'),
+)
+
 onMounted(() => {
   obtenerMuestras()
+  fetchNoConformes()
 })
 </script>
 
