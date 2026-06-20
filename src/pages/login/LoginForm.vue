@@ -36,7 +36,11 @@
 
     <div class="flex items-center justify-between">
       <label class="flex items-center">
-        <input v-model="rememberMe" type="checkbox" class="w-4 h-4 border-neutral-300 rounded text-neutral-900" />
+        <input
+          v-model="rememberMe"
+          type="checkbox"
+          class="w-4 h-4 border-neutral-300 rounded text-neutral-900"
+        />
         <span class="ml-2 text-sm text-neutral-700">Recordarme</span>
       </label>
 
@@ -90,9 +94,9 @@ const login = async () => {
 
   loading.value = true
   error.value = ''
-
+  const baseUrl = import.meta.env.VITE_API_URL
   try {
-    const response = await axios.post('http://localhost:3000/api/usuarios/login', {
+    const response = await axios.post(`${baseUrl}/usuarios/login`, {
       nickname: username.value,
       password: password.value,
     })
