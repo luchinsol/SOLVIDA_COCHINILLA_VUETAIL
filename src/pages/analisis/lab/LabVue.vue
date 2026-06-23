@@ -1,5 +1,47 @@
 <template>
   <div class="bg-white text-black min-h-screen">
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
+      <div class="card p-5">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-sm text-gray-500">Solicitudes</p>
+            <h3 class="text-2xl font-bold">{{ kpis.pendientes }}</h3>
+          </div>
+          <i class="fa-solid fa-file-circle-plus text-blue-500 text-2xl"></i>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-sm text-gray-500">En análisis</p>
+            <h3 class="text-2xl font-bold">{{ kpis.enAnalisis }}</h3>
+          </div>
+          <i class="fa-solid fa-flask-vial text-orange-500 text-2xl"></i>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-sm text-gray-500">Aprobados</p>
+            <h3 class="text-2xl font-bold">{{ kpis.analizadasHoy }}</h3>
+          </div>
+          <i class="fa-solid fa-circle-check text-green-500 text-2xl"></i>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-sm text-gray-500">No conformes</p>
+            <h3 class="text-2xl font-bold">{{ kpis.noConformesHoy }}</h3>
+          </div>
+          <i class="fa-solid fa-triangle-exclamation text-red-500 text-2xl"></i>
+        </div>
+      </div>
+    </div>
     <!-- Main 2-column layout -->
     <div class="flex flex-col xl:flex-row gap-5">
       <!-- LEFT: Work Queue -->
@@ -241,15 +283,15 @@
           v-if="tipoVista === 'empty'"
           class="card flex flex-col items-center justify-center text-center p-20"
         >
-          <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-5">
-            <i class="fa-solid fa-flask-vial text-blue-600 text-3xl"></i>
+          <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-5">
+            <i class="fa-solid fa-flask-vial text-green-600 text-3xl"></i>
           </div>
           <h4 class="font-bold text-text-main text-lg mb-2">Ningún lote seleccionado</h4>
           <p class="text-sm text-text-muted max-w-xs leading-relaxed">
             Selecciona un lote de la tabla izquierda para iniciar la captura de datos técnicos del
             análisis químico.
           </p>
-          <div class="mt-6 flex items-center gap-2 text-xs text-blue-400 font-medium">
+          <div class="mt-6 flex items-center gap-2 text-xs text-green-400 font-medium">
             <i class="fa-solid fa-arrow-left"></i>
             <span>Haz clic en "→" junto a cualquier lote</span>
           </div>
@@ -340,6 +382,15 @@
               </div>
             </div>
           </div>
+
+          <div class="flex justify-end mt-4">
+            <button
+              @click="iniciarAnalisis"
+              class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+            >
+              Iniciar análisis
+            </button>
+          </div>
         </div>
 
         <!-- Data Entry Panel (hidden) -->
@@ -407,11 +458,8 @@
                     id="field-peso"
                     v-model="form.peso_muestra_g"
                     placeholder="0.0000"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
-                  <span
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-blue-400 font-semibold"
-                    >g</span
-                  >
                 </div>
                 <p class="text-xs text-text-muted mt-1">Rango: 0.4000 – 0.6000 g</p>
               </div>
@@ -426,25 +474,41 @@
               <div>
                 <label>Peso ensayo (g)</label>
 
-                <input type="number" v-model="form.color_cielab.peso_ensayo_g" />
+                <input
+                  type="number"
+                  v-model="form.color_cielab.peso_ensayo_g"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
 
               <div>
                 <label>L*</label>
 
-                <input type="number" v-model="form.color_cielab.resultado_l" />
+                <input
+                  type="number"
+                  v-model="form.color_cielab.resultado_l"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
 
               <div>
                 <label>a*</label>
 
-                <input type="number" v-model="form.color_cielab.resultado_a" />
+                <input
+                  type="number"
+                  v-model="form.color_cielab.resultado_a"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
 
               <div>
                 <label>b*</label>
 
-                <input type="number" v-model="form.color_cielab.resultado_b" />
+                <input
+                  type="number"
+                  v-model="form.color_cielab.resultado_b"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
             </div>
           </div>
@@ -456,13 +520,21 @@
               <div>
                 <label>Peso ensayo (g)</label>
 
-                <input type="number" v-model="form.humedad.peso_ensayo_g" />
+                <input
+                  type="number"
+                  v-model="form.humedad.peso_ensayo_g"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
 
               <div>
                 <label>Resultado (%)</label>
 
-                <input type="number" v-model="form.humedad.resultado" />
+                <input
+                  type="number"
+                  v-model="form.humedad.resultado"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
             </div>
           </div>
@@ -474,19 +546,31 @@
               <div>
                 <label>Peso ensayo (g)</label>
 
-                <input type="number" v-model="form.acido_carminico.peso_ensayo_g" />
+                <input
+                  type="number"
+                  v-model="form.acido_carminico.peso_ensayo_g"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
 
               <div>
                 <label>Absorbancia</label>
 
-                <input type="number" v-model="form.acido_carminico.absorbancia_nm" />
+                <input
+                  type="number"
+                  v-model="form.acido_carminico.absorbancia_nm"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
 
               <div>
                 <label>Resultado (%)</label>
 
-                <input type="number" v-model="form.acido_carminico.resultado" />
+                <input
+                  type="number"
+                  v-model="form.acido_carminico.resultado"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
             </div>
           </div>
@@ -510,24 +594,28 @@
               <i class="fa-solid fa-gavel text-xs"></i>
               Decisión de Lote
             </h4>
+            <!--BOTONES DE DECISIÓN-->
             <div class="flex gap-3 mb-4">
               <label class="flex-1 cursor-pointer">
-                <input type="radio" name="decision" value="aprobar" class="hidden peer" />
                 <div
+                  @click="guardarCambios"
                   class="peer-checked:border-green-500 peer-checked:bg-green-50 border-2 border-gray-200 rounded-lg p-3 text-center transition"
                 >
-                  <i class="fa-solid fa-circle-check text-green-500 text-lg mb-1"></i>
+                  <i class="fa-solid fa-floppy-disk text-green-500 text-lg mb-1"></i>
                   <p class="text-xs font-bold text-green-700">Guardar cambios</p>
                 </div>
               </label>
               <label class="flex-1 cursor-pointer">
                 <input type="radio" name="decision" value="rechazar" class="hidden peer" />
-                <div
-                  class="peer-checked:border-red-500 peer-checked:bg-white border-2 border-gray-200 rounded-lg p-3 text-center transition"
-                >
-                  <i class="fa-solid fa-circle-check text-blue-600 text-lg mb-1"></i>
-                  <p class="text-xs font-bold text-blue-600">Terminar análisis</p>
-                </div>
+                <label class="flex-1 cursor-pointer">
+                  <div
+                    @click="terminarAnalisis"
+                    class="peer-checked:border-blue-500 peer-checked:bg-blue-50 border-2 border-gray-200 rounded-lg p-3 text-center transition"
+                  >
+                    <i class="fa-solid fa-floppy-disk text-blue-500 text-lg mb-1"></i>
+                    <p class="text-xs font-bold text-blue-700">Terminar análisis</p>
+                  </div>
+                </label>
               </label>
             </div>
           </div>
@@ -541,13 +629,53 @@
 import { ref, onMounted, computed, reactive } from 'vue'
 import axios from 'axios'
 const loteSeleccionado = ref(false)
+const kpis = ref({
+  pendientes: 0,
+  enAnalisis: 0,
+  analizadasHoy: 0,
+  noConformesHoy: 0,
+})
+// CARDS KPIS
+const cargarResumenKPIs = async () => {
+  const baseUrl = import.meta.env.VITE_API_URL
+  const token = localStorage.getItem('token')
 
+  try {
+    const [pendientes, enAnalisis, analizadasHoy, noConformesHoy] = await Promise.all([
+      axios.get(`${baseUrl}/item-inventario/muestras-pendientes-laboratorio/resumen`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+
+      axios.get(`${baseUrl}/item-inventario/muestras-en-analisis/resumen`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+
+      axios.get(`${baseUrl}/laboratorio/muestras-analizadas-hoy/resumen`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+
+      axios.get(`${baseUrl}/laboratorio/no-conformidades-hoy/resumen`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ])
+
+    kpis.value.pendientes = pendientes.data.total_muestras_pendientes ?? 0
+
+    kpis.value.enAnalisis = enAnalisis.data.total_muestras_en_analisis ?? 0
+
+    kpis.value.analizadasHoy = analizadasHoy.data.total_muestras_analizadas_hoy ?? 0
+
+    kpis.value.noConformesHoy = noConformesHoy.data.total_no_conformidades_hoy ?? 0
+  } catch (error) {
+    console.error('Error cargando KPIs:', error)
+  }
+}
 const muestras = ref([])
 const estadoSeleccionado = ref(null)
 const itemSeleccionado = ref(null)
 const form = reactive({
   observaciones: '',
-
+  analisis_id: null,
   peso_muestra_g: '',
 
   humedad: {
@@ -568,6 +696,33 @@ const form = reactive({
     resultado_b: '',
   },
 })
+
+const iniciarAnalisis = async () => {
+  const usuario = JSON.parse(localStorage.getItem('usuario'))
+  // SE debe parsear el usuario desde el localStorage
+
+  const idUsuario = usuario?.id
+  const formData = {
+    usuario_id: idUsuario,
+    item_inventario_id: itemSeleccionado.value.item_inventario_id,
+    solicitud_id: analisis.value.data.solicitud_id,
+    observaciones: 'Analisis iniciado',
+  }
+  try {
+    console.log('ID DE USUARIO', idUsuario)
+    const baseUrl = import.meta.env.VITE_API_URL
+    const token = localStorage.getItem('token')
+    const response = await axios.post(`${baseUrl}/laboratorio`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    console.log('Análisis iniciado:', response.data)
+  } catch (error) {
+    console.error('Error al iniciar análisis:', error)
+  }
+}
 
 const obtenerNombreEnsayo = (tipo) => {
   switch (tipo) {
@@ -600,6 +755,23 @@ const obtenerDescripcionEnsayo = (tipo) => {
       return ''
   }
 }
+// DESPUÉS DE LLAMAR AL GUARDAR CAMBIOS O TERMINAR ANÁLISIS, RECARGAR DATOS
+const recargarAnalisis = async () => {
+  const baseUrl = import.meta.env.VITE_API_URL
+
+  const { data } = await axios.get(`${baseUrl}/laboratorio/analisis-o-solicitud`, {
+    params: {
+      item_inventario_id: itemSeleccionado.value.item_inventario_id,
+    },
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+  })
+
+  analisis.value = data
+
+  cargarFormulario(data)
+}
 
 const cargarFormulario = (analisis) => {
   if (!analisis || analisis.tipo !== 'analisis') return
@@ -609,7 +781,7 @@ const cargarFormulario = (analisis) => {
   // Datos generales
   form.observaciones = data.observaciones ?? ''
   form.peso_muestra_g = data.peso_muestra_g ?? ''
-
+  form.analisis_id = data.analisis_id ?? null
   // Reiniciar
   form.humedad = {
     peso_ensayo_g: '',
@@ -667,10 +839,181 @@ const tipoVista = computed(() => {
 
   return 'empty'
 })
+// TERMINAR ANÁLISIS
+const terminarAnalisis = async () => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+    const token = localStorage.getItem('token')
 
+    const ensayos = []
+
+    // HUMEDAD
+    if (ensayoHumedad.value) {
+      ensayos.push({
+        ensayo_id: ensayoHumedad.value.ensayo_id,
+        tipo_ensayo: 'humedad',
+        humedad: {
+          humedad_id: ensayoHumedad.value.humedad?.humedad_id,
+          peso_ensayo_g: Number(form.humedad.peso_ensayo_g),
+          resultado: Number(form.humedad.resultado),
+        },
+      })
+    }
+
+    // ACIDO CARMINICO
+    if (ensayoAcido.value) {
+      ensayos.push({
+        ensayo_id: ensayoAcido.value.ensayo_id,
+        tipo_ensayo: 'acido_carminico',
+        acido_carminico: {
+          acido_carminico_id: ensayoAcido.value.acido_carminico?.acido_carminico_id,
+
+          peso_ensayo_g: Number(form.acido_carminico.peso_ensayo_g),
+
+          absorbancia_nm: Number(form.acido_carminico.absorbancia_nm),
+
+          resultado: Number(form.acido_carminico.resultado),
+        },
+      })
+    }
+
+    // COLOR CIELAB
+    if (ensayoColor.value) {
+      ensayos.push({
+        ensayo_id: ensayoColor.value.ensayo_id,
+        tipo_ensayo: 'color_cielab',
+        color_cielab: {
+          color_cielab_id: ensayoColor.value.color_cielab?.color_cielab_id,
+
+          peso_ensayo_g: Number(form.color_cielab.peso_ensayo_g),
+
+          resultado_l: Number(form.color_cielab.resultado_l),
+
+          resultado_a: Number(form.color_cielab.resultado_a),
+
+          resultado_b: Number(form.color_cielab.resultado_b),
+        },
+      })
+    }
+
+    const body = {
+      estado_analisis_id: 2, // "Terminado"
+      peso_muestra_g: Number(form.peso_muestra_g),
+      observaciones: form.observaciones,
+      ensayos,
+    }
+
+    console.log(body)
+
+    const response = await axios.patch(
+      `${baseUrl}/laboratorio/ensayos?analisis_id=${data.value.analisis_id}`,
+      body,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+
+    console.log(response.data)
+
+    alert('Análisis terminado correctamente')
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+// GUARDAR CAMBIOS
+const guardarCambios = async () => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
+    const token = localStorage.getItem('token')
+
+    const ensayos = []
+
+    // HUMEDAD
+    if (ensayoHumedad.value) {
+      ensayos.push({
+        ensayo_id: ensayoHumedad.value.ensayo_id,
+        tipo_ensayo: 'humedad',
+        humedad: {
+          humedad_id: ensayoHumedad.value.humedad?.humedad_id,
+          peso_ensayo_g: Number(form.humedad.peso_ensayo_g),
+          resultado: Number(form.humedad.resultado),
+        },
+      })
+    }
+
+    // ACIDO CARMINICO
+    if (ensayoAcido.value) {
+      ensayos.push({
+        ensayo_id: ensayoAcido.value.ensayo_id,
+        tipo_ensayo: 'acido_carminico',
+        acido_carminico: {
+          acido_carminico_id: ensayoAcido.value.acido_carminico?.acido_carminico_id,
+
+          peso_ensayo_g: Number(form.acido_carminico.peso_ensayo_g),
+
+          absorbancia_nm: Number(form.acido_carminico.absorbancia_nm),
+
+          resultado: Number(form.acido_carminico.resultado),
+        },
+      })
+    }
+
+    // COLOR CIELAB
+    if (ensayoColor.value) {
+      ensayos.push({
+        ensayo_id: ensayoColor.value.ensayo_id,
+        tipo_ensayo: 'color_cielab',
+        color_cielab: {
+          color_cielab_id: ensayoColor.value.color_cielab?.color_cielab_id,
+
+          peso_ensayo_g: Number(form.color_cielab.peso_ensayo_g),
+
+          resultado_l: Number(form.color_cielab.resultado_l),
+
+          resultado_a: Number(form.color_cielab.resultado_a),
+
+          resultado_b: Number(form.color_cielab.resultado_b),
+        },
+      })
+    }
+
+    const body = {
+      estado_analisis_id: 1, // Guardar cambios
+      peso_muestra_g: Number(form.peso_muestra_g),
+      observaciones: form.observaciones,
+      ensayos,
+    }
+
+    console.log(body)
+
+    const response = await axios.patch(
+      `${baseUrl}/laboratorio/ensayos?analisis_id=${data.value.analisis_id}`,
+      body,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+
+    console.log(response.data)
+    await recargarAnalisis()
+    alert('Cambios guardados correctamente')
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+// GET ANALISIS O SOLICITUD
 const getLoteAnalisisoSolicitud = async (id, item) => {
   console.log('Obteniendo análisis para item_inventario_id:', id)
   console.log('Item seleccionado:', item)
+
   loading.value = true
   loteSeleccionado.value = true
 
@@ -687,6 +1030,7 @@ const getLoteAnalisisoSolicitud = async (id, item) => {
     })
 
     analisis.value = data
+    console.log('Datos obtenidos:', data)
     cargarFormulario(data)
   } catch (error) {
     console.error(error)
@@ -852,6 +1196,7 @@ const ensayoColor = computed(() =>
 onMounted(() => {
   obtenerMuestras()
   fetchNoConformes()
+  cargarResumenKPIs()
 })
 </script>
 
