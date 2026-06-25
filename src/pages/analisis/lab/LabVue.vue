@@ -25,7 +25,7 @@
       <div class="card p-5">
         <div class="flex justify-between items-center">
           <div>
-            <p class="text-sm text-gray-500">Aprobados</p>
+            <p class="text-sm text-gray-500">Analizados hoy</p>
             <h3 class="text-2xl font-bold">{{ kpis.analizadasHoy }}</h3>
           </div>
           <i class="fa-solid fa-circle-check text-green-500 text-2xl"></i>
@@ -718,7 +718,17 @@ const iniciarAnalisis = async () => {
         'Content-Type': 'application/json',
       },
     })
+    const nuevoAnalisis = response.data
+
     console.log('Análisis iniciado:', response.data)
+    // ✅ 1. ACTUALIZAR ESTADO GLOBAL (ESTO ES LO QUE TE FALTA)
+    analisis.value = {
+      tipo: 'analisis',
+      data: nuevoAnalisis,
+    }
+
+    // ✅ 2. CARGAR FORMULARIO CON DATOS NUEVOS
+    cargarFormulario(analisis.value)
   } catch (error) {
     console.error('Error al iniciar análisis:', error)
   }
@@ -757,20 +767,30 @@ const obtenerDescripcionEnsayo = (tipo) => {
 }
 // DESPUÉS DE LLAMAR AL GUARDAR CAMBIOS O TERMINAR ANÁLISIS, RECARGAR DATOS
 const recargarAnalisis = async () => {
-  const baseUrl = import.meta.env.VITE_API_URL
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL
 
-  const { data } = await axios.get(`${baseUrl}/laboratorio/analisis-o-solicitud`, {
-    params: {
-      item_inventario_id: itemSeleccionado.value.item_inventario_id,
-    },
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-  })
+    const { data } = await axios.get(`${baseUrl}/laboratorio/analisis-o-solicitud`, {
+      params: {
+        item_inventario_id: itemSeleccionado.value.item_inventario_id,
+      },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    })
 
-  analisis.value = data
+    analisis.value = data
+    cargarFormulario(data)
+  } catch (error) {
+    console.warn('No hay análisis activo para este lote:', error.response?.status)
 
-  cargarFormulario(data)
+    // 🔥 IMPORTANTE: limpiar estado UI
+    analisis.value = null
+    limpiarSeleccion()
+
+    // opcional: recargar cola para ver el cambio
+    await obtenerMuestras()
+  }
 }
 
 const cargarFormulario = (analisis) => {
@@ -917,6 +937,12 @@ const terminarAnalisis = async () => {
     )
 
     console.log(response.data)
+    analisis.value = null
+    limpiarSeleccion()
+
+    await obtenerMuestras()
+    await fetchNoConformes()
+    await cargarResumenKPIs()
 
     alert('Análisis terminado correctamente')
   } catch (error) {
@@ -1171,6 +1197,7 @@ const rechazarNC = async (analisis_id) => {
     if (res.status !== 200) throw new Error(`Error ${res.status}`)
     // Refrescar lista de no conformidades
     await fetchNoConformes()
+    await obtenerMuestras()
   } catch (e) {
     console.error('Error al rechazar NC:', e)
   }
