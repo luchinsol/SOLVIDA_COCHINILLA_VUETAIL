@@ -18,6 +18,18 @@ export default {
         warning: '#F59E0B',
         danger: '#EF4444',
         info: '#3B82F6',
+        industrial: {
+          bg: '#fcfcfc',
+          sidebar: '#171717',
+          carmine: '#800020',
+          'carmine-dark': '#650019',
+          border: '#e2e8f0',
+          neutral: '#718096',
+          success: '#16a34a',
+          'success-bg': '#dcfce7',
+          'text-primary': '#1a202c',
+          'text-secondary': '#4a5568',
+        },
       },
       boxShadow: {
         soft: '0 4px 6px -1px rgba(0,0,0,0.05)',

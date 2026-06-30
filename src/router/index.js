@@ -4,7 +4,7 @@ import Inventariolayout from '@/pages/inventario/Inventariolayout.vue'
 import LotesView from '@/pages/lotes/LotesView.vue'
 import QcLabView from '@/pages/analisis/QcLabView.vue'
 import SecurityView from '@/pages/seguridad/SecurityView.vue'
-import ProcessWizard from '@/pages/procesos/ProcessWizard.vue'
+import CarmineERPListaRecetas from '@/pages/procesos/CarmineERPListaRecetas.vue'
 import Step2Materiales from '@/pages/procesos/proceso2/Step2Materiales.vue'
 import Step3View from '@/pages/procesos/proceso3/Step3View.vue'
 import LoginView from '@/pages/login/LoginView.vue'
@@ -32,8 +32,7 @@ const router = createRouter({
         {
           path: 'procesos',
           name: 'procesos',
-          component: ProcessWizard,
-          meta: { modulo: 'Producción' },
+          component: CarmineERPListaRecetas,
         },
         {
           path: 'lotes',

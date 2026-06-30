@@ -20,7 +20,6 @@
       </router-link>
 
       <router-link
-        v-if="hasModulo('Producción')"
         to="/panel/procesos"
         class="nav-item flex items-center px-4 py-3 text-textMuted hover:bg-gray-50 rounded-lg"
       >
