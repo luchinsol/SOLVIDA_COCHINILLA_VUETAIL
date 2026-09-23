@@ -92,7 +92,7 @@
       </div>
 
       <div v-if="activeTab === 'extracto'">
-        <LoteExtracto />
+        <LoteExtracto :inventario="almacenSeleccionado" />
       </div>
     </div>
 

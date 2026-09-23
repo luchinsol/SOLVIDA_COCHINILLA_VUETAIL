@@ -328,7 +328,6 @@
 <script setup>
 import axios from 'axios'
 import { watch, computed } from 'vue'
-import { onMounted } from 'vue'
 import { ref } from 'vue'
 
 /// PROPS
@@ -369,10 +368,6 @@ const eliminar = async () => {
     console.error(error)
   }
 }
-onMounted(() => {
-  getLoteCarmin()
-})
-
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const verDetalle = (item) => {
@@ -407,7 +402,7 @@ const actualizarEstadoLoteCarmin = async () => {
       resultType.value = 'success'
       showResultadoModalCarmin.value = true
     }
-    await getLoteCarmin()
+    await getLoteCarmin(props.inventario)
   } catch (error) {
     const msg = error.response?.data?.message || 'No se pudo actualizar el lote carmin'
     resultMessage.value = msg
@@ -434,7 +429,7 @@ const actualizarStockActualCarmin = async () => {
       resultMessage.value = 'Stock actual del lote carmin actualizado correctamente'
       resultType.value = 'success'
       showResultadoModalCarmin.value = true
-      await getLoteCarmin()
+      await getLoteCarmin(props.inventario)
     }
   } catch (error) {
     showUpdateCarminModal.value = false
@@ -451,16 +446,20 @@ const confirmarEliminar = (item) => {
   selectedItem.value = item
   showDeleteModal.value = true
 }
-const getLoteCarmin = async (almacen) => {
+const getLoteCarmin = async (almacenId) => {
   loading.value = true
   try {
     const baseURL = import.meta.env.VITE_API_URL
-    const response = await axios.get(`${baseURL}/lotes-carmin`)
-    const data = await response.data
-    carmin.value = data
+    const response = await axios.get(`${baseURL}/lotes-carmin`, {
+      params: {
+        almacen_id: almacenId === 'todos' ? undefined : almacenId,
+      },
+    })
+    carmin.value = Array.isArray(response.data) ? response.data : []
     await delay(1000) // Simula un retraso para mostrar el spinner console.log('Insumos:', data)
   } catch (error) {
-    console.error('Error fetching insumos:', error)
+    console.error('Error fetching lotes carmin:', error)
+    carmin.value = []
   } finally {
     loading.value = false
   }

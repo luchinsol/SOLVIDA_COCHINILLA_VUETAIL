@@ -694,10 +694,6 @@ const eliminar = async () => {
     console.error(error)
   }
 }
-onMounted(() => {
-  getLoteCochinilla()
-})
-
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const verDetalle = (item) => {
@@ -787,17 +783,21 @@ const confirmarEliminar = (item) => {
   selectedItem.value = item
   showDeleteModal.value = true
 }
-const getLoteCochinilla = async () => {
+const getLoteCochinilla = async (almacenId) => {
   loading.value = true
   try {
-    const url = 'http://localhost:3000/api/lotes-cochinilla'
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.get(`${baseURL}/lotes-cochinilla`, {
+      params: {
+        almacen_id: almacenId === 'todos' ? undefined : almacenId,
+      },
+    })
 
-    const response = await axios.get(url)
-    const data = await response.data
-    cochinilla.value = data
+    cochinilla.value = Array.isArray(response.data) ? response.data : []
     await delay(1000) // Simula un retraso para mostrar el spinner console.log('Cochinilla:', data)
   } catch (error) {
     console.error('Error fetching cochinilla:', error)
+    cochinilla.value = []
   } finally {
     loading.value = false
   }
@@ -850,11 +850,11 @@ onMounted(() => {
   ;(getAlmacenes(), getProveedores())
 })
 /// WATCHER PARA RECARGAR DATOS CUANDO CAMBIA EL INVENTARIO
-/*watch(
+watch(
   () => props.inventario,
   (nuevo) => {
     getLoteCochinilla(nuevo)
   },
   { immediate: true },
-)*/
+)
 </script>

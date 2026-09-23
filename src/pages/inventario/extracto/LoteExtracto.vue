@@ -354,9 +354,7 @@
 <script setup>
 import axios from 'axios'
 import { watch, computed } from 'vue'
-import { onMounted } from 'vue'
 import { ref } from 'vue'
-import { parse } from 'vue/compiler-sfc'
 
 const extracto = ref([])
 const loading = ref(false)
@@ -394,10 +392,6 @@ const eliminar = async () => {
     console.error(error)
   }
 }
-onMounted(() => {
-  getExtracto()
-})
-
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const verDetalle = (item) => {
@@ -427,7 +421,7 @@ const actualizarEstadoLoteExtracto = async () => {
       resultType.value = 'success'
       showResultadoModalExtracto.value = true
     }
-    await getExtracto()
+    await getExtracto(props.inventario)
   } catch (error) {
     const msg = error.response?.data?.message || 'No se pudo actualizar el estado del lote'
     resultMessage.value = msg
@@ -452,7 +446,7 @@ const actualizarStockActualExtracto = async () => {
       resultType.value = 'success'
       showResultadoModalExtracto.value = true
     }
-    await getExtracto()
+    await getExtracto(props.inventario)
   } catch (error) {
     showUpdateExtractoModal.value = false
     const msg =
@@ -468,16 +462,20 @@ const confirmarEliminar = (item) => {
   showDeleteModal.value = true
 }
 
-const getExtracto = async () => {
+const getExtracto = async (almacenId) => {
   loading.value = true
   try {
     const baseURL = import.meta.env.VITE_API_URL
-    const response = await axios.get(`${baseURL}/extractos`)
-    const data = await response.data
-    extracto.value = data
+    const response = await axios.get(`${baseURL}/extractos`, {
+      params: {
+        almacen_id: almacenId === 'todos' ? undefined : almacenId,
+      },
+    })
+    extracto.value = Array.isArray(response.data) ? response.data : []
     await delay(1000) // Simula un retraso para mostrar el spinner console.log('Insumos:', data)
   } catch (error) {
-    console.error('Error fetching insumos:', error)
+    console.error('Error fetching extractos:', error)
+    extracto.value = []
   } finally {
     loading.value = false
   }
