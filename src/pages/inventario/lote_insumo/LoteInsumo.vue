@@ -875,15 +875,15 @@ const getMoneda = async () => {
 }
 
 /// FUNCIONES
-const getLoteInsumos = async (almacen) => {
+const getLoteInsumos = async (almacenId) => {
   loading.value = true
   try {
-    const url =
-      almacen === 'todos'
-        ? 'http://localhost:3000/api/lote-insumos'
-        : `http://localhost:3000/api/lote-insumos?almacen=${almacen}`
-
-    const response = await axios.get(url)
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.get(`${baseURL}/lote-insumos`, {
+      params: {
+        almacen_id: almacenId === 'todos' ? undefined : almacenId,
+      },
+    })
 
     insumos.value = Array.isArray(response.data) ? response.data : []
   } catch (error) {
