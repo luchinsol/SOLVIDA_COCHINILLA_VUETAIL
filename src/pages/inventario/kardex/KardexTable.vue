@@ -5,7 +5,7 @@ import { computed, onMounted } from 'vue'
 import { watch } from 'vue'
 import axios from 'axios'
 /// PROPS
-const props = defineProps({
+defineProps({
   inventario: {
     type: String,
     default: 'todos',
@@ -46,14 +46,6 @@ const resultMessageShow = ref('')
 // DATOS PRINCIPALES
 const movimientosData = ref([]) // Aquí se almacenarán los movimientos obtenidos de la API
 const itemInventarioLista = ref([]) // Lista de productos para el select del modal
-// RESULTADOS DE OPERACIONES (CREAR, EDITAR, ELIMINAR)
-const resultMessage = ref('')
-const resultType = ref('') // 'success' o 'error'
-const createMotivoMovimientoForm = ref({
-  tipo_movimiento_id: '',
-  motivo_movimiento_id: '',
-})
-
 const listaMotivosMovimiento = ref([])
 const tipoMovimientoSeleccionado = ref(null)
 const tiposProducto = ref([])
@@ -83,6 +75,34 @@ const cantidadMovimiento = ref(null)
 const observacionesMovimiento = ref('')
 
 const almacenDestinoSeleccionado = ref('')
+
+const almacenesDestinoDisponibles = computed(() =>
+  listaAlmacenes.value.filter(
+    (almacen) =>
+      tipoMovimientoSeleccionado.value != 4 ||
+      Number(almacen.almacen_id) !== Number(loteSeleccionado.value?.almacen_id),
+  ),
+)
+
+const puedeAvanzarMovimiento = computed(
+  () =>
+    tipoMovimientoSeleccionado.value &&
+    motivoMovimientoSeleccionado.value &&
+    loteSeleccionado.value,
+)
+
+const puedeGuardarMovimiento = computed(() => {
+  const cantidad = Number(cantidadMovimiento.value)
+  const esAjuste = tipoMovimientoSeleccionado.value == 3
+  const requiereDestino =
+    tipoMovimientoSeleccionado.value == 1 || tipoMovimientoSeleccionado.value == 4
+
+  if (!Number.isFinite(cantidad) || (esAjuste ? cantidad < 0 : cantidad <= 0)) {
+    return false
+  }
+
+  return !requiereDestino || Boolean(almacenDestinoSeleccionado.value)
+})
 
 const totalPagesShow = computed(() => {
   return Math.ceil(lotesInventario.value.length / perPage.value) || 1
@@ -160,8 +180,6 @@ const guardarMovimiento = async () => {
     // ENTRADA / SALIDA
     if (tipoMovimientoSeleccionado.value == 1 || tipoMovimientoSeleccionado.value == 2) {
       const body = {
-        usuario_id: 1,
-
         item_inventario_id: loteSeleccionado.value.item_inventario_id,
 
         tipo_movimientos_almacen_id: tipoMovimientoSeleccionado.value,
@@ -172,7 +190,9 @@ const guardarMovimiento = async () => {
 
         observaciones: observacionesMovimiento.value,
 
-        almacen_destino_id: null,
+        ...(tipoMovimientoSeleccionado.value == 1
+          ? { almacen_destino_id: almacenDestinoSeleccionado.value }
+          : { almacen_origen_id: loteSeleccionado.value.almacen_id }),
       }
       console.log('Body entrada/salida:', body)
       await axios.post(`${baseUrl}/movimientos-almacen/entradas-salidas`, body)
@@ -181,9 +201,9 @@ const guardarMovimiento = async () => {
     // AJUSTE
     else if (tipoMovimientoSeleccionado.value == 3) {
       const body = {
-        usuario_id: 1,
-
         item_inventario_id: loteSeleccionado.value.item_inventario_id,
+
+        almacen_id: loteSeleccionado.value.almacen_id,
 
         motivo_movimiento: motivoMovimientoNombre.value,
 
@@ -199,15 +219,17 @@ const guardarMovimiento = async () => {
     // TRASLADO
     else if (tipoMovimientoSeleccionado.value == 4) {
       const body = {
-        usuario_id: 1,
-
         item_inventario_id: loteSeleccionado.value.item_inventario_id,
+
+        almacen_origen_id: loteSeleccionado.value.almacen_id,
 
         motivo_movimiento: motivoMovimientoNombre.value,
 
         observaciones: observacionesMovimiento.value,
 
         almacen_destino_id: almacenDestinoSeleccionado.value,
+
+        cantidad: Number(cantidadMovimiento.value),
       }
 
       console.log('Body traslado:', body)
@@ -221,13 +243,15 @@ const guardarMovimiento = async () => {
     resultMessageShow.value = 'Movimiento registrado correctamente'
 
     showResultadoModalShow.value = true
+
+    await Promise.all([getMovimientos(), getLotesInventario()])
   } catch (error) {
     console.error(error)
 
     resultTypeShow.value = 'error'
 
     resultMessageShow.value =
-      error.response?.data?.message || 'Ocurrió un error al registrar el movimiento'
+      error.response?.data?.error || 'Ocurrió un error al registrar el movimiento'
 
     showResultadoModalShow.value = true
   } finally {
@@ -471,6 +495,8 @@ watch(
   },
 )
 watch(tipoMovimientoSeleccionado, (nuevoValor) => {
+  almacenDestinoSeleccionado.value = ''
+
   if (nuevoValor) {
     getMotivosMovimiento(nuevoValor)
   }
@@ -486,62 +512,72 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-    <div class="px-6 py-5 border-b border-gray-200 flex items-start justify-between">
+  <div class="space-y-6">
+    <div class="flex flex-wrap items-start justify-between gap-4">
       <!-- IZQUIERDA -->
       <div>
-        <h2 class="text-xl font-bold text-gray-900">Kardex Detallado</h2>
+        <h2 class="text-xl font-black text-slate-900 tracking-normal uppercase">Kardex Detallado</h2>
 
-        <p class="text-sm text-gray-500 mt-1">Movimientos y trazabilidad de inventario</p>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+          Movimientos y trazabilidad de inventario
+        </p>
       </div>
 
       <!-- DERECHA -->
-      <button
-        v-if="canCreateMovimiento"
-        class="bg-orange-600 hover:bg-orange-700 text-white text-md font-bold px-4 py-2 rounded-lg transition"
-        @click="showRegistroMovimientoModal = true"
-      >
-        Registrar movimiento
-      </button>
+      <div class="flex flex-wrap justify-end gap-3">
+        <button
+          class="px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 transition-colors"
+        >
+          Descargar informe general
+        </button>
+
+        <button
+          v-if="canCreateMovimiento"
+          class="bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-black uppercase tracking-widest px-5 py-2 rounded-lg shadow-lg shadow-orange-100 transition-colors"
+          @click="showRegistroMovimientoModal = true"
+        >
+          Registrar movimiento
+        </button>
+      </div>
     </div>
 
     <!-- FILTROS -->
-    <div class="px-6 py-4 border-b border-gray-200 grid gap-4 md:grid-cols-7">
+    <div class="bg-[#fcfcfc] p-4 rounded-lg border border-slate-100 shadow-sm grid gap-3 md:grid-cols-4 xl:grid-cols-7">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2"> Código </label>
+        <label class="kardex-filter-label"> Código </label>
 
         <input
           v-model="searchCodigo"
           type="text"
           placeholder="Buscar código"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          class="kardex-filter-control"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2"> Fecha Desde </label>
+        <label class="kardex-filter-label"> Fecha Desde </label>
 
         <input
           v-model="searchFechaDesde"
           type="date"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          class="kardex-filter-control"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2"> Fecha Hasta </label>
+        <label class="kardex-filter-label"> Fecha Hasta </label>
 
         <input
           v-model="searchFechaHasta"
           type="date"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          class="kardex-filter-control"
         />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2"> Almacén </label>
+        <label class="kardex-filter-label"> Almacén </label>
 
         <select
           v-model="searchAlmacen"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          class="kardex-filter-control"
         >
           <option value="">Seleccione un almacén</option>
           <option
@@ -555,10 +591,10 @@ onMounted(() => {
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Producto</label>
+        <label class="kardex-filter-label">Producto</label>
         <select
           v-model="searchProducto"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white"
+          class="kardex-filter-control"
         >
           <option value="">Seleccione un producto</option>
           <option v-for="item in listaProductos" :key="item.nombre_item" :value="item.nombre_item">
@@ -569,11 +605,11 @@ onMounted(() => {
 
       <!-- TIPO -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2"> Tipo </label>
+        <label class="kardex-filter-label"> Tipo </label>
 
         <select
           v-model="searchTipo"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          class="kardex-filter-control"
         >
           <option value="">Seleccione un tipo</option>
 
@@ -583,18 +619,18 @@ onMounted(() => {
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
+        <label class="kardex-filter-label">Usuario</label>
         <input
           v-model="searchUsuario"
           type="text"
           placeholder="Buscar por usuario"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+          class="kardex-filter-control"
         />
       </div>
     </div>
 
     <!-- TABLE -->
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto bg-white rounded-lg border border-slate-100 shadow-xl shadow-slate-200/50">
       <table class="w-full min-w-[1300px]">
         <!-- THEAD -->
         <thead class="bg-gray-50 border-b border-gray-200">
@@ -1073,7 +1109,8 @@ onMounted(() => {
                   >
                     <tr>
                       <th class="px-6 py-3">Código de item</th>
-                      <th class="px-6 py-3">Nombre</th>
+                      <th class="px-6 py-3">Producto</th>
+                      <th class="px-6 py-3">Nombre del lote</th>
                       <th class="px-6 py-3">Almacén</th>
                       <th class="px-6 py-3 text-right">Stock Actual</th>
                     </tr>
@@ -1082,12 +1119,13 @@ onMounted(() => {
                   <tbody>
                     <tr
                       v-for="lote in lotesPaginadosShow"
-                      :key="lote.item_inventario_id"
+                      :key="`${lote.item_inventario_id}-${lote.almacen_id}`"
                       @click="loteSeleccionado = lote"
                       class="border-b border-gray-200 hover:bg-blue-50 transition cursor-pointer"
                       :class="{
                         'bg-blue-50':
-                          loteSeleccionado?.item_inventario_id === lote.item_inventario_id,
+                          loteSeleccionado?.item_inventario_id === lote.item_inventario_id &&
+                          loteSeleccionado?.almacen_id === lote.almacen_id,
                       }"
                     >
                       <td class="px-6 py-4 font-medium text-primary">
@@ -1096,6 +1134,10 @@ onMounted(() => {
 
                       <td class="px-6 py-4 font-semibold text-gray-900">
                         {{ lote.nombre_item }}
+                      </td>
+
+                      <td class="px-6 py-4 font-medium text-gray-900">
+                        {{ lote.nombre_lote || '-' }}
                       </td>
 
                       <td class="px-6 py-4">
@@ -1276,9 +1318,11 @@ onMounted(() => {
                     </div>
 
                     <!-- DESTINATION -->
-                    <div v-if="tipoMovimientoSeleccionado == 4">
+                    <div
+                      v-if="tipoMovimientoSeleccionado == 1 || tipoMovimientoSeleccionado == 4"
+                    >
                       <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        Destination Warehouse
+                        Almacén destino
                       </label>
 
                       <select
@@ -1288,7 +1332,7 @@ onMounted(() => {
                         <option value="">Seleccionar almacén</option>
 
                         <option
-                          v-for="almacen in listaAlmacenes"
+                          v-for="almacen in almacenesDestinoDisponibles"
                           :key="almacen.almacen_id"
                           :value="almacen.almacen_id"
                         >
@@ -1337,7 +1381,8 @@ onMounted(() => {
           <button
             v-if="stepMovimiento === 1"
             @click="stepMovimiento = 2"
-            class="px-6 py-2.5 bg-primary text-white text-sm font-medium rounded-lg shadow-md hover:bg-blue-600 transition"
+            :disabled="!puedeAvanzarMovimiento"
+            class="px-6 py-2.5 bg-primary text-white text-sm font-medium rounded-lg shadow-md hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next Step
           </button>
@@ -1345,7 +1390,7 @@ onMounted(() => {
           <button
             v-else
             @click="guardarMovimiento"
-            :disabled="loadingMovimientoShow"
+            :disabled="loadingMovimientoShow || !puedeGuardarMovimiento"
             class="px-6 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg shadow-md hover:bg-green-700 transition disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <!-- SPINNER -->
@@ -1389,3 +1434,13 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.kardex-filter-label {
+  @apply block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1;
+}
+
+.kardex-filter-control {
+  @apply w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-[10px] font-bold text-slate-600 outline-none focus:ring-4 focus:ring-red-50 focus:border-red-200 transition-all;
+}
+</style>

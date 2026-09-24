@@ -337,6 +337,7 @@ const props = defineProps({
     default: 'todos',
   },
 })
+const emit = defineEmits(['inventario-actualizado'])
 const carmin = ref([])
 const loading = ref(false)
 const showDeleteModal = ref(false)
@@ -430,6 +431,7 @@ const actualizarStockActualCarmin = async () => {
       resultType.value = 'success'
       showResultadoModalCarmin.value = true
       await getLoteCarmin(props.inventario)
+      emit('inventario-actualizado')
     }
   } catch (error) {
     showUpdateCarminModal.value = false

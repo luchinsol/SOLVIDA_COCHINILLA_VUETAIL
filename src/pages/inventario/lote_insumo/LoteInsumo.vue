@@ -1,39 +1,77 @@
 <template>
-  <div class="flex justify-between items-center pb-4 pt-4 border-b">
+  <div
+    class="flex flex-col sm:flex-row sm:items-end gap-4 p-4 bg-[#fcfcfc] border border-slate-100 rounded-lg shadow-sm"
+  >
+    <div class="w-full sm:w-72">
+      <label for="filtro-tipo-insumo" class="filter-label">
+        Tipo de insumo
+      </label>
+      <select
+        id="filtro-tipo-insumo"
+        v-model="tipoInsumoFiltro"
+        class="filter-select"
+      >
+        <option value="">Todos los tipos</option>
+        <option
+          v-for="tipo in tiposInsumo"
+          :key="tipo.tipo_insumo_id"
+          :value="tipo.tipo_insumo_id"
+        >
+          {{ tipo.nombre }}
+        </option>
+      </select>
+    </div>
+
+    <div class="w-full sm:w-72">
+      <label for="filtro-almacen" class="filter-label">
+        Almacén
+      </label>
+      <select
+        id="filtro-almacen"
+        v-model="almacenFiltro"
+        class="filter-select"
+      >
+        <option value="todos">Todos los almacenes</option>
+        <option
+          v-for="almacen in almacenes"
+          :key="almacen.almacen_id"
+          :value="String(almacen.almacen_id)"
+        >
+          {{ almacen.nombre }}
+        </option>
+      </select>
+    </div>
+
     <button
       @click="showCreateModal = true"
-      class="px-4 py-2 bg-green-800 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
+      class="sm:ml-auto px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg shadow-red-100 flex items-center justify-center gap-2 transition-colors"
     >
       <i class="fa-solid fa-plus"></i>
       Crear lote insumo
     </button>
   </div>
 
+  <slot name="summary"></slot>
+
   <!-- TABLA + PAGINADOR-->
-  <div class="w-full bg-white border border-gray-200 rounded-xl overflow-hidden">
+  <div class="w-full bg-white border border-slate-100 rounded-lg overflow-hidden shadow-xl shadow-slate-200/50">
     <div class="w-full overflow-x-auto">
       <table class="min-w-max w-full">
         <!-- HEADER -->
         <thead class="bg-gray-50 text-gray-600 uppercase text-[10px] tracking-wider">
           <tr>
-            <th class="px-4 py-3 text-left bg-purple-200">ID</th>
+            <th class="px-4 py-3 text-left">ID</th>
             <th class="px-4 py-3 text-center bg-blue-200">Nombre</th>
+            <th class="px-4 py-3 text-center w-[300px] bg-green-200">Tipo insumo</th>
+            <th class="px-4 py-3 text-center w-[250px] bg-purple-200">Almacén</th>
+            <th class="px-4 py-3 text-right bg-gray-200">Estado lote</th>
+            <th class="px-4 py-3 text-right bg-green-200">Stock Actual</th>
+            <th class="px-4 py-3 text-left bg-indigo-200">Stock inicial</th>
             <th class="px-4 py-3 text-left bg-pink-200">Concentración</th>
             <th class="px-4 py-3 text-right bg-yellow-200">Costo Unitario</th>
-            <th class="px-4 py-3 text-right bg-green-200">Stock Actual</th>
-            <th class="px-4 py-3 text-right bg-blue-200">Fecha creación</th>
-
             <th class="px-4 py-3 text-right bg-red-200">Costo total</th>
-            <th class="px-4 py-3 text-left bg-indigo-200">Stock inicial</th>
-
-            <th class="px-4 py-3 text-right bg-gray-200">Estado lote</th>
-
             <th class="px-4 py-3 text-center bg-gray-200">Proveedor</th>
-
-            <th class="px-4 py-3 text-center w-[250px] bg-purple-200">Almacen</th>
-
-            <th class="px-4 py-3 text-center w-[300px] bg-green-200">Tipo insumo</th>
-
+            <th class="px-4 py-3 text-right bg-blue-200">Fecha creación</th>
             <th class="px-4 py-3 text-center bg-yellow-200">Acciones</th>
           </tr>
         </thead>
@@ -42,7 +80,7 @@
         <tbody>
           <!-- 🔄 LOADING -->
           <tr v-if="loading">
-            <td colspan="11" class="text-center py-10">
+            <td colspan="13" class="text-center py-10">
               <div class="flex flex-col items-center gap-3">
                 <div
                   class="w-10 h-10 border-4 border-green-800 border-t-transparent rounded-full animate-spin"
@@ -54,7 +92,7 @@
 
           <!-- ❌ SIN DATOS -->
           <tr v-else-if="paginatedInsumos.length === 0">
-            <td colspan="11" class="text-center py-10 text-gray-500">No hay datos disponibles</td>
+            <td colspan="13" class="text-center py-10 text-gray-500">No hay datos disponibles</td>
           </tr>
 
           <!-- ✅ DATA -->
@@ -66,7 +104,7 @@
           >
             <!-- tu contenido -->
             <!-- ID -->
-            <td class="px-4 py-2 text-xs bg-purple-100">
+            <td class="px-4 py-2 text-xs">
               <div class="font-medium text-gray-900">{{ item.lote_insumo_id }}</div>
               <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
             </td>
@@ -75,6 +113,57 @@
             <td class="px-4 py-2 text-xs">
               <div class="font-medium text-gray-100 bg-blue-500 rounded p-1">{{ item.nombre }}</div>
               <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
+            </td>
+
+            <!-- Tipo insumo -->
+            <td class="px-4 py-3">
+              <div
+                class="flex justify-center items-center gap-2 bg-green-300 rounded-lg text-green-600 px-2 py-1"
+              >
+                <span class="text-xs">{{ item.tipo_insumo_nombre }}</span>
+              </div>
+            </td>
+
+            <!-- Almacén -->
+            <td class="px-4 py-3 text-right">
+              <div
+                class="flex justify-start items-center gap-2 bg-purple-300 rounded-lg text-purple-600 px-2 py-1"
+              >
+                <span class="text-xs">{{ item.almacen_nombre }}</span>
+              </div>
+            </td>
+
+            <!-- Estado lote -->
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xs">{{ item.estado_lote || '-' }}</span>
+              </div>
+            </td>
+
+            <!-- Stock actual -->
+            <td class="px-4 py-2">
+              <div class="flex flex-col">
+                <span class="font-bold">
+                  {{ item.stock_actual }}
+                </span>
+
+                <span class="text-[13px] text-gray-500 font-bold">
+                  {{ item.unidad_medida_cantidad }}
+                </span>
+              </div>
+            </td>
+
+            <!-- Stock inicial -->
+            <td class="px-4 py-2">
+              <div class="flex flex-col">
+                <span class="font-bold">
+                  {{ item.stock_inicial }}
+                </span>
+
+                <span class="text-[13px] text-gray-500 font-bold">
+                  {{ item.unidad_medida_cantidad }}
+                </span>
+              </div>
             </td>
 
             <!-- Concentración -->
@@ -103,55 +192,16 @@
               </div>
             </td>
 
-            <!-- Stock actual -->
-
-            <td class="px-4 py-2">
-              <div class="flex flex-col">
-                <span class="font-bold">
-                  {{ item.stock_actual }}
-                </span>
-
-                <span class="text-[13px] text-gray-500 font-bold">
-                  {{ item.unidad_medida_cantidad }}
-                </span>
-              </div>
-            </td>
-
-            <!-- Fecha creación -->
-            <td class="px-4 py-3">
-              <div class="text-xs font-bold">{{ item.creado_en }}</div>
-            </td>
-
             <!-- Costo total -->
             <td class="px-4 py-2">
               <div class="flex flex-col">
                 <span class="font-bold">
-                  {{ item.costo_total }}
+                  {{ item.costo_total_actual }}
                 </span>
 
                 <span class="text-[13px] text-gray-500 font-bold">
                   {{ item.unidad_medida_moneda }}
                 </span>
-              </div>
-            </td>
-
-            <!-- Stock inicial -->
-            <td class="px-4 py-2">
-              <div class="flex flex-col">
-                <span class="font-bold">
-                  {{ item.stock_inicial }}
-                </span>
-
-                <span class="text-[13px] text-gray-500 font-bold">
-                  {{ item.unidad_medida_cantidad }}
-                </span>
-              </div>
-            </td>
-
-            <!-- Estado lote-->
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <span class="text-xs">{{ item.estado_lote }}</span>
               </div>
             </td>
 
@@ -162,21 +212,9 @@
               </div>
             </td>
 
-            <!-- Almacen nombre-->
-            <td class="px-4 py-3 text-right">
-              <div
-                class="flex justify-start items-center gap-2 bg-purple-300 rounded-lg text-purple-600 px-2 py-1"
-              >
-                <span class="text-xs">{{ item.almacen_nombre }}</span>
-              </div>
-            </td>
-
+            <!-- Fecha creación -->
             <td class="px-4 py-3">
-              <div
-                class="flex justify-center items-center gap-2 bg-green-300 rounded-lg text-green-600 px-2 py-1"
-              >
-                <span class="text-xs">{{ item.tipo_insumo_nombre }}</span>
-              </div>
+              <div class="text-xs font-bold">{{ formatearFecha(item.creado_en) }}</div>
             </td>
 
             <!-- CONTROL DE ACCIONES -->
@@ -218,17 +256,20 @@
           </tr>
         </tbody>
       </table>
+    </div>
 
-      <!-- CONTROL DE PÁGINAS -->
-      <div class="flex justify-start items-center p-5 border-t">
+    <!-- CONTROL DE PÁGINAS -->
+    <div
+      class="flex justify-start items-center gap-2 p-5 border-t font-sans text-[11px] font-semibold text-slate-500"
+    >
         <!-- selector -->
         <div class="flex items-center gap-2">
-          <span class="text-sm text-gray-600">Mostrar:</span>
+          <span>Mostrar:</span>
 
           <select
             v-model="perPage"
             @change="currentPage = 1"
-            class="border rounded px-2 py-1 text-sm"
+            class="border border-slate-200 rounded-md bg-white px-2.5 py-1.5 font-sans text-[11px] font-semibold text-slate-700 outline-none focus:border-red-300 focus:ring-2 focus:ring-red-50"
           >
             <option v-for="opt in perPageOptions" :key="opt" :value="opt">
               {{ opt }}
@@ -240,23 +281,22 @@
         <div class="flex items-center gap-2">
           <button
             @click="prevPage"
-            class="px-3 py-1 text-sm border rounded disabled:opacity-50"
+            class="px-3 py-1.5 border border-slate-200 rounded-md text-slate-500 hover:text-red-600 hover:border-red-200 disabled:opacity-50 disabled:hover:text-slate-500"
             :disabled="currentPage === 1"
           >
             <i class="fa-solid fa-angles-left"></i>
           </button>
 
-          <span class="text-sm"> Página {{ currentPage }} de {{ totalPages }} </span>
+          <span>Página {{ currentPage }} de {{ totalPages }}</span>
 
           <button
             @click="nextPage"
-            class="px-3 py-1 text-sm border rounded disabled:opacity-50"
+            class="px-3 py-1.5 border border-slate-200 rounded-md text-slate-500 hover:text-red-600 hover:border-red-200 disabled:opacity-50 disabled:hover:text-slate-500"
             :disabled="currentPage === totalPages"
           >
             <i class="fa-solid fa-angles-right"></i>
           </button>
         </div>
-      </div>
     </div>
   </div>
 
@@ -500,10 +540,10 @@
           <h3 class="text-sm font-bold text-gray-500 mb-3">Estado de lote</h3>
 
           <div class="grid grid-cols-1 gap-4">
-            <select v-model="updateForm.estado_lote" class="input">
+            <select v-model="updateForm.estado_lote_id" class="input">
               <option disabled value="">Estado del lote</option>
-              <option value="disponible">Disponible</option>
-              <option value="bloqueado">Bloqueado</option>
+              <option :value="1">Disponible</option>
+              <option :value="3">Bloqueado</option>
             </select>
             <button
               @click="actualizarEstadoLoteInsumo"
@@ -580,11 +620,11 @@ import axios from 'axios'
 import { watch, computed, onMounted, ref } from 'vue'
 import CrearInsumo from './Formularios_inline/CrearInsumo.vue'
 import CrearProveedor from './Formularios_inline/CrearProveedor.vue'
-import { parse } from 'vue/compiler-sfc'
 
 /// VARIABLES REACTIVAS
 const insumos = ref([])
 const tiposInsumo = ref([])
+const tipoInsumoFiltro = ref('')
 const almacenes = ref([])
 const proveedores = ref([])
 const loading = ref(false)
@@ -595,8 +635,8 @@ const showUpdateModal = ref(false)
 const showTipoInsumoForm = ref(false)
 const showProveedorForm = ref(false)
 const currentPage = ref(1) // PAGINACIÓN
-const perPage = ref(4) // PAGINACIÓN
-const perPageOptions = [4, 10, 15, 'All']
+const perPage = ref(5) // PAGINACIÓN
+const perPageOptions = [5, 10, 15, 'All']
 const volumen = ref([])
 const masa = ref([])
 const dinero = ref([])
@@ -624,9 +664,19 @@ const createForm = ref({
 /// FORMULARIO ACTUALIZAR INSUMO
 const updateForm = ref({
   id: '',
-  estado_lote: '',
+  estado_lote_id: '',
   stock_actual: '',
 })
+
+const formatearFecha = (fecha) => {
+  if (!fecha) return '-'
+
+  return new Intl.DateTimeFormat('es-PE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(new Date(fecha))
+}
 
 /// PROPS
 const props = defineProps({
@@ -634,6 +684,17 @@ const props = defineProps({
     type: String,
     default: 'todos',
   },
+})
+
+const emit = defineEmits([
+  'update:inventario',
+  'inventario-actualizado',
+  'tipo-insumo-cambiado',
+])
+
+const almacenFiltro = computed({
+  get: () => props.inventario,
+  set: (value) => emit('update:inventario', value),
 })
 
 /// COMPUTED PROPERTIES PARA PAGINACIÓN
@@ -705,7 +766,8 @@ const crearLoteInsumo = async () => {
     }
 
     /// recargar datos
-    getLoteInsumos(props.inventario)
+    await getLoteInsumos(props.inventario)
+    emit('inventario-actualizado')
   } catch (error) {
     console.error(error)
   }
@@ -721,11 +783,11 @@ const getTipoInsumos = async () => {
   }
 }
 
-const handleTipoInsumoCreado = async (nuevoTipo) => {
+const handleTipoInsumoCreado = async () => {
   await getTipoInsumos()
 }
 
-const handleProveedorCreado = async (nuevoProveedor) => {
+const handleProveedorCreado = async () => {
   await getProveedores()
 }
 
@@ -767,7 +829,7 @@ const editar = (item) => {
   showUpdateModal.value = true
   updateForm.value = {
     id: item.lote_insumo_id,
-    estado_lote: item.estado_lote,
+    estado_lote_id: item.estado_lote_id,
     stock_actual: item.stock_actual,
   }
 
@@ -781,7 +843,7 @@ const actualizarEstadoLoteInsumo = async () => {
     const response = await axios.patch(
       `${baseURL}/lote-insumos/${updateForm.value.id}/estado-lote`,
       {
-        estado_lote: updateForm.value.estado_lote,
+        estado_lote_id: updateForm.value.estado_lote_id,
       },
     )
 
@@ -830,6 +892,7 @@ const actualizarStockActualLoteInsumo = async () => {
     }
 
     await getLoteInsumos(props.inventario)
+    emit('inventario-actualizado')
   } catch (error) {
     // cerrar modal actual
     showUpdateModal.value = false
@@ -882,6 +945,7 @@ const getLoteInsumos = async (almacenId) => {
     const response = await axios.get(`${baseURL}/lote-insumos`, {
       params: {
         almacen_id: almacenId === 'todos' ? undefined : almacenId,
+        tipo_insumo_id: tipoInsumoFiltro.value || undefined,
       },
     })
 
@@ -896,9 +960,11 @@ const getLoteInsumos = async (almacenId) => {
 
 /// WATCHER PARA RECARGAR DATOS CUANDO CAMBIA EL INVENTARIO
 watch(
-  () => props.inventario,
-  (nuevo) => {
-    getLoteInsumos(nuevo)
+  [() => props.inventario, tipoInsumoFiltro],
+  ([nuevoAlmacen]) => {
+    currentPage.value = 1
+    emit('tipo-insumo-cambiado', tipoInsumoFiltro.value)
+    getLoteInsumos(nuevoAlmacen)
   },
   { immediate: true },
 )
@@ -916,5 +982,13 @@ onMounted(() => {
 <style scoped>
 .input {
   @apply border px-3 py-2 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-green-700;
+}
+
+.filter-label {
+  @apply block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1;
+}
+
+.filter-select {
+  @apply w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-xs font-bold text-slate-600 outline-none focus:ring-4 focus:ring-red-50 focus:border-red-200 transition-all;
 }
 </style>
