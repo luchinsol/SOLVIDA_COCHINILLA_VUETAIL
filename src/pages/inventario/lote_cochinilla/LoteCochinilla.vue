@@ -1,13 +1,49 @@
 <template>
-  <div class="flex justify-between items-center pb-4 pt-4 border-b">
+  <div
+    class="flex flex-col sm:flex-row sm:items-end gap-4 p-4 bg-[#fcfcfc] border border-slate-100 rounded-lg shadow-sm"
+  >
+    <div class="w-full sm:w-72">
+      <label for="filtro-tipo-lote-cochinilla" class="filter-label">Tipo de lote</label>
+      <select
+        id="filtro-tipo-lote-cochinilla"
+        v-model="tipoLoteFiltro"
+        class="filter-select"
+      >
+        <option value="">Todos los tipos</option>
+        <option value="comprado">Comprado</option>
+        <option value="preparado">Preparado</option>
+      </select>
+    </div>
+
+    <div class="w-full sm:w-72">
+      <label for="filtro-almacen-cochinilla" class="filter-label">Almacén</label>
+      <select
+        id="filtro-almacen-cochinilla"
+        v-model="almacenFiltro"
+        class="filter-select"
+      >
+        <option value="todos">Todos los almacenes</option>
+        <option
+          v-for="almacen in almacenes"
+          :key="almacen.almacen_id"
+          :value="String(almacen.almacen_id)"
+        >
+          {{ almacen.nombre }}
+        </option>
+      </select>
+    </div>
+
     <button
       @click="showCreateCochinillaModal = true"
-      class="px-4 py-2 bg-green-800 text-white rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2"
+      class="sm:ml-auto px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg shadow-red-100 flex items-center justify-center gap-2 transition-colors"
     >
       <i class="fa-solid fa-plus"></i>
-      Crear lote cochinilla x compra
+      Crear lote cochinilla
     </button>
   </div>
+
+  <slot name="summary"></slot>
+
   <div class="w-full bg-white border border-gray-200 rounded-xl">
     <div class="overflow-x-auto">
       <table class="w-full min-w-[1200px]">
@@ -15,19 +51,12 @@
         <thead class="bg-gray-50 text-gray-600 uppercase text-[10px] tracking-wider">
           <tr>
             <th class="px-4 py-3 text-left">ID</th>
-            
-            <th class="px-4 py-3 text-left bg-blue-200">Creado Por</th>
-            <th class="px-4 py-3 text-left bg-green-200">Código Lote</th>
             <th class="px-4 py-3 text-left bg-yellow-200">Tipo Lote</th>
-            <th class="px-4 py-3 text-right bg-purple-200">Fecha compra</th>
-            <th class="px-4 py-3 text-right bg-indigo-200">Fecha creación</th>
             <th class="px-4 py-3 text-left bg-pink-200">Calidad Cochinilla</th>
             <th class="px-4 py-3 text-left bg-gray-200">Stock actual</th>
             <th class="px-4 py-3 text-center bg-gray-200">Concentración AC Actual</th>
             <th class="px-4 py-3 text-right bg-gray-200">Humedad % Actual</th>
             <th class="px-4 py-3 text-left bg-gray-200">Estado Lote</th>
-            <th class="px-4 py-3 text-left bg-gray-200">Observaciones</th>
-            <th class="px-4 py-3 text-right bg-gray-200">Costo total inicial</th>
             <th class="px-4 py-3 text-left bg-gray-200">Costo x Punto AC (Dolares)</th>
             <th class="px-4 py-3 text-left bg-gray-200">Costo Unitario</th>
 
@@ -43,7 +72,7 @@
         <tbody>
           <!-- 🔄 LOADING -->
           <tr v-if="loading">
-            <td colspan="11" class="text-center py-10">
+            <td colspan="14" class="text-center py-10">
               <div class="flex flex-col items-center gap-3">
                 <div
                   class="w-10 h-10 border-4 border-green-800 border-t-transparent rounded-full animate-spin"
@@ -55,7 +84,7 @@
 
           <!-- ❌ SIN DATOS -->
           <tr v-else-if="paginatedCochinilla.length === 0">
-            <td colspan="11" class="text-center py-10 text-gray-500">No hay datos disponibles</td>
+            <td colspan="14" class="text-center py-10 text-gray-500">No hay datos disponibles</td>
           </tr>
 
           <!-- ✅ DATA -->
@@ -72,40 +101,9 @@
               <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
             </td>
 
-            
-
-            <!-- Fecha -->
-            <td class="px-4 py-2 text-xs">
-              <div class="font-medium text-gray-900">{{ item.creado_por }}</div>
-              <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
-            </td>
-
-            <!-- Código Lote -->
-            <td class="px-4 py-2">
-              <span
-                class="px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 w-fit"
-                :class="item.badge"
-              >
-                <i :class="item.icon"></i>
-                {{ item.codigo_lote }}
-              </span>
-            </td>
-
             <!-- Tipo lote -->
             <td class="px-4 py-3 text-left text-xs">
               <div class="font-bold text-gray-900">{{ item.tipo_lote }}</div>
-            </td>
-
-            <!-- Fecha compra -->
-            <td class="px-4 py-3">
-              <span class="text-xs text-blue-600 font-bold cursor-pointer hover:underline">
-                {{ item.fecha_compra }}
-              </span>
-            </td>
-
-            <!-- Fecha creación -->
-            <td class="px-4 py-3">
-              <div class="text-xs font-bold">{{ item.fecha_creacion || '-' }}</div>
             </td>
 
             <!-- Documento 
@@ -158,26 +156,7 @@
               {{ item.estado_lote }}
             </td>
 
-            <!-- Observaciones -->
-            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
-              {{ item.observaciones }}
-            </td>
-
             
-
-            <!-- Costo total inicial -->
-            
-            <td class="px-4 py-2">
-              <div class="flex flex-col">
-                <span class="font-bold">
-                  {{ item.costo_total_inicial }}
-                </span>
-              
-                <span class="text-[14px] text-gray-500 font-bold">
-                  {{ item.unidad_medida_dinero }}
-                </span>
-              </div>
-            </td>
 
             <!-- Costo Punto AC Dolares -->
             
@@ -263,7 +242,15 @@
               <div
                 class="flex justify-center items-center gap-2 opacity-70 hover:opacity-100 transition"
               >
-               
+                <!-- VER DETALLE -->
+                <button
+                  @click="verDetalle(item)"
+                  class="p-2 rounded-lg text-blue-600 hover:bg-blue-50 transition"
+                  title="Ver información del lote"
+                  aria-label="Ver información del lote"
+                >
+                  <i class="fa-solid fa-eye"></i>
+                </button>
 
                 <!-- EDITAR -->
                 <button
@@ -281,17 +268,20 @@
           </tr>
         </tbody>
       </table>
+    </div>
 
-      <!-- CONTROL DE PÁGINAS -->
-      <div class="flex justify-start items-center p-5 border-t">
+    <!-- CONTROL DE PÁGINAS -->
+    <div
+      class="flex justify-start items-center gap-2 p-5 border-t font-sans text-[11px] font-semibold text-slate-500"
+    >
         <!-- selector -->
         <div class="flex items-center gap-2">
-          <span class="text-sm text-gray-600">Mostrar:</span>
+          <span>Mostrar:</span>
 
           <select
             v-model="perPage"
             @change="currentPage = 1"
-            class="border rounded px-2 py-1 text-sm"
+            class="border border-slate-200 rounded-md bg-white px-2.5 py-1.5 font-sans text-[11px] font-semibold text-slate-700 outline-none focus:border-red-300 focus:ring-2 focus:ring-red-50"
           >
             <option v-for="opt in perPageOptions" :key="opt" :value="opt">
               {{ opt }}
@@ -303,21 +293,92 @@
         <div class="flex items-center gap-2">
           <button
             @click="prevPage"
-            class="px-3 py-1 text-sm border rounded disabled:opacity-50"
+            class="px-3 py-1.5 border border-slate-200 rounded-md text-slate-500 hover:text-red-600 hover:border-red-200 disabled:opacity-50 disabled:hover:text-slate-500"
             :disabled="currentPage === 1"
           >
             <i class="fa-solid fa-angles-left"></i>
           </button>
 
-          <span class="text-sm"> Página {{ currentPage }} de {{ totalPages }} </span>
+          <span>Página {{ currentPage }} de {{ totalPages }}</span>
 
           <button
             @click="nextPage"
-            class="px-3 py-1 text-sm border rounded disabled:opacity-50"
+            class="px-3 py-1.5 border border-slate-200 rounded-md text-slate-500 hover:text-red-600 hover:border-red-200 disabled:opacity-50 disabled:hover:text-slate-500"
             :disabled="currentPage === totalPages"
           >
             <i class="fa-solid fa-angles-right"></i>
           </button>
+        </div>
+    </div>
+  </div>
+
+  <!-- DETALLE DEL LOTE -->
+  <div
+    v-if="showDetailModal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4"
+    @click.self="showDetailModal = false"
+  >
+    <div class="w-full max-w-md overflow-hidden rounded-lg bg-white shadow-2xl shadow-slate-950/20">
+      <div class="flex items-start justify-between border-b border-slate-100 px-6 py-5">
+        <div>
+          <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">
+            Información del lote
+          </p>
+          <h3 class="mt-1 text-lg font-black text-slate-900">
+            {{ detailItem?.codigo_lote || 'Lote de cochinilla' }}
+          </h3>
+        </div>
+
+        <button
+          @click="showDetailModal = false"
+          class="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+          title="Cerrar"
+          aria-label="Cerrar detalle"
+        >
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2">
+        <div class="rounded-lg border border-slate-100 bg-slate-50 px-4 py-4">
+          <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">
+            Creado por
+          </p>
+          <p class="mt-2 text-sm font-bold text-slate-800">
+            {{ detailItem?.creado_por_nombre || '-' }}
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-slate-100 bg-slate-50 px-4 py-4">
+          <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">
+            Fecha de creación
+          </p>
+          <p class="mt-2 text-sm font-bold text-slate-800">
+            {{ formatearFechaHora(detailItem?.fecha_creacion) }}
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-slate-100 bg-slate-50 px-4 py-4 sm:col-span-2">
+          <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">
+            Costo total inicial
+          </p>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span class="text-sm font-bold text-slate-800">
+              {{ detailItem?.costo_total_inicial ?? '-' }}
+            </span>
+            <span v-if="detailItem?.unidad_medida_dinero" class="text-[10px] font-black uppercase text-slate-400">
+              {{ detailItem.unidad_medida_dinero }}
+            </span>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-slate-100 bg-slate-50 px-4 py-4 sm:col-span-2">
+          <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">
+            Observaciones
+          </p>
+          <p class="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-slate-700">
+            {{ detailItem?.observaciones || '-' }}
+          </p>
         </div>
       </div>
     </div>
@@ -341,8 +402,8 @@
           <div class="grid grid-cols-2 gap-4">
             <!-- FECHA -->
             <div class="flex flex-col">
-              <label class="text-sm text-gray-600 mb-1">Fecha de compra</label>
-              <input v-model="createLoteCochinillaForm.fecha_compra" type="date" class="input" />
+              <label class="text-sm text-gray-600 mb-1">Fecha de creación</label>
+              <input v-model="createLoteCochinillaForm.fecha_creacion" type="date" class="input" />
             </div>
             <!-- CALIDAD -->
             <div class="flex flex-col">
@@ -601,23 +662,26 @@ const loading = ref(false)
 const showDeleteModal = ref(false)
 const selectedItem = ref(null)
 const currentPage = ref(1)
-const perPage = ref(4)
+const perPage = ref(5)
+const tipoLoteFiltro = ref('')
 const showProveedorForm = ref(false)
 const showCreateCochinillaModal = ref(false)
 const showUpdateCochinillaModal = ref(false)
+const showDetailModal = ref(false)
+const detailItem = ref(null)
 
 // MENSAJES UI DE RESULTADOS
 const resultMessage = ref('')
 const resultType = ref('') // 'success' o 'error'
 const showResultadoModalCochinilla = ref(false)
 
-const perPageOptions = [4, 10, 20, 'All']
+const perPageOptions = [5, 10, 20, 'All']
 
 const createLoteCochinillaForm = ref({
   almacen_id: '',
   proveedor_id: '',
   creado_por: 1,
-  fecha_compra: '',
+  fecha_creacion: '',
   calidad_cochinilla: '',
   stock_inicial: 0.0,
   costo_total_inicial: 0.0,
@@ -637,6 +701,16 @@ const props = defineProps({
     default: 'todos',
   },
 })
+const emit = defineEmits([
+  'update:inventario',
+  'inventario-actualizado',
+  'tipo-lote-cambiado',
+])
+
+const almacenFiltro = computed({
+  get: () => props.inventario,
+  set: (value) => emit('update:inventario', value),
+})
 
 const crearLoteCochinilla = async () => {
   try {
@@ -649,7 +723,7 @@ const crearLoteCochinilla = async () => {
       almacen_id: parseInt(createLoteCochinillaForm.value.almacen_id),
       proveedor_id: parseInt(createLoteCochinillaForm.value.proveedor_id),
       creado_por: createLoteCochinillaForm.value.creado_por,
-      fecha_compra: createLoteCochinillaForm.value.fecha_compra,
+      fecha_creacion: createLoteCochinillaForm.value.fecha_creacion,
       calidad_cochinilla: createLoteCochinillaForm.value.calidad_cochinilla,
       stock_inicial: createLoteCochinillaForm.value.stock_inicial,
       costo_total_inicial: createLoteCochinillaForm.value.costo_total_inicial,
@@ -664,7 +738,8 @@ const crearLoteCochinilla = async () => {
       showResultadoModalCochinilla.value = true   
 
     } 
-    await getLoteCochinilla() // recarga la lista después de crear
+    await getLoteCochinilla(props.inventario) // recarga la lista después de crear
+    emit('inventario-actualizado')
   } catch (error) {
     console.error('Error creando lote de cochinilla:', error)
     showCreateCochinillaModal.value = false
@@ -696,8 +771,33 @@ const eliminar = async () => {
 }
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
+const formatearFechaHora = (fecha) => {
+  if (!fecha) return '-'
+
+  const valor = new Date(fecha)
+  if (Number.isNaN(valor.getTime())) return '-'
+
+  const partes = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Lima',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  })
+    .formatToParts(valor)
+    .reduce((resultado, parte) => {
+      resultado[parte.type] = parte.value
+      return resultado
+    }, {})
+
+  return `${partes.day}/${partes.month}/${partes.year} ${partes.hour}:${partes.minute} ${partes.dayPeriod.toUpperCase()}`
+}
+
 const verDetalle = (item) => {
-  console.log('Ver detalle:', item)
+  detailItem.value = item
+  showDetailModal.value = true
 }
 
 const editar = (item) => {
@@ -733,7 +833,8 @@ const actualizarStockActualCochinilla = async () => {
       showResultadoModalCochinilla.value = true
     }
 
-    await getLoteCochinilla()
+    await getLoteCochinilla(props.inventario)
+    emit('inventario-actualizado')
     //showUpdateModal.value = false
   } catch (error) {
     //showUpdateModal.value = false
@@ -767,7 +868,7 @@ const actualizarEstadoLoteCochinilla = async () => {
       showResultadoModalCochinilla.value = true
     }
 
-    await getLoteCochinilla()
+    await getLoteCochinilla(props.inventario)
     //showUpdateModal.value = false
   } catch (error) {
     //showUpdateModal.value = false
@@ -790,6 +891,7 @@ const getLoteCochinilla = async (almacenId) => {
     const response = await axios.get(`${baseURL}/lotes-cochinilla`, {
       params: {
         almacen_id: almacenId === 'todos' ? undefined : almacenId,
+        tipo_lote: tipoLoteFiltro.value || undefined,
       },
     })
 
@@ -851,10 +953,22 @@ onMounted(() => {
 })
 /// WATCHER PARA RECARGAR DATOS CUANDO CAMBIA EL INVENTARIO
 watch(
-  () => props.inventario,
-  (nuevo) => {
-    getLoteCochinilla(nuevo)
+  [() => props.inventario, tipoLoteFiltro],
+  ([nuevoAlmacen]) => {
+    currentPage.value = 1
+    emit('tipo-lote-cambiado', tipoLoteFiltro.value)
+    getLoteCochinilla(nuevoAlmacen)
   },
   { immediate: true },
 )
 </script>
+
+<style scoped>
+.filter-label {
+  @apply block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1;
+}
+
+.filter-select {
+  @apply w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-xs font-bold text-slate-600 outline-none focus:ring-4 focus:ring-red-50 focus:border-red-200 transition-all;
+}
+</style>

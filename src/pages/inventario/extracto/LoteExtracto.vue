@@ -380,6 +380,7 @@ const props = defineProps({
     default: 'todos',
   },
 })
+const emit = defineEmits(['inventario-actualizado'])
 const eliminar = async () => {
   try {
     console.log('Eliminar:', selectedItem.value)
@@ -422,6 +423,7 @@ const actualizarEstadoLoteExtracto = async () => {
       showResultadoModalExtracto.value = true
     }
     await getExtracto(props.inventario)
+    emit('inventario-actualizado')
   } catch (error) {
     const msg = error.response?.data?.message || 'No se pudo actualizar el estado del lote'
     resultMessage.value = msg
@@ -447,6 +449,7 @@ const actualizarStockActualExtracto = async () => {
       showResultadoModalExtracto.value = true
     }
     await getExtracto(props.inventario)
+    emit('inventario-actualizado')
   } catch (error) {
     showUpdateExtractoModal.value = false
     const msg =

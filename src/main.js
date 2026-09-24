@@ -20,9 +20,14 @@ axios.interceptors.request.use((config) => {
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const tokenInvalido =
+      error.response?.status === 403 && error.response?.data?.error === 'Token inválido'
+
+    if (error.response?.status === 401 || tokenInvalido) {
       localStorage.removeItem('token')
       localStorage.removeItem('usuario')
+      localStorage.removeItem('permisos')
+      localStorage.removeItem('modulos_acceso')
       router.push({ name: 'Login' })
     }
 
