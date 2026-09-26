@@ -740,7 +740,6 @@ const crearLoteCochinilla = async () => {
         
 
 
-      console.error('Error inesperado al crear lote de cochinilla:', response)
   }
 }
 
@@ -867,10 +866,6 @@ const actualizarEstadoLoteCochinilla = async () => {
     console.error(error)
   }
 }
-const confirmarEliminar = (item) => {
-  selectedItem.value = item
-  showDeleteModal.value = true
-}
 const getLoteCochinilla = async (almacenId) => {
   loading.value = true
   try {
@@ -944,7 +939,7 @@ const getTiposCochinilla = async () => {
     tiposCochinilla.value = []
   }
 }
-const handleProveedorCreado = async (nuevoProveedor) => {
+const handleProveedorCreado = async () => {
   await getProveedores()
 }
 
@@ -967,18 +962,61 @@ watch(
 
 <style scoped>
 .corporate-label {
-  @apply ml-1 block text-[10px] font-bold text-slate-500;
+  display: block;
+  margin-left: 0.25rem;
+  color: rgb(100 116 139);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 0.875rem;
 }
 
 .corporate-field {
-  @apply w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-medium text-slate-700 outline-none transition-all focus:border-blue-400 focus:ring-4 focus:ring-blue-50;
+  width: 100%;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 0.5rem;
+  outline: none;
+  background-color: rgb(248 250 252);
+  padding: 0.75rem 1rem;
+  color: rgb(51 65 85);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1rem;
+  transition: all 150ms ease;
+}
+
+.corporate-field:focus {
+  border-color: rgb(96 165 250);
+  box-shadow: 0 0 0 4px rgb(239 246 255);
 }
 
 .filter-label {
-  @apply block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1;
+  display: block;
+  margin-bottom: 0.375rem;
+  margin-left: 0.25rem;
+  color: rgb(148 163 184);
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .filter-select {
-  @apply w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-xs font-bold text-slate-600 outline-none focus:ring-4 focus:ring-red-50 focus:border-red-200 transition-all;
+  width: 100%;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 0.5rem;
+  outline: none;
+  background-color: white;
+  padding: 0.625rem 1rem;
+  color: rgb(71 85 105);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1rem;
+  transition: all 150ms ease;
+}
+
+.filter-select:focus {
+  border-color: rgb(254 202 202);
+  box-shadow: 0 0 0 4px rgb(254 242 242);
 }
 </style>
