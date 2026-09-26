@@ -1,52 +1,53 @@
 <template>
-  <div v-if="modelValue" class="border p-4 rounded bg-gray-50 mt-3">
-    <h4 class="font-bold mb-3">Nuevo Tipo de Insumo</h4>
+  <div
+    v-if="modelValue"
+    class="space-y-4 rounded-lg border-2 border-dashed border-blue-100 bg-blue-50/50 p-5 sm:p-6"
+  >
+    <div class="flex items-center justify-between gap-3">
+      <h4 class="text-[11px] font-black uppercase text-blue-800">
+        Nuevo tipo de insumo
+      </h4>
+      <span class="text-[9px] font-bold uppercase tracking-widest text-blue-400">
+        Paso rápido
+      </span>
+    </div>
 
-    <div class="grid grid-cols-2 gap-4">
-      <!-- NOMBRE -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <input
         v-model="formTipoInsumo.nombre"
-        class="input border rounded px-2 py-1"
-        placeholder="Nombre"
+        class="quick-field"
+        placeholder="Nombre del tipo"
       />
-      <!-- CONTROLADO -->
-      <select v-model="formTipoInsumo.controlado" class="input border rounded px-2 py-1">
-        <option disabled value="">Controlado</option>
-        <option :value="false">No</option>
+
+      <select v-model="formTipoInsumo.controlado" class="quick-field cursor-pointer">
+        <option disabled value="">¿Es insumo IQBF?</option>
         <option :value="true">Sí</option>
+        <option :value="false">No</option>
       </select>
 
-      <!-- DESCRIPCIÓN  -->
       <input
         v-model="formTipoInsumo.descripcion"
-        class="input border rounded px-2 py-1"
-        placeholder="Descripción"
+        class="quick-field sm:col-span-2"
+        placeholder="Descripción breve"
       />
 
-      <!-- VIGENTE -->
-
-      <select v-model="formTipoInsumo.vigente" class="input border rounded px-2 py-1">
-        <option disabled value="">Vigente</option>
-        <option :value="false">No</option>
-        <option :value="true">Sí</option>
-      </select>
-
-      <!-- UNIDAD DE MEDIDA -->
-      <select v-model="formTipoInsumo.unidad_medida" class="input border rounded px-2 py-1">
-        <option disabled value="">Unidad de Medida</option>
-        <option value="kg">kg</option>
-        <option value="l">l</option>
-        <option value="mol">mol</option>
-        <option value="vol">vol</option>
-      </select>
     </div>
-    <div class="flex justify-end gap-2 mt-4">
-      <button @click="$emit('update:modelValue', false)" class="px-3 py-1 border rounded">
+
+    <div class="flex justify-end gap-3 pt-2">
+      <button
+        type="button"
+        @click="$emit('update:modelValue', false)"
+        class="px-4 py-2 text-[9px] font-black uppercase tracking-widest text-blue-400 transition-colors hover:text-blue-700"
+      >
         Cancelar
       </button>
 
-      <button @click="crearTipoInsumo" class="px-3 py-1 bg-green-700 text-white rounded">
-        Crear
+      <button
+        type="button"
+        @click="crearTipoInsumo"
+        class="rounded-lg bg-blue-600 px-5 py-2 text-[9px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-100 transition-colors hover:bg-blue-700"
+      >
+        Registrar tipo
       </button>
     </div>
   </div>
@@ -65,8 +66,6 @@ const formTipoInsumo = ref({
   nombre: '',
   controlado: '',
   descripcion: '',
-  vigente: '',
-  unidad_medida: '',
 })
 
 const crearTipoInsumo = async () => {
@@ -78,3 +77,9 @@ const crearTipoInsumo = async () => {
   emit('update:modelValue', false)
 }
 </script>
+
+<style scoped>
+.quick-field {
+  @apply w-full rounded-lg border border-blue-100 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 outline-none transition-all placeholder:font-medium placeholder:text-slate-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-200;
+}
+</style>

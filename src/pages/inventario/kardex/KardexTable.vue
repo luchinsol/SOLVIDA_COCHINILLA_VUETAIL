@@ -286,11 +286,11 @@ const getListaTipoMovimientoAlmacen = async () => {
   }
 }
 
-const getProveedores = async (nombreItem) => {
+const getProveedores = async () => {
   try {
     const baseUrl = import.meta.env.VITE_API_URL
 
-    const respuesta = await axios.get(`${baseUrl}/proveedores?nombre_item_provee=${nombreItem}`)
+    const respuesta = await axios.get(`${baseUrl}/proveedores`)
 
     proveedoresLista.value = respuesta.data
 
@@ -486,7 +486,7 @@ watch(productoSeleccionado, (nuevoValor) => {
   getTiposProducto(nuevoValor)
 
   // CARGAR PROVEEDORES
-  getProveedores(nuevoValor)
+  getProveedores()
 })
 watch(
   [searchProducto, searchTipo, searchCodigo, searchAlmacen, searchFechaDesde, searchFechaHasta],

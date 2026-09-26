@@ -41,23 +41,6 @@
           </button>
         </div>
 
-        <!-- SELECTOR -->
-        <div v-if="activeTab !== 'insumos'" class="relative">
-          <select
-            v-model="almacenSeleccionado"
-            class="appearance-none bg-white border border-gray-300 text-sm rounded-lg px-4 py-2 pr-8 focus:outline-none focus:border-orange-500"
-          >
-            <option value="todos">Todos los Almacenes</option>
-            <option value="1">Almacén 1</option>
-            <option value="2">Almacén 2</option>
-            <option value="3">Almacén 3</option>
-            <option value="4">Almacén 4</option>
-          </select>
-
-          <i
-            class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 pointer-events-none"
-          ></i>
-        </div>
       </div>
 
       <!-- CONTENIDO HIJOS -->
