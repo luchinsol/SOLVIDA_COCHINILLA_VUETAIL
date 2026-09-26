@@ -45,108 +45,139 @@
     <!-- Main 2-column layout -->
     <div class="flex flex-col xl:flex-row gap-5">
       <!-- LEFT: Work Queue -->
-      <div id="left-col" class="xl:w-[400px] flex-shrink-0 space-y-4">
-        <div id="cola-trabajo-card" class="card overflow-hidden">
+      <div id="left-col" class="xl:w-[560px] 2xl:w-[640px] flex-shrink-0 space-y-4">
+        <div
+          id="cola-trabajo-card"
+          class="overflow-hidden rounded-lg border border-slate-100 bg-white shadow-xl shadow-slate-200/50"
+        >
           <div
-            class="px-4 py-3 border-b border-gray-200 flex items-center justify-between bg-white"
-            style="background-color: #fff0f0"
+            class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-slate-50/40 px-6 py-5"
           >
             <div>
-              <h3 class="font-bold text-sm text-text-main">Cola de Trabajo</h3>
-              <p class="text-xs text-text-muted mt-0.5">Clic en un lote para analizar</p>
+              <h3 class="text-lg font-black tracking-normal text-slate-900">Cola de Trabajo</h3>
+              <p class="mt-1 text-[9px] font-bold uppercase italic tracking-widest text-slate-400">
+                Clic en un lote para analizar
+              </p>
             </div>
-            <select
-              v-model.number="estadoSeleccionado"
-              @change="obtenerMuestras"
-              class="border border-gray-300 rounded-lg px-2 py-1.5 text-xs bg-white text-text-muted focus:outline-none focus:border-brand-red"
-            >
-              <option :value="null">Todos</option>
-              <option :value="2">Por analizar</option>
-              <option :value="3">Bloqueado</option>
-              <option :value="6">En análisis</option>
-            </select>
+            <div class="relative">
+              <select
+                v-model.number="estadoSeleccionado"
+                @change="obtenerMuestras"
+                class="cursor-pointer appearance-none rounded-lg border border-slate-200 bg-white py-2.5 pl-4 pr-9 text-[9px] font-black uppercase tracking-widest text-slate-600 outline-none transition-all focus:border-blue-300 focus:ring-4 focus:ring-blue-50"
+              >
+                <option :value="null">Todos</option>
+                <option :value="2">Por analizar</option>
+                <option :value="3">Bloqueado</option>
+                <option :value="6">En análisis</option>
+              </select>
+              <i
+                class="fa-solid fa-chevron-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[8px] text-slate-300"
+              ></i>
+            </div>
           </div>
 
           <!-- COLA DE TRABAJO -->
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead
-                class="bg-white text-xs text-text-muted uppercase"
-                style="background-color: #fff0f0"
-              >
+            <table class="w-full min-w-[560px] border-collapse text-left">
+              <thead class="bg-slate-50/60">
                 <tr>
-                  <th class="px-3 py-2.5 font-semibold">Código Item</th>
-                  <th class="px-3 py-2.5 font-semibold">Lote</th>
-                  <th class="px-3 py-2.5 font-semibold">Estado lote</th>
-                  <th class="px-3 py-2.5 font-semibold">Fecha</th>
-                  <th class="px-3 py-2.5"></th>
+                  <th class="border-b border-slate-100 px-5 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    Código Item
+                  </th>
+                  <th class="border-b border-slate-100 px-5 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    Lote
+                  </th>
+                  <th class="border-b border-slate-100 px-5 py-4 text-center text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    Estado lote
+                  </th>
+                  <th class="border-b border-slate-100 px-5 py-4 text-right text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    Fecha
+                  </th>
+                  <th class="border-b border-slate-100 px-5 py-4"></th>
                 </tr>
               </thead>
 
-              <tbody id="samples-table-body">
+              <tbody id="samples-table-body" class="divide-y divide-slate-100">
+                <tr v-if="muestrasPaginadas.length === 0">
+                  <td colspan="5" class="px-6 py-14 text-center">
+                    <i class="fa-solid fa-flask-vial mb-3 block text-2xl text-slate-200"></i>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                      No hay lotes en este estado
+                    </span>
+                  </td>
+                </tr>
                 <tr
                   v-for="item in muestrasPaginadas"
                   :key="item.codigo_item"
-                  class="sample-row border-b border-red-50 cursor-pointer hover:bg-white transition-colors"
+                  class="sample-row group cursor-pointer transition-colors hover:bg-slate-50"
+                  @click="getLoteAnalisisoSolicitud(item.item_inventario_id, item)"
                 >
-                  <td class="px-3 py-3 font-mono text-xs font-bold text-blue-600">
+                  <td class="px-5 py-5 font-mono text-xs font-black tracking-normal text-blue-600">
                     {{ item.codigo_item }}
                   </td>
 
-                  <td class="px-3 py-3 text-xs font-medium">
-                    {{ item.nombre_lote || '-' }}
+                  <td class="px-5 py-5">
+                    <p class="max-w-[190px] break-words text-[10px] font-bold leading-snug text-slate-700">
+                      {{ item.nombre_lote || '-' }}
+                    </p>
                   </td>
 
-                  <td class="px-3 py-3">
+                  <td class="px-5 py-5 text-center">
                     <span
-                      class="text-xs px-2 py-0.5 rounded-full font-semibold"
+                      class="inline-block rounded-lg border px-3 py-1 text-[9px] font-black uppercase tracking-widest shadow-sm"
                       :class="{
-                        'bg-blue-100 text-blue-600': item.estado_lote_id === 6,
-
-                        'bg-orange-100 text-orange-700': item.estado_lote_id === 5,
-
-                        'bg-green-100 text-green-700': item.estado_lote_id === 4,
-
-                        'bg-gray-100 text-gray-700': ![4, 5, 6].includes(item.estado_lote_id),
+                        'border-blue-100 bg-blue-50 text-blue-700': item.estado_lote_id === 6,
+                        'border-amber-100 bg-amber-50 text-amber-700': item.estado_lote_id === 5,
+                        'border-emerald-100 bg-emerald-50 text-emerald-700': item.estado_lote_id === 4,
+                        'border-slate-200 bg-slate-100 text-slate-600': ![4, 5, 6].includes(item.estado_lote_id),
                       }"
                     >
                       {{ item.estado }}
                     </span>
                   </td>
 
-                  <td class="px-3 py-3">
+                  <td class="whitespace-nowrap px-5 py-5 text-right text-[11px] font-medium text-slate-400">
                     {{ item.fecha }}
                   </td>
 
-                  <td class="px-3 py-3">
+                  <td class="px-5 py-5 text-right">
                     <button
-                      @click="getLoteAnalisisoSolicitud(item.item_inventario_id, item)"
-                      class="text-blue-600 hover:underline text-xs font-bold disabled:text-gray-400 disabled:cursor-not-allowed"
+                      type="button"
+                      @click.stop="getLoteAnalisisoSolicitud(item.item_inventario_id, item)"
+                      class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-400 transition-all group-hover:bg-[#1e3a8a] group-hover:text-white"
+                      title="Abrir lote"
+                      aria-label="Abrir lote"
                     >
-                      Ir→
+                      <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </button>
                   </td>
                 </tr>
               </tbody>
             </table>
-            <div class="flex justify-center items-center gap-2 py-3">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 bg-slate-50/40 px-6 py-5">
+              <div class="flex items-center gap-2">
               <button
                 @click="paginaActual--"
                 :disabled="paginaActual === 1"
-                class="px-3 py-1 border rounded disabled:opacity-40"
+                  class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-[9px] font-black uppercase tracking-widest text-slate-500 transition-all hover:border-[#1e3a8a] hover:text-[#1e3a8a] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Anterior
+                  <i class="fa-solid fa-chevron-left mr-2 text-[8px]"></i>
+                  Anterior
               </button>
-
-              <span class="text-sm"> Página {{ paginaActual }} de {{ totalPaginas }} </span>
-
               <button
                 @click="paginaActual++"
                 :disabled="paginaActual === totalPaginas"
-                class="px-3 py-1 border rounded disabled:opacity-40"
+                  class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-[9px] font-black uppercase tracking-widest text-slate-500 transition-all hover:border-[#1e3a8a] hover:text-[#1e3a8a] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Siguiente
+                  <i class="fa-solid fa-chevron-right ml-2 text-[8px]"></i>
               </button>
+              </div>
+
+              <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                Página <span class="text-slate-900">{{ paginaActual }}</span> de
+                <span class="text-slate-900">{{ totalPaginas }}</span>
+              </span>
             </div>
           </div>
         </div>
@@ -1067,7 +1098,9 @@ const muestrasPaginadas = computed(() => {
   return muestras.value.slice(inicio, inicio + registrosPorPagina)
 })
 
-const totalPaginas = computed(() => Math.ceil(muestras.value.length / registrosPorPagina))
+const totalPaginas = computed(() =>
+  Math.max(1, Math.ceil(muestras.value.length / registrosPorPagina)),
+)
 
 const tieneAnalisis = computed(() => {
   return analisis.value !== null

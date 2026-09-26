@@ -51,22 +51,23 @@
         <thead class="bg-gray-50 text-gray-600 uppercase text-[10px] tracking-wider">
           <tr>
             <th class="px-4 py-3 text-left">ID</th>
+            <th class="px-4 py-3 text-left">Almacén</th>
             <th class="px-4 py-3 text-left bg-yellow-200">Tipo Lote</th>
             <th class="px-4 py-3 text-left bg-pink-200">Calidad Cochinilla</th>
             <th class="px-4 py-3 text-left bg-gray-200">Stock actual</th>
-            <th class="px-4 py-3 text-center bg-gray-200">Concentración AC Actual</th>
-            <th class="px-4 py-3 text-right bg-gray-200">Humedad % Actual</th>
+            <th class="px-4 py-3 text-center bg-gray-200">Concentración AC (%)</th>
+            <th class="px-4 py-3 text-right bg-gray-200">Humedad (%)</th>
             <th class="px-4 py-3 text-left bg-gray-200">Estado Lote</th>
-            <th class="px-4 py-3 text-left bg-gray-200">Costo x Punto AC (Dolares)</th>
+            <th class="px-4 py-3 text-left bg-gray-200">Costo unitario (USD/PTS AC)</th>
             <th class="px-4 py-3 text-left bg-gray-200">Costo Unitario</th>
 
             <th class="px-4 py-3 text-right bg-gray-200">Stock inicial</th>
             <th class="px-4 py-3 text-center bg-yellow-200">Costo Total Actual</th>
             <th class="px-4 py-3 text-center bg-black-200">Proveedor nombre</th>
-            <th class="px-4 py-3 text-center bg-green-200">Almacen nombre</th>
             <th class="px-4 py-3 text-center bg-black-10">Acciones</th>
           </tr>
         </thead>
+        
 
         <!-- BODY -->
         <tbody>
@@ -99,6 +100,15 @@
             <td class="px-4 py-2 text-xs">
               <div class="font-medium text-gray-900">{{ item.lote_cochinilla_id }}</div>
               <!--div class="text-xs text-gray-500">{{ item.hora }}</div-->
+            </td>
+
+            <!-- Almacén -->
+            <td class="px-4 py-3 text-right">
+              <div
+                class="flex justify-start items-center gap-2 bg-purple-300 rounded-lg text-purple-600 px-2 py-1"
+              >
+                <span class="text-xs">{{ item.almacen_nombre || '-' }}</span>
+              </div>
             </td>
 
             <!-- Tipo lote -->
@@ -225,10 +235,6 @@
               {{ item.proveedor_nombre }}
             </td>
 
-            <!-- Costo Total Actual -->
-            <td class="px-4 py-3 text-right font-bold text-xs text-gray-900">
-              {{ item.almacen_nombre || '-' }}
-            </td>
             <!-- Usuario 
             <td class="px-4 py-3">
               <div class="flex items-center gap-2">
@@ -387,147 +393,127 @@
   <!-- SHOW DIALOG DE CREACIÓN DE COCHINILLA X COMPRA-->
   <div
     v-if="showCreateCochinillaModal"
-    class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 bg-gray-800/30"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-[2px]"
   >
-    <div class="bg-red-100 p-6 rounded-xl w-[650px] shadow-lg max-h-[90vh] overflow-y-auto">
-      <h2 class="text-xl font-bold mb-6">Nuevo lote cochinilla x compra</h2>
+    <div class="flex max-h-[92vh] w-full max-w-[720px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl">
+      <div class="border-b border-slate-100 bg-slate-50 px-6 py-5 sm:px-8">
+        <h2 class="text-2xl font-black text-[#1e3a8a]">Nuevo lote de cochinilla</h2>
+        <p class="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          Registra una compra y su ingreso inicial al inventario
+        </p>
+      </div>
 
-      <div class="flex flex-col gap-6">
-        <!-- 🔹 BLOQUE 1 -->
-        <div>
-          <h3 class="text-sm font-bold text-black-500 mb-3">
+      <div class="space-y-8 overflow-y-auto p-6 sm:p-8">
+        <section class="space-y-4">
+          <h3 class="flex items-center text-xs font-black uppercase tracking-widest text-slate-800">
+            <i class="fa-solid fa-circle-info mr-2 text-blue-500"></i>
             Información básica
-            
           </h3>
-          <div class="grid grid-cols-2 gap-4">
-            <!-- FECHA -->
-            <div class="flex flex-col">
-              <label class="text-sm text-gray-600 mb-1">Fecha de creación</label>
-              <input v-model="createLoteCochinillaForm.fecha_creacion" type="date" class="input" />
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="space-y-1.5">
+              <label class="corporate-label">Fecha de creación</label>
+              <input v-model="createLoteCochinillaForm.fecha_creacion" type="date" class="corporate-field" />
             </div>
-            <!-- CALIDAD -->
-            <div class="flex flex-col">
-              <div><br></br></div>
-              <input
-                v-model="createLoteCochinillaForm.calidad_cochinilla"
-                type="text"
-                class="input"
-                placeholder="Calidad: e.g. 'Primera', 'Segunda', 'Tercera'"
-              />
+            <div class="space-y-1.5">
+              <label class="corporate-label">Tipo de cochinilla</label>
+              <select v-model="createLoteCochinillaForm.tipo_cochinilla_id" class="corporate-field cursor-pointer" required>
+                <option disabled value="">Seleccione un tipo</option>
+                <option
+                  v-for="tipo in tiposCochinilla"
+                  :key="tipo.tipo_cochinilla_id"
+                  :value="tipo.tipo_cochinilla_id"
+                >
+                  {{ tipo.nombre }}
+                </option>
+              </select>
             </div>
           </div>
-        </div>
+        </section>
 
-        <!-- 🔹 BLOQUE 2 -->
-        <div>
-          <h3 class="text-sm font-bold text-black-500 mb-3">
-            Ubicación y proveedor
-            <span class="italic font-bold text-blue-600 text-xs">
-              (si no encuentras el proveedor, puedes registrarlo aquí)
-            </span>
-          </h3>
-
-          <!-- GRID SOLO PARA SELECTS -->
-          <div class="grid grid-cols-2 gap-4">
-            <select v-model="createLoteCochinillaForm.almacen_id" class="input">
-              <option disabled value="">Almacén</option>
-              <option
-                v-for="almacen in almacenes"
-                :key="almacen.almacen_id"
-                :value="almacen.almacen_id"
-              >
-                {{ almacen.nombre }}
-              </option>
-            </select>
-
-            <select v-model="createLoteCochinillaForm.proveedor_id" class="input">
-              <option disabled value="">Proveedor</option>
-              <option
-                v-for="proveedor in proveedores"
-                :key="proveedor.proveedor_id"
-                :value="proveedor.proveedor_id"
-              >
-                {{ proveedor.nombre_razon_social }}
-              </option>
-            </select>
-          </div>
-
-          <!-- BOTÓN FUERA DEL GRID -->
-          <div class="mt-3 flex justify-start">
+        <section class="space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h3 class="flex items-center text-xs font-black uppercase tracking-widest text-slate-800">
+              <i class="fa-solid fa-location-dot mr-2 text-red-500"></i>
+              Ubicación y proveedor
+            </h3>
             <button
               type="button"
-              @click="showProveedorForm = true"
-              class="px-4 py-1 bg-blue-800 text-white rounded-lg text-sm font-semibold hover:bg-gray-700 flex items-center gap-2"
+              @click="showProveedorForm = !showProveedorForm"
+              class="text-[9px] font-black uppercase tracking-widest text-red-600 transition-colors hover:text-red-800"
             >
-              <i class="fa-solid fa-plus"></i>
-              Crear proveedor
+              <i class="fa-solid fa-circle-plus mr-1"></i>
+              {{ showProveedorForm ? 'Cerrar registro' : 'Crear proveedor' }}
             </button>
           </div>
 
-          <!-- FORMULARIO INLINE FUERA DEL GRID -->
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="space-y-1.5">
+              <label class="corporate-label">Almacén de destino</label>
+              <select v-model="createLoteCochinillaForm.almacen_id" class="corporate-field cursor-pointer focus:border-red-400 focus:ring-red-50">
+                <option disabled value="">Seleccionar...</option>
+                <option v-for="almacen in almacenes" :key="almacen.almacen_id" :value="almacen.almacen_id">{{ almacen.nombre }}</option>
+              </select>
+            </div>
+            <div class="space-y-1.5">
+              <label class="corporate-label">Proveedor</label>
+              <select v-model="createLoteCochinillaForm.proveedor_id" class="corporate-field cursor-pointer focus:border-red-400 focus:ring-red-50">
+                <option disabled value="">Seleccionar...</option>
+                <option v-for="proveedor in proveedores" :key="proveedor.proveedor_id" :value="proveedor.proveedor_id">{{ proveedor.nombre_razon_social }}</option>
+              </select>
+            </div>
+          </div>
+
           <CrearProveedor
             v-if="showProveedorForm"
             v-model="showProveedorForm"
             @created="handleProveedorCreado"
           />
-        </div>
+        </section>
 
-        <!-- DATOS TÉCNICOS BLOQUE 3 -->
-        <div>
-          <h3 class="text-sm font-bold text-gray-500 mb-3">Datos técnicos</h3>
-
-          <div class="grid grid-cols-3 gap-4">
-            <div class="flex flex-col">
-              <label class="text-sm text-gray-600 mb-1">Stock inicial</label>
+        <section class="space-y-4 border-t border-slate-100 pt-6">
+          <h3 class="flex items-center text-xs font-black uppercase tracking-widest text-slate-800">
+            <i class="fa-solid fa-microscope mr-2 text-emerald-500"></i>
+            Datos técnicos
+          </h3>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="space-y-1.5">
+              <label class="corporate-label uppercase tracking-widest">Stock inicial</label>
               <input
                 v-model="createLoteCochinillaForm.stock_inicial"
                 type="number"
-                class="input"
-                placeholder="Ej: 100.50"
+                class="corporate-field font-bold focus:border-emerald-400 focus:ring-emerald-50"
+                placeholder="0.00"
               />
             </div>
-
-            <div class="flex flex-col">
-              <label class="text-sm text-gray-600 mb-1">Costo total inicial</label>
+            <div class="space-y-1.5">
+              <label class="corporate-label uppercase tracking-widest">Costo total inicial</label>
               <input
                 v-model="createLoteCochinillaForm.costo_total_inicial"
                 type="number"
-                class="input"
-                placeholder="Ej: 2500.75"
+                class="corporate-field font-bold focus:border-emerald-400 focus:ring-emerald-50"
+                placeholder="0.00"
               />
             </div>
-            
-             <div class="flex flex-col">
-              <label class="text-sm text-gray-600 mb-1">Observaciones</label>
+            <div class="space-y-1.5 sm:col-span-2">
+              <label class="corporate-label uppercase tracking-widest">Observaciones</label>
               <input
                 v-model="createLoteCochinillaForm.observaciones"
                 type="text"
-                class="input"
-                placeholder="Ej: Lote comprado a proveedor X, calidad Y'"
-              />  
-              </div>
+                class="corporate-field focus:border-emerald-400 focus:ring-emerald-50"
+                placeholder="Detalles adicionales del lote"
+              />
+            </div>
+          </div>
+        </section>
+      </div>
 
-          </div>  
-        </div>
-
-        <!-- 🔘 BOTONES -->
-        <div class="flex justify-end gap-3">
-          <button
-            type="button"
-            @click="showCreateCochinillaModal = false"
-            class="btn-cancel border border-gray-300 rounded text-sm px-4 py-2 bg-white hover:bg-gray-100"
-          >
-            Cancelar
-          </button>
-
-          <button
-            type="button"
-            @click="crearLoteCochinilla"
-            class="btn-save bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
-          >
-            Crear nuevo lote de cochinilla
-          </button>
-        </div>
+      <div class="flex items-center justify-end gap-4 border-t border-slate-100 bg-slate-50 px-6 py-5 sm:px-8">
+        <button type="button" @click="showCreateCochinillaModal = false" class="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 transition-colors hover:text-slate-600">
+          Cancelar
+        </button>
+        <button type="button" @click="crearLoteCochinilla" class="rounded-lg bg-[#1e3a8a] px-7 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-100 transition-all hover:bg-blue-900 active:scale-95">
+          Crear nuevo lote
+        </button>
       </div>
     </div>
   </div>
@@ -658,6 +644,7 @@ const cochinilla = ref([])
 
 const almacenes = ref([])
 const proveedores = ref([])
+const tiposCochinilla = ref([])
 const loading = ref(false)
 const showDeleteModal = ref(false)
 const selectedItem = ref(null)
@@ -682,7 +669,7 @@ const createLoteCochinillaForm = ref({
   proveedor_id: '',
   creado_por: 1,
   fecha_creacion: '',
-  calidad_cochinilla: '',
+  tipo_cochinilla_id: '',
   stock_inicial: 0.0,
   costo_total_inicial: 0.0,
   observaciones: 'N/A',
@@ -724,7 +711,7 @@ const crearLoteCochinilla = async () => {
       proveedor_id: parseInt(createLoteCochinillaForm.value.proveedor_id),
       creado_por: createLoteCochinillaForm.value.creado_por,
       fecha_creacion: createLoteCochinillaForm.value.fecha_creacion,
-      calidad_cochinilla: createLoteCochinillaForm.value.calidad_cochinilla,
+      tipo_cochinilla_id: parseInt(createLoteCochinillaForm.value.tipo_cochinilla_id),
       stock_inicial: createLoteCochinillaForm.value.stock_inicial,
       costo_total_inicial: createLoteCochinillaForm.value.costo_total_inicial,
       observaciones: createLoteCochinillaForm.value.observaciones,
@@ -944,12 +931,27 @@ const getProveedores = async () => {
     console.error('Error fetching proveedores:', error)
   }
 }
+
+const getTiposCochinilla = async () => {
+  try {
+    const baseURL = import.meta.env.VITE_API_URL
+    const response = await axios.get(`${baseURL}/tipos-cochinilla`, {
+      params: { activo: true },
+    })
+    tiposCochinilla.value = Array.isArray(response.data) ? response.data : []
+  } catch (error) {
+    console.error('Error fetching tipos de cochinilla:', error)
+    tiposCochinilla.value = []
+  }
+}
 const handleProveedorCreado = async (nuevoProveedor) => {
   await getProveedores()
 }
 
 onMounted(() => {
-  ;(getAlmacenes(), getProveedores())
+  getAlmacenes()
+  getProveedores()
+  getTiposCochinilla()
 })
 /// WATCHER PARA RECARGAR DATOS CUANDO CAMBIA EL INVENTARIO
 watch(
@@ -964,6 +966,14 @@ watch(
 </script>
 
 <style scoped>
+.corporate-label {
+  @apply ml-1 block text-[10px] font-bold text-slate-500;
+}
+
+.corporate-field {
+  @apply w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-medium text-slate-700 outline-none transition-all focus:border-blue-400 focus:ring-4 focus:ring-blue-50;
+}
+
 .filter-label {
   @apply block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1;
 }
