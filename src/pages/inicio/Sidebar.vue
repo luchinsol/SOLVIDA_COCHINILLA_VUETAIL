@@ -92,15 +92,47 @@
         </div>
       </div>
 
-      <router-link
+      <div
         v-if="hasModulo('Laboratorio')"
-        to="/panel/analisis"
-        class="nav-item"
-        active-class="nav-item-active"
+        class="rounded-lg p-1"
+        :class="{ 'bg-slate-50': esRutaLaboratorio }"
       >
-        <i class="fa-solid fa-flask-vial w-5"></i>
-        <span>Análisis de laboratorio</span>
-      </router-link>
+        <button
+          type="button"
+          class="nav-item w-full"
+          :class="{ 'nav-item-active': esRutaLaboratorio }"
+          :aria-expanded="laboratorioAbierto"
+          @click="toggleLaboratorio"
+        >
+          <i class="fa-solid fa-flask-vial w-5"></i>
+          <span>Laboratorio</span>
+          <i
+            class="fa-solid fa-chevron-down ml-auto text-xs transition-transform"
+            :class="{ 'rotate-180': laboratorioAbierto }"
+          ></i>
+        </button>
+
+        <div v-show="laboratorioAbierto" class="relative ml-5 pl-7 pb-2 space-y-1">
+          <span class="absolute left-2 top-0 bottom-2 w-px bg-slate-200"></span>
+          <router-link
+            :to="{ name: 'analisis' }"
+            class="subnav-item"
+            :class="{ 'subnav-item-active': route.name === 'analisis' }"
+          >
+            <span class="subnav-dot"></span>
+            <span>Análisis de laboratorio</span>
+          </router-link>
+
+          <router-link
+            :to="{ name: 'recepcion-muestras' }"
+            class="subnav-item"
+            :class="{ 'subnav-item-active': route.name === 'recepcion-muestras' }"
+          >
+            <span class="subnav-dot"></span>
+            <span>Recepción de muestras</span>
+          </router-link>
+        </div>
+      </div>
 
       <router-link
         v-if="hasModulo('Seguridad')"
@@ -147,7 +179,7 @@
   </div>
 </template>
 <script setup>
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -157,6 +189,9 @@ const modulosAcceso = JSON.parse(localStorage.getItem('modulos_acceso') || '[]')
 const permisos = JSON.parse(localStorage.getItem('permisos') || '[]')
 const canViewKardex = permisos.includes('movimiento_almacen.ver')
 const inventarioAbierto = ref(route.name === 'inventario')
+const rutasLaboratorio = ['analisis', 'recepcion-muestras']
+const esRutaLaboratorio = computed(() => rutasLaboratorio.includes(route.name))
+const laboratorioAbierto = ref(esRutaLaboratorio.value)
 
 const normalizeModulo = (value) =>
   String(value || '')
@@ -175,6 +210,18 @@ const toggleInventario = async () => {
     await router.push({ name: 'inventario', query: { vista: 'inventario' } })
   }
 }
+
+const toggleLaboratorio = async () => {
+  laboratorioAbierto.value = !laboratorioAbierto.value
+
+  if (laboratorioAbierto.value && !esRutaLaboratorio.value) {
+    await router.push({ name: 'analisis' })
+  }
+}
+
+watch(esRutaLaboratorio, (estaEnLaboratorio) => {
+  if (estaEnLaboratorio) laboratorioAbierto.value = true
+})
 
 const salir = async () => {
   loading.value = true
