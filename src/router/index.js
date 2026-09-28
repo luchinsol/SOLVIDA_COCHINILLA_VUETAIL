@@ -10,6 +10,7 @@ import Step3View from '@/pages/procesos/proceso3/Step3View.vue'
 import LoginView from '@/pages/login/LoginView.vue'
 import MainLayout from '@/pages/main/MainLayout.vue'
 import LabVue from '@/pages/analisis/lab/LabVue.vue'
+import RecepcionMuestrasView from '@/pages/analisis/recepcion/RecepcionMuestrasView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -52,6 +53,12 @@ const router = createRouter({
           name: 'analisis',
           component: LabVue,
           // component: QcLabView,
+          meta: { modulo: 'Laboratorio' },
+        },
+        {
+          path: 'recepcion-muestras',
+          name: 'recepcion-muestras',
+          component: RecepcionMuestrasView,
           meta: { modulo: 'Laboratorio' },
         },
         {

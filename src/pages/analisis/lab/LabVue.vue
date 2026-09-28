@@ -1,5 +1,20 @@
 <template>
-  <div class="bg-white text-black min-h-screen">
+  <div
+    class="bg-white text-black min-h-screen"
+    :class="{ 'select-none': procesandoAnalisis }"
+  >
+    <div
+      v-if="procesandoAnalisis"
+      class="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-4 bg-slate-900/55 backdrop-blur-sm"
+      role="status"
+      aria-live="polite"
+      :aria-label="mensajeProcesamiento"
+    >
+      <span class="h-12 w-12 animate-spin rounded-full border-4 border-white/30 border-t-white"></span>
+      <p class="text-xs font-black uppercase tracking-widest text-white">
+        {{ mensajeProcesamiento }}
+      </p>
+    </div>
     <!-- KPIs -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
       <div class="card p-5">
@@ -56,7 +71,7 @@
             <div>
               <h3 class="text-lg font-black tracking-normal text-slate-900">Cola de Trabajo</h3>
               <p class="mt-1 text-[9px] font-bold uppercase italic tracking-widest text-slate-400">
-                Clic en un lote para analizar
+                Clic en una muestra para analizar
               </p>
             </div>
             <div class="relative">
@@ -82,13 +97,13 @@
               <thead class="bg-slate-50/60">
                 <tr>
                   <th class="border-b border-slate-100 px-5 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">
-                    Código Item
+                    Código
                   </th>
                   <th class="border-b border-slate-100 px-5 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">
-                    Lote
+                    Muestra / lote
                   </th>
                   <th class="border-b border-slate-100 px-5 py-4 text-center text-[9px] font-black uppercase tracking-widest text-slate-400">
-                    Estado lote
+                    Estado
                   </th>
                   <th class="border-b border-slate-100 px-5 py-4 text-right text-[9px] font-black uppercase tracking-widest text-slate-400">
                     Fecha
@@ -102,13 +117,13 @@
                   <td colspan="5" class="px-6 py-14 text-center">
                     <i class="fa-solid fa-flask-vial mb-3 block text-2xl text-slate-200"></i>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                      No hay lotes en este estado
+                      No hay muestras en este estado
                     </span>
                   </td>
                 </tr>
                 <tr
                   v-for="item in muestrasPaginadas"
-                  :key="item.codigo_item"
+                  :key="`${item.origen}-${item.codigo_item}`"
                   class="sample-row group cursor-pointer transition-colors hover:bg-slate-50"
                   @click="getLoteAnalisisoSolicitud(item.item_inventario_id, item)"
                 >
@@ -145,8 +160,8 @@
                       type="button"
                       @click.stop="getLoteAnalisisoSolicitud(item.item_inventario_id, item)"
                       class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-400 transition-all group-hover:bg-[#1e3a8a] group-hover:text-white"
-                      title="Abrir lote"
-                      aria-label="Abrir lote"
+                      title="Abrir muestra"
+                      aria-label="Abrir muestra"
                     >
                       <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </button>
@@ -280,22 +295,27 @@
                     Cerrada
                   </span>
 
-                  <!-- Botones -->
-                  <!-- Botones -->
-                  <div class="flex items-center gap-2">
+                  <div v-if="canApproveNC" class="flex items-center gap-2">
                     <button
-                      @click="aprobarNC(item.analisis_id)"
+                      :disabled="procesandoAnalisis"
+                      @click="!procesandoAnalisis && aprobarNC(item.analisis_id)"
                       class="flex items-center gap-1 text-xs font-medium text-green-600 border border-green-300 bg-green-50 hover:bg-green-100 px-2 py-0.5 rounded-full transition-colors"
+                      :class="procesandoAnalisis ? 'cursor-not-allowed opacity-60' : ''"
                     >
                       <i class="fa-solid fa-check text-[10px]"></i> Aprobar
                     </button>
                     <button
-                      @click="rechazarNC(item.analisis_id)"
+                      :disabled="procesandoAnalisis"
+                      @click="!procesandoAnalisis && rechazarNC(item.analisis_id)"
                       class="flex items-center gap-1 text-xs font-medium text-red-600 border border-red-300 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors"
+                      :class="procesandoAnalisis ? 'cursor-not-allowed opacity-60' : ''"
                     >
                       <i class="fa-solid fa-xmark text-[10px]"></i> Rechazar
                     </button>
                   </div>
+                  <span v-else class="text-[10px] font-bold uppercase text-slate-400">
+                    Pendiente de revisión
+                  </span>
                 </div>
               </div>
             </template>
@@ -317,14 +337,14 @@
           <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-5">
             <i class="fa-solid fa-flask-vial text-green-600 text-3xl"></i>
           </div>
-          <h4 class="font-bold text-text-main text-lg mb-2">Ningún lote seleccionado</h4>
+          <h4 class="font-bold text-text-main text-lg mb-2">Ninguna muestra seleccionada</h4>
           <p class="text-sm text-text-muted max-w-xs leading-relaxed">
-            Selecciona un lote de la tabla izquierda para iniciar la captura de datos técnicos del
+            Selecciona una muestra de la tabla izquierda para iniciar la captura de datos técnicos del
             análisis químico.
           </p>
           <div class="mt-6 flex items-center gap-2 text-xs text-green-400 font-medium">
             <i class="fa-solid fa-arrow-left"></i>
-            <span>Haz clic en "→" junto a cualquier lote</span>
+            <span>Haz clic en "→" junto a cualquier muestra</span>
           </div>
         </div>
 
@@ -335,7 +355,7 @@
             <div class="flex items-center justify-between flex-wrap gap-4">
               <div>
                 <div class="flex items-center gap-2 mb-2">
-                  <span class="text-xs uppercase text-gray-500 font-bold"> Lote seleccionado </span>
+                  <span class="text-xs uppercase text-gray-500 font-bold"> Muestra seleccionada </span>
 
                   <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold">
                     {{ analisis?.data.codigo_item }}
@@ -375,6 +395,9 @@
                 <p class="text-gray-500 text-sm">Tipo de muestra</p>
                 <p class="font-bold">
                   {{ analisis?.data['Tipo de muestra'] }}
+                </p>
+                <p v-if="analisis?.data.codigo_recibo" class="mt-1 text-xs font-bold text-blue-600">
+                  {{ analisis.data.codigo_recibo }}
                 </p>
               </div>
             </div>
@@ -433,12 +456,12 @@
                 @click="limpiarSeleccion"
                 class="text-xs text-red-600 hover:underline font-bold"
               >
-                ← Cambiar lote
+                ← Cambiar muestra
               </button>
               <div>
                 <div class="flex items-center gap-2 mb-1">
                   <span class="text-xs text-text-muted uppercase tracking-wider font-semibold"
-                    >Lote activo</span
+                    >Muestra activa</span
                   >
 
                   <span class="bg-blue-100 text-blue-700 px-2 rounded">
@@ -599,9 +622,14 @@
 
                 <input
                   type="number"
-                  v-model="form.acido_carminico.resultado"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  :value="resultadoAcidoFormateado"
+                  step="0.0001"
+                  readonly
+                  class="w-full cursor-default border border-gray-300 rounded-lg px-3 py-2 bg-slate-100 font-semibold text-slate-700 outline-none"
                 />
+                <p class="mt-1 text-[10px] text-slate-400">
+                  Calculado automáticamente con peso y absorbancia.
+                </p>
               </div>
             </div>
           </div>
@@ -617,34 +645,46 @@
             <textarea v-model="form.observaciones"></textarea>
           </div>
 
-          <!-- Decisión de Lote -->
+          <!-- Acciones del análisis -->
           <div id="decision-card" class="card p-5">
             <h4
               class="font-bold text-sm text-blue-600 mb-4 flex items-center gap-2 pb-3 border-b border-gray-200"
             >
               <i class="fa-solid fa-gavel text-xs"></i>
-              Decisión de Lote
+              Acciones del análisis
             </h4>
             <!--BOTONES DE DECISIÓN-->
             <div class="flex gap-3 mb-4">
               <label class="flex-1 cursor-pointer">
                 <div
-                  @click="guardarCambios"
+                  @click="!procesandoAnalisis && guardarCambios()"
                   class="peer-checked:border-green-500 peer-checked:bg-green-50 border-2 border-gray-200 rounded-lg p-3 text-center transition"
+                  :class="procesandoAnalisis ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-green-300'"
                 >
-                  <i class="fa-solid fa-floppy-disk text-green-500 text-lg mb-1"></i>
-                  <p class="text-xs font-bold text-green-700">Guardar cambios</p>
+                  <i
+                    :class="guardandoCambios ? 'fa-solid fa-spinner animate-spin' : 'fa-solid fa-floppy-disk'"
+                    class="text-green-500 text-lg mb-1"
+                  ></i>
+                  <p class="text-xs font-bold text-green-700">
+                    {{ guardandoCambios ? 'Guardando...' : 'Guardar cambios' }}
+                  </p>
                 </div>
               </label>
               <label class="flex-1 cursor-pointer">
                 <input type="radio" name="decision" value="rechazar" class="hidden peer" />
                 <label class="flex-1 cursor-pointer">
                   <div
-                    @click="terminarAnalisis"
+                    @click="!procesandoAnalisis && terminarAnalisis()"
                     class="peer-checked:border-blue-500 peer-checked:bg-blue-50 border-2 border-gray-200 rounded-lg p-3 text-center transition"
+                    :class="procesandoAnalisis ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-blue-300'"
                   >
-                    <i class="fa-solid fa-floppy-disk text-blue-500 text-lg mb-1"></i>
-                    <p class="text-xs font-bold text-blue-700">Terminar análisis</p>
+                    <i
+                      :class="finalizandoAnalisis ? 'fa-solid fa-spinner animate-spin' : 'fa-solid fa-floppy-disk'"
+                      class="text-blue-500 text-lg mb-1"
+                    ></i>
+                    <p class="text-xs font-bold text-blue-700">
+                      {{ finalizandoAnalisis ? 'Finalizando...' : 'Terminar análisis' }}
+                    </p>
                   </div>
                 </label>
               </label>
@@ -653,13 +693,72 @@
         </div>
       </div>
     </div>
+
+    <div
+      v-if="showResultModal"
+      class="fixed inset-0 z-[210] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-[2px]"
+    >
+      <div class="flex w-full max-w-sm flex-col items-center space-y-6 rounded-lg border border-slate-100 bg-white p-8 text-center shadow-2xl sm:p-10">
+        <div
+          class="flex h-24 w-24 items-center justify-center rounded-full"
+          :class="{
+            'bg-emerald-50 text-emerald-500': resultType === 'success',
+            'bg-amber-50 text-amber-500': resultType === 'warning',
+            'bg-red-50 text-red-500': resultType === 'error',
+          }"
+        >
+          <i
+            class="fa-solid text-5xl"
+            :class="{
+              'fa-circle-check': resultType === 'success',
+              'fa-triangle-exclamation': resultType === 'warning',
+              'fa-circle-exclamation': resultType === 'error',
+            }"
+          ></i>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-black text-slate-900">
+            {{ resultTitle || (resultType === 'success' ? '¡Análisis registrado!' : resultType === 'warning' ? 'Requiere revisión' : 'No se pudo completar') }}
+          </h2>
+          <p class="mt-2 text-sm font-medium leading-relaxed text-slate-500">
+            {{ resultMessage }}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="w-full rounded-lg bg-slate-900 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-slate-200 transition-all hover:bg-slate-800 active:scale-95"
+          @click="showResultModal = false"
+        >
+          {{ resultType === 'success' ? 'Continuar trabajando' : 'Aceptar' }}
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, reactive } from 'vue'
 import axios from 'axios'
+const permisos = JSON.parse(localStorage.getItem('permisos') || '[]')
+const canApproveNC = permisos.includes('analisis.editar.aprobar')
 const loteSeleccionado = ref(false)
+const guardandoCambios = ref(false)
+const finalizandoAnalisis = ref(false)
+const procesandoNoConformidad = ref(null)
+const showResultModal = ref(false)
+const resultType = ref('success')
+const resultMessage = ref('')
+const resultTitle = ref('')
+const procesandoAnalisis = computed(() =>
+  guardandoCambios.value || finalizandoAnalisis.value || Boolean(procesandoNoConformidad.value),
+)
+const mensajeProcesamiento = computed(() => {
+  if (procesandoNoConformidad.value === 'aprobar') return 'Aprobando no conformidad...'
+  if (procesandoNoConformidad.value === 'rechazar') return 'Rechazando no conformidad...'
+  return finalizandoAnalisis.value ? 'Finalizando análisis...' : 'Guardando cambios...'
+})
 const kpis = ref({
   pendientes: 0,
   enAnalisis: 0,
@@ -735,9 +834,14 @@ const iniciarAnalisis = async () => {
   const idUsuario = usuario?.id
   const formData = {
     usuario_id: idUsuario,
-    item_inventario_id: itemSeleccionado.value.item_inventario_id,
     solicitud_id: analisis.value.data.solicitud_id,
     observaciones: 'Analisis iniciado',
+  }
+
+  if (itemSeleccionado.value.muestra_id) {
+    formData.muestra_id = itemSeleccionado.value.muestra_id
+  } else {
+    formData.item_inventario_id = itemSeleccionado.value.item_inventario_id
   }
   try {
     console.log('ID DE USUARIO', idUsuario)
@@ -750,6 +854,7 @@ const iniciarAnalisis = async () => {
       },
     })
     console.log('Análisis iniciado:', response.data)
+    await Promise.all([recargarAnalisis(), obtenerMuestras(), cargarResumenKPIs()])
   } catch (error) {
     console.error('Error al iniciar análisis:', error)
   }
@@ -791,9 +896,9 @@ const recargarAnalisis = async () => {
   const baseUrl = import.meta.env.VITE_API_URL
 
   const { data } = await axios.get(`${baseUrl}/laboratorio/analisis-o-solicitud`, {
-    params: {
-      item_inventario_id: itemSeleccionado.value.item_inventario_id,
-    },
+    params: itemSeleccionado.value.solicitud_id
+      ? { solicitud_id: itemSeleccionado.value.solicitud_id }
+      : { item_inventario_id: itemSeleccionado.value.item_inventario_id },
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,
     },
@@ -872,6 +977,10 @@ const tipoVista = computed(() => {
 })
 // TERMINAR ANÁLISIS
 const terminarAnalisis = async () => {
+  if (procesandoAnalisis.value) return
+  finalizandoAnalisis.value = true
+  resultTitle.value = ''
+
   try {
     const baseUrl = import.meta.env.VITE_API_URL
     const token = localStorage.getItem('token')
@@ -903,7 +1012,7 @@ const terminarAnalisis = async () => {
 
           absorbancia_nm: Number(form.acido_carminico.absorbancia_nm),
 
-          resultado: Number(form.acido_carminico.resultado),
+          resultado: resultadoAcidoCalculado.value,
         },
       })
     }
@@ -947,16 +1056,36 @@ const terminarAnalisis = async () => {
       },
     )
 
-    console.log(response.data)
+    const estadoFinal = Number(response.data.estado_analisis_id)
 
-    alert('Análisis terminado correctamente')
+    await Promise.all([obtenerMuestras(), cargarResumenKPIs(), fetchNoConformes()])
+
+    if (estadoFinal === 2) {
+      limpiarSeleccion()
+      resultType.value = 'success'
+      resultMessage.value = 'El análisis se registró correctamente y la muestra salió de la cola de trabajo.'
+    } else {
+      limpiarSeleccion()
+      resultType.value = 'warning'
+      resultMessage.value = 'El análisis se registró con no conformidades. La muestra salió de la cola de trabajo y pasó a la cola de revisión.'
+    }
+
+    showResultModal.value = true
   } catch (error) {
     console.error(error)
+    resultType.value = 'error'
+    resultMessage.value = error.response?.data?.error || 'No fue posible terminar el análisis.'
+    showResultModal.value = true
+  } finally {
+    finalizandoAnalisis.value = false
   }
 }
 
 // GUARDAR CAMBIOS
 const guardarCambios = async () => {
+  if (guardandoCambios.value) return
+  guardandoCambios.value = true
+
   try {
     const baseUrl = import.meta.env.VITE_API_URL
     const token = localStorage.getItem('token')
@@ -988,7 +1117,7 @@ const guardarCambios = async () => {
 
           absorbancia_nm: Number(form.acido_carminico.absorbancia_nm),
 
-          resultado: Number(form.acido_carminico.resultado),
+          resultado: resultadoAcidoCalculado.value,
         },
       })
     }
@@ -1037,12 +1166,14 @@ const guardarCambios = async () => {
     alert('Cambios guardados correctamente')
   } catch (error) {
     console.error(error)
+  } finally {
+    guardandoCambios.value = false
   }
 }
 
 // GET ANALISIS O SOLICITUD
 const getLoteAnalisisoSolicitud = async (id, item) => {
-  console.log('Obteniendo análisis para item_inventario_id:', id)
+  console.log('Obteniendo análisis para la muestra:', item.codigo_item)
   console.log('Item seleccionado:', item)
 
   loading.value = true
@@ -1054,7 +1185,9 @@ const getLoteAnalisisoSolicitud = async (id, item) => {
     const baseUrl = import.meta.env.VITE_API_URL
 
     const { data } = await axios.get(`${baseUrl}/laboratorio/analisis-o-solicitud`, {
-      params: { item_inventario_id: id },
+      params: item.solicitud_id
+        ? { solicitud_id: item.solicitud_id }
+        : { item_inventario_id: id },
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
@@ -1124,8 +1257,9 @@ const fetchNoConformes = async () => {
   loadingNC.value = true
   errorNC.value = null
   try {
+    const baseUrl = import.meta.env.VITE_API_URL
     const token = localStorage.getItem('token')
-    const res = await fetch('http://147.182.251.164:3000/api/laboratorio/no-conformes', {
+    const res = await fetch(`${baseUrl}/laboratorio/no-conformes`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -1162,6 +1296,9 @@ const descripcionEnsayo = (ensayo) => {
 }
 
 const aprobarNC = async (analisis_id) => {
+  if (procesandoAnalisis.value || !canApproveNC) return
+  procesandoNoConformidad.value = 'aprobar'
+
   try {
     const baseUrl = import.meta.env.VITE_API_URL
     const token = localStorage.getItem('token')
@@ -1175,16 +1312,27 @@ const aprobarNC = async (analisis_id) => {
         },
       },
     )
-    console.log('Respuesta aprobación NC:', res)
     if (res.status !== 200) throw new Error(`Error ${res.status}`)
-    await fetchNoConformes()
+    await Promise.all([fetchNoConformes(), obtenerMuestras(), cargarResumenKPIs()])
+    resultType.value = 'success'
+    resultTitle.value = 'No conformidad aprobada'
+    resultMessage.value = 'La no conformidad se aprobó correctamente y la muestra pasó a retención.'
+    showResultModal.value = true
   } catch (e) {
     console.error('Error al aprobar NC:', e)
+    resultType.value = 'error'
+    resultTitle.value = 'No se pudo aprobar'
+    resultMessage.value = e.response?.data?.error || 'No fue posible aprobar la no conformidad.'
+    showResultModal.value = true
+  } finally {
+    procesandoNoConformidad.value = null
   }
 }
 
 const rechazarNC = async (analisis_id) => {
-  console.log('Rechazar:', analisis_id)
+  if (procesandoAnalisis.value || !canApproveNC) return
+  procesandoNoConformidad.value = 'rechazar'
+
   try {
     const baseUrl = import.meta.env.VITE_API_URL
     const token = localStorage.getItem('token')
@@ -1200,14 +1348,21 @@ const rechazarNC = async (analisis_id) => {
         },
       },
     )
-    console.log('Respuesta rechazo NC:', res)
     if (res.status !== 200) throw new Error(`Error ${res.status}`)
-    // Refrescar lista de no conformidades
-    await fetchNoConformes()
+    await Promise.all([fetchNoConformes(), obtenerMuestras(), cargarResumenKPIs()])
+    resultType.value = 'success'
+    resultTitle.value = 'Reanálisis solicitado'
+    resultMessage.value = 'La no conformidad se rechazó y la muestra volvió a la cola de trabajo para su reanálisis.'
+    showResultModal.value = true
   } catch (e) {
     console.error('Error al rechazar NC:', e)
+    resultType.value = 'error'
+    resultTitle.value = 'No se pudo rechazar'
+    resultMessage.value = e.response?.data?.error || 'No fue posible rechazar la no conformidad.'
+    showResultModal.value = true
+  } finally {
+    procesandoNoConformidad.value = null
   }
-  // tu lógica o llamada al endpoint aquí
 }
 
 const tieneColorCIELab = computed(() => {
@@ -1220,6 +1375,33 @@ const ensayoHumedad = computed(() =>
 
 const ensayoAcido = computed(() =>
   analisis.value?.data?.ensayos?.find((e) => e.tipo_ensayo === 'acido_carminico'),
+)
+
+const resultadoAcidoCalculado = computed(() => {
+  const pesoValor = form.acido_carminico.peso_ensayo_g
+  const absorbanciaValor = form.acido_carminico.absorbancia_nm
+
+  if (
+    pesoValor === '' || pesoValor === null || pesoValor === undefined ||
+    absorbanciaValor === '' || absorbanciaValor === null || absorbanciaValor === undefined
+  ) {
+    return null
+  }
+
+  const peso = Number(pesoValor)
+  const absorbancia = Number(absorbanciaValor)
+
+  if (!Number.isFinite(peso) || peso <= 0 || !Number.isFinite(absorbancia)) {
+    return null
+  }
+
+  return (absorbancia * 100) / (peso * 13.9)
+})
+
+const resultadoAcidoFormateado = computed(() =>
+  resultadoAcidoCalculado.value === null
+    ? ''
+    : resultadoAcidoCalculado.value.toFixed(4),
 )
 
 const ensayoColor = computed(() =>
